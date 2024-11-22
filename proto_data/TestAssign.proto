@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+// 指令：protoc --go_out=. ./proto_data/*.proto
+option go_package = "./internal/req";
+
+// 定義 TestAssign 結構
+message TestAssign {
+  // 小遊戲 id
+  int32 miniGameId = 1;
+
+  // 牌面，使用 repeated 表示數組
+  repeated int32 elementsArray = 2;
+}
