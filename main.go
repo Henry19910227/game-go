@@ -1,48 +1,31 @@
 package main
 
 import (
-	"fmt"
-	"github.com/gorilla/websocket"
-	"log"
-	"net/http"
+	"game-go/internal/controller/middleware"
+	"game-go/internal/game"
+	"game-go/internal/pkg/tool/crypto"
+	"game-go/internal/router/system"
+	"game-go/internal/router/user"
+	"strconv"
 )
 
-var upgrader = websocket.Upgrader{
-	CheckOrigin: func(r *http.Request) bool {
-		return true // 允許所有來源（僅供測試）
-	},
-}
-
 func main() {
-	// 每次訪問路徑時，都會創建一個 handler 並且不會結束(for死循環)
-	http.HandleFunc("/ws", handleWebSocket)
-
-	// 啟動伺服器
-	log.Println("WebSocket server started on ws://localhost:8080/ws")
-	log.Fatal(http.ListenAndServe(":8080", nil))
-}
-
-func handleWebSocket(w http.ResponseWriter, r *http.Request) {
-	conn, err := upgrader.Upgrade(w, r, nil)
-	if err != nil {
-		log.Println("Failed to upgrade connection:", err)
-		return
-	}
-	defer conn.Close()
-
-	for {
-		// 讀取客戶端消息(阻塞等待)
-		messageType, message, err := conn.ReadMessage()
-		if err != nil {
-			log.Println("Read error:", err)
-			break
-		}
-		// 打印 conn 地址
-		fmt.Printf("Address of conn: %p\n", &conn)
-		err = conn.WriteMessage(messageType, []byte("Echo: "+string(message)))
-		if err != nil {
-			log.Println("Write error:", err)
-			break
-		}
-	}
+	engine := game.New()
+	// 添加路由解析器邏輯
+	engine.PathResolver(func(b []byte) string {
+		tool := crypto.New()
+		mid, sid, _, _ := tool.UnMarshal(b)
+		return "/" + strconv.Itoa(int(mid)) + "/" + strconv.Itoa(int(sid))
+	})
+	// 設定Base路由組
+	baseGroup := engine.Group("/")
+	baseGroup.Use(middleware.NewController().UnMarshalData)
+	// 設定System路由組
+	systemGroup := baseGroup.Group("0/")
+	// 設定User路由組
+	userGroup := baseGroup.Group("7/")
+	// 添加路由
+	system.SetRoute(systemGroup)
+	user.SetRoute(userGroup)
+	_ = engine.Run(":8080")
 }
