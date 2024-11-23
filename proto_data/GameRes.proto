@@ -1,6 +1,6 @@
 syntax = "proto3";
 package game.mod.proc.yf.proto.res;
-option go_package = "./internal/res";
+option go_package = "./internal/model/res";
 
 // 基本信息 (MDM_USER-SUB_USER_REQ__SIT => MDM_GAME-S2C_ENTER_INFO)
 message EnterInfo {

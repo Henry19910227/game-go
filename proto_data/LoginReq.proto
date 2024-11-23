@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 // 指令：protoc --go_out=. ./proto_data/*.proto
-option go_package = "./internal/req";
+option go_package = "./internal/model/req";
 
 // 定義 LoginReq 消息
 message LoginReq {
