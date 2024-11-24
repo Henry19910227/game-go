@@ -3,14 +3,9 @@ package crypto
 import (
 	"encoding/base64"
 	"encoding/json"
+	"game-go/internal/model/message"
 	"google.golang.org/protobuf/proto"
 )
-
-type Message struct {
-	Mid     int    `json:"mid"`
-	Sid     int    `json:"sid"`
-	Payload string `json:"payload"` // base64字串
-}
 
 type tool struct {
 }
@@ -28,7 +23,7 @@ func (t *tool) Marshal(mid int, sid int, payload proto.Message) ([]byte, error) 
 	}
 
 	// 設置 payload
-	msg := Message{}
+	msg := message.Model{}
 	msg.Mid = mid
 	msg.Sid = sid
 	msg.Payload = base64.StdEncoding.EncodeToString(pbData)
@@ -43,7 +38,7 @@ func (t *tool) Marshal(mid int, sid int, payload proto.Message) ([]byte, error) 
 }
 
 func (t *tool) Mid(b []byte) (int, error) {
-	var m Message
+	var m message.Model
 	if err := json.Unmarshal(b, &m); err != nil {
 		return 0, err
 	}
@@ -51,7 +46,7 @@ func (t *tool) Mid(b []byte) (int, error) {
 }
 
 func (t *tool) Sid(b []byte) (int, error) {
-	var m Message
+	var m message.Model
 	if err := json.Unmarshal(b, &m); err != nil {
 		return 0, err
 	}
@@ -59,7 +54,7 @@ func (t *tool) Sid(b []byte) (int, error) {
 }
 
 func (t *tool) Payload(b []byte, out proto.Message) error {
-	var m Message
+	var m message.Model
 	if err := json.Unmarshal(b, &m); err != nil {
 		return err
 	}
