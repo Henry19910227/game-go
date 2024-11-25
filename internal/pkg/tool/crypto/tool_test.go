@@ -18,19 +18,13 @@ func TestMarshal(t *testing.T) {
 		log.Fatalf("Failed to Marshal: %v", err)
 	}
 
+	fmt.Println(string(msg))
+
 	// 解出 mid
-	mid, err := New().Mid(msg)
-	if err != nil {
-		log.Fatalf("Failed to Mid: %v", err)
-	}
-	fmt.Println(mid)
+	fmt.Println(New().Mid(msg))
 
 	// 解出 sid
-	sid, err := New().Sid(msg)
-	if err != nil {
-		log.Fatalf("Failed to Mid: %v", err)
-	}
-	fmt.Println(sid)
+	fmt.Println(New().Sid(msg))
 
 	// 解出 payload
 	var u = res.UserData{}

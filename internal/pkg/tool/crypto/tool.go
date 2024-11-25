@@ -37,20 +37,20 @@ func (t *tool) Marshal(mid int, sid int, payload proto.Message) ([]byte, error) 
 	return data, nil
 }
 
-func (t *tool) Mid(b []byte) (int, error) {
+func (t *tool) Mid(b []byte) int {
 	var m message.Model
 	if err := json.Unmarshal(b, &m); err != nil {
-		return 0, err
+		return 0
 	}
-	return m.Mid, nil
+	return m.Mid
 }
 
-func (t *tool) Sid(b []byte) (int, error) {
+func (t *tool) Sid(b []byte) int {
 	var m message.Model
 	if err := json.Unmarshal(b, &m); err != nil {
-		return 0, err
+		return 0
 	}
-	return m.Sid, nil
+	return m.Sid
 }
 
 func (t *tool) Payload(b []byte, out proto.Message) error {
