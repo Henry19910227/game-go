@@ -2,27 +2,21 @@ package main
 
 import (
 	"game-go/internal/game"
+	"game-go/internal/pkg/tool/tracker"
 	"github.com/gorilla/websocket"
-	"log"
-	"net/http"
+	"strconv"
 )
 
-var upgrader = websocket.Upgrader{
-	CheckOrigin: func(r *http.Request) bool {
-		return true // 允許所有來源（僅供測試）
-	},
-}
-
 func main() {
-	hub := game.NewHub()
-	go hub.Run()
-	// 每次訪問路徑時，都會創建一個 ServeWs 並且不會結束(for 死循環)
-	http.HandleFunc("/game", func(w http.ResponseWriter, r *http.Request) {
-		game.ServeWs(hub, w, r)
+	engine := game.New()
+	engine.AddRoute(1, 2, func(c *game.Client) {
+		_ = c.Conn().WriteMessage(websocket.TextMessage, []byte("GoroutineID : "+strconv.Itoa(tracker.New().GoroutineID())))
 	})
-	// 啟動伺服器
-	err := http.ListenAndServe(":8080", nil)
-	if err != nil {
-		log.Fatal("ListenAndServe: ", err)
-	}
+	engine.AddRoute(1, 3, func(c *game.Client) {
+		_ = c.Conn().WriteMessage(websocket.TextMessage, []byte("GoroutineID : "+strconv.Itoa(tracker.New().GoroutineID())))
+	})
+	engine.AddRoute(2, 1, func(c *game.Client) {
+		_ = c.Conn().WriteMessage(websocket.TextMessage, []byte("GoroutineID : "+strconv.Itoa(tracker.New().GoroutineID())))
+	})
+	_ = engine.Run(":8080")
 }
