@@ -2,7 +2,6 @@ package game
 
 import (
 	"fmt"
-	"game-go/internal/pkg/tool/crypto"
 )
 
 type Hub struct {
@@ -19,15 +18,7 @@ func (h *Hub) Run() {
 	for {
 		select {
 		case msg := <-h.messageQueue:
-			tool := crypto.New()
-			mid := tool.Mid(msg)
-			sid := tool.Sid(msg)
-			switch {
-			case mid == 1 && sid == 1:
-				fmt.Println("")
-			case mid == 1 && sid == 2:
-				fmt.Println("HAHAHAHA!!!")
-			}
+			fmt.Println(msg)
 		}
 	}
 }
