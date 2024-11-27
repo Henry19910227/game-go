@@ -4,7 +4,6 @@ import (
 	"github.com/gorilla/websocket"
 	"log"
 	"net/http"
-	"strconv"
 )
 
 var upgrader = websocket.Upgrader{
@@ -15,19 +14,27 @@ var upgrader = websocket.Upgrader{
 
 type HandlerFunc func(c *Client)
 
+type ResolveFunc func(b []byte) string
+
 type Engine struct {
-	route map[string]HandlerFunc
+	route    map[string]HandlerFunc
+	resolver ResolveFunc
+	channel  map[string]*Client
 }
 
 func New() *Engine {
 	return &Engine{
-		route: make(map[string]HandlerFunc),
+		route:   make(map[string]HandlerFunc),
+		channel: make(map[string]*Client),
 	}
 }
 
-func (e *Engine) AddRoute(mid int, sid int, handler HandlerFunc) {
-	path := strconv.Itoa(mid) + "/" + strconv.Itoa(sid)
+func (e *Engine) AddRoute(path string, handler HandlerFunc) {
 	e.route[path] = handler
+}
+
+func (e *Engine) PathResolver(resolver ResolveFunc) {
+	e.resolver = resolver
 }
 
 func (e *Engine) Run(addr string) error {
