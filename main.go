@@ -19,6 +19,7 @@ func main() {
 	})
 	// 添加路由
 	engine.AddRoute("1,1", func(c *game.Client) {
+		c.SendToChannel("", nil)
 		_ = c.Conn().WriteMessage(websocket.TextMessage, []byte("GoroutineID : "+strconv.Itoa(tracker.New().GoroutineID())))
 	})
 	engine.AddRoute("1,2", func(c *game.Client) {

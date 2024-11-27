@@ -21,6 +21,10 @@ func (c *Client) Conn() *websocket.Conn {
 	return c.conn
 }
 
+func (c *Client) SendToChannel(name string, b []byte) {
+
+}
+
 func (c *Client) read() {
 	defer func() {
 		_ = c.conn.Close()

@@ -19,13 +19,13 @@ type ResolveFunc func(b []byte) string
 type Engine struct {
 	route    map[string]HandlerFunc
 	resolver ResolveFunc
-	channel  map[string]*Client
+	channel  *Channel
 }
 
 func New() *Engine {
 	return &Engine{
 		route:   make(map[string]HandlerFunc),
-		channel: make(map[string]*Client),
+		channel: NewChannel(),
 	}
 }
 
@@ -35,6 +35,10 @@ func (e *Engine) AddRoute(path string, handler HandlerFunc) {
 
 func (e *Engine) PathResolver(resolver ResolveFunc) {
 	e.resolver = resolver
+}
+
+func (e *Engine) Channel(name string) {
+
 }
 
 func (e *Engine) Run(addr string) error {
@@ -55,5 +59,6 @@ func (e *Engine) ServeWs(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	client := &Client{conn: conn, engine: e}
+	e.channel.Add("default", client)
 	go client.run()
 }
