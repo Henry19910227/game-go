@@ -1,0 +1,47 @@
+version: "2.4"
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: game-mysql
+    ports:
+      - "3306:3306"
+    networks:
+      - game-network
+    environment:
+      - MYSQL_DATABASE=game
+      - MYSQL_ROOT_PASSWORD=aaaa8027
+      - MYSQL_USER=henry
+      - MYSQL_PASSWORD=aaaa8027
+  redis:
+    image: redis:7.0.1
+    container_name: game-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - game-network
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: game-zookeeper
+    ports:
+      - "2181:2181"
+    networks:
+      - game-network
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: game-kafka
+    ports:
+      - "9092:9092"
+    networks:
+      - game-network
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: game-zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+networks:
+  game-network:
+    driver: bridge
