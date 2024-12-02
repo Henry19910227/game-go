@@ -1,16 +1,28 @@
 package game
 
-import "sync"
+import (
+	"sync"
+)
 
 type Channel struct {
-	channel map[string]map[*Client]*Client
-	mu      sync.RWMutex
+	groups map[string]*Group
+	mu     sync.RWMutex
 }
 
 func NewChannel() *Channel {
 	return &Channel{
-		channel: make(map[string]map[*Client]*Client),
+		groups: make(map[string]*Group),
 	}
+}
+
+func (c *Channel) createGroup(name string) {
+	_, ok := c.groups[name]
+	if ok {
+		return
+	}
+	group := NewGroup(name)
+	go group.Run()
+	c.groups[name] = group
 }
 
 func (c *Channel) Add(name string, client *Client) {
@@ -18,11 +30,11 @@ func (c *Channel) Add(name string, client *Client) {
 	defer func() {
 		c.mu.Unlock()
 	}()
-	_, ok := c.channel[name]
+	_, ok := c.groups[name]
 	if !ok {
-		c.channel[name] = make(map[*Client]*Client, 0)
+		c.createGroup(name)
 	}
-	c.channel[name][client] = client
+	c.groups[name].AddClient(client)
 }
 
 func (c *Channel) Del(name string, client *Client) {
@@ -30,7 +42,7 @@ func (c *Channel) Del(name string, client *Client) {
 	defer func() {
 		c.mu.Unlock()
 	}()
-	c.channel[name][client] = nil
+	c.groups[name].DelClient(client)
 }
 
 func (c *Channel) DelAll(client *Client) {
@@ -38,8 +50,8 @@ func (c *Channel) DelAll(client *Client) {
 	defer func() {
 		c.mu.Unlock()
 	}()
-	for _, ch := range c.channel {
-		ch[client] = nil
+	for _, group := range c.groups {
+		group.DelClient(client)
 	}
 }
 
@@ -49,11 +61,5 @@ func (c *Channel) Send(name string, b []byte) {
 	defer func() {
 		c.mu.Unlock()
 	}()
-	clients, ok := c.channel[name]
-	if !ok {
-		return
-	}
-	for _, client := range clients {
-		client.send <- b
-	}
+	c.groups[name].Send(b)
 }

@@ -3,6 +3,7 @@ package test
 import (
 	"game-go/internal/game"
 	"game-go/internal/pkg/tool/crypto"
+	"log"
 )
 
 type controller struct {
@@ -12,11 +13,11 @@ func NewController() Controller {
 	return &controller{}
 }
 
+// 00 63 00 63 = 99 99
 func (c *controller) SendBroadcast(ctx *game.Context) {
-	data, _ := crypto.New().Marshal(999, 999, nil)
+	data, err := crypto.New().Marshal(99, 100, []byte{})
+	if err != nil {
+		log.Fatalf("Failed to Marshal: %v", err)
+	}
 	ctx.Broadcast("default", data)
-}
-
-func (c *controller) ReceiveBroadcast(ctx *game.Context) {
-	ctx.WriteData([]byte("HI!!!!!!!!!!!!!!!!"))
 }

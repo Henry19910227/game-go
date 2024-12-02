@@ -70,6 +70,6 @@ func (e *Engine) ServeWs(w http.ResponseWriter, r *http.Request) {
 	}
 	// 註冊用戶
 	client := &Client{conn: conn, engine: e, send: make(chan []byte)}
-	e.channel.Add("default", client)
 	go client.run()
+	e.channel.Add("default", client)
 }

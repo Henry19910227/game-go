@@ -10,11 +10,7 @@ import (
 )
 
 func TestCreateTopic(t *testing.T) {
-
-	topic := "my-topic"
-	partition := 0
-
-	conn, err := kafka.DialLeader(context.Background(), "tcp", "localhost:9092", topic, partition)
+	conn, err := kafka.DialLeader(context.Background(), "tcp", "localhost:9092", "my-topic", 0)
 	if err != nil {
 		log.Fatal("failed to dial leader:", err)
 	}
@@ -36,10 +32,7 @@ func TestCreateTopic(t *testing.T) {
 
 func TestConsume(t *testing.T) {
 	// to consume messages
-	topic := "my-topic"
-	partition := 0
-
-	conn, err := kafka.DialLeader(context.Background(), "tcp", "localhost:9092", topic, partition)
+	conn, err := kafka.DialLeader(context.Background(), "tcp", "localhost:9092", "my-topic", 0)
 	if err != nil {
 		log.Fatal("failed to dial leader:", err)
 	}
@@ -62,6 +55,29 @@ func TestConsume(t *testing.T) {
 
 	if err := conn.Close(); err != nil {
 		log.Fatal("failed to close connection:", err)
+	}
+}
+
+func TestReader(t *testing.T) {
+	// make a new reader that consumes from topic-A, partition 0, at offset 42
+	r := kafka.NewReader(kafka.ReaderConfig{
+		Brokers:   []string{"localhost:9092"},
+		Topic:     "my-topic",
+		Partition: 0,
+		MaxBytes:  10e6, // 10MB
+	})
+	r.SetOffset(0)
+
+	for {
+		m, err := r.ReadMessage(context.Background())
+		if err != nil {
+			break
+		}
+		fmt.Printf("message at offset %d: %s = %s\n", m.Offset, string(m.Key), string(m.Value))
+	}
+
+	if err := r.Close(); err != nil {
+		log.Fatal("failed to close reader:", err)
 	}
 }
 

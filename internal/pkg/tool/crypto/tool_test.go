@@ -21,7 +21,7 @@ func TestMarshal(t *testing.T) {
 	}
 
 	// 轉成 crypto
-	data, err := New().Marshal(1, 2, pb)
+	data, err := New().Marshal(99, 99, pb)
 	if err != nil {
 		log.Fatalf("Failed to Marshal: %v", err)
 	}
@@ -70,7 +70,7 @@ func TestLoginMarshalToBinary(t *testing.T) {
 }
 
 func TestMarshalToBinary(t *testing.T) {
-	data, err := New().Marshal(1, 10000, []byte{})
+	data, err := New().Marshal(99, 100, []byte{})
 	if err != nil {
 		log.Fatalf("Failed to Marshal: %v", err)
 	}
