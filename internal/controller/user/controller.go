@@ -14,7 +14,7 @@ func NewController() Controller {
 	return &controller{}
 }
 
-func (c *controller) Middleware(ctx *game.Context) {
+func (c *controller) Unmarshal(ctx *game.Context) {
 	payload := ctx.MustGet("payload").([]byte)
 	var pb = req.LoginReq{}
 	if err := proto.Unmarshal(payload, &pb); err != nil {
@@ -25,5 +25,8 @@ func (c *controller) Middleware(ctx *game.Context) {
 }
 
 func (c *controller) Login(ctx *game.Context) {
+	fmt.Println(ctx.MustGet("pb").(req.LoginReq).AgentName)
+	fmt.Println(ctx.MustGet("pb").(req.LoginReq).Token)
 	fmt.Println(ctx.MustGet("pb").(req.LoginReq).Nickname)
+	fmt.Println(ctx.MustGet("pb").(req.LoginReq).Platform)
 }

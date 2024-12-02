@@ -7,6 +7,6 @@ import (
 
 func SetRoute(group *game.RouterGroup) {
 	controller := user.NewController()
-	group.Use(controller.Middleware)
+	group.Use(controller.Unmarshal)
 	group.EndPoint("7", controller.Login)
 }
