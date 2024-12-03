@@ -1,0 +1,9 @@
+syntax = "proto3";
+option go_package = "./internal/model/res";
+
+// 定義 InfoAfterLoginSuccess 訊息
+message InfoAfterLoginSuccess {
+    // 更新資源的 root 路徑
+    string resource_base_url = 1;
+
+}

@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+option go_package = "./internal/model/res";
+
+message ErrorMessage {
+  // 异常错误码
+  int32 code = 1;
+
+  // 提示文案
+  string desc = 2;
+
+  // 跳转到服务器：服务器ip
+  string ip = 3;
+
+  // 跳转到服务器：服务器端口
+  int32 port = 4;
+
+  // 跳转到服务器：服务器游戏类型
+  int32 serverType = 5;
+
+  // 跳转到服务器：服务器房间类型
+  int32 subType = 6;
+
+  // 跳转到服务器：服务器Id
+  int32 serverId = 7;
+}

@@ -27,13 +27,13 @@ message EnterInfo {
         repeated BetAreaConfig betAreaConfigs = 2;
     }
 
-        message BetAreaConfig {
-            int32 areaCode = 1;
-            string name = 2;
-            repeated float odds = 3;
-            int32 minLimit = 4;
-            int32 maxLimit = 5;
-        }
+    message BetAreaConfig {
+        int32 areaCode = 1;
+        string name = 2;
+        repeated float odds = 3;
+        int32 minLimit = 4;
+        int32 maxLimit = 5;
+    }
 
     message WaliGameConfig{
         int32 gametype=1;

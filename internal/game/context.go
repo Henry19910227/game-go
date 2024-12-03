@@ -21,7 +21,7 @@ func (c *Context) Conn() *websocket.Conn {
 }
 
 func (c *Context) WriteData(data []byte) {
-	_ = c.Conn().WriteMessage(websocket.TextMessage, data)
+	_ = c.Conn().WriteMessage(websocket.BinaryMessage, data)
 }
 
 func (c *Context) Broadcast(channel string, data []byte) {

@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"game-go/internal/game"
 	"game-go/internal/model/req"
+	"game-go/internal/model/res"
+	"game-go/internal/pkg/tool/crypto"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -25,8 +27,18 @@ func (c *controller) Unmarshal(ctx *game.Context) {
 }
 
 func (c *controller) Login(ctx *game.Context) {
-	fmt.Println(ctx.MustGet("pb").(req.LoginReq).AgentName)
-	fmt.Println(ctx.MustGet("pb").(req.LoginReq).Token)
-	fmt.Println(ctx.MustGet("pb").(req.LoginReq).Nickname)
-	fmt.Println(ctx.MustGet("pb").(req.LoginReq).Platform)
+	loginSuccess := &res.InfoAfterLoginSuccess{
+		ResourceBaseUrl: "Henry",
+	}
+	// 物件轉換成 pb
+	pb, err := proto.Marshal(loginSuccess)
+	if err != nil {
+		fmt.Println(err)
+	}
+	// 加密
+	data, err := crypto.New().Marshal(7, 106, pb)
+	if err != nil {
+		fmt.Println(err)
+	}
+	ctx.WriteData(data)
 }
