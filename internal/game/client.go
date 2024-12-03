@@ -23,7 +23,7 @@ func (c *Client) Conn() *websocket.Conn {
 
 func (c *Client) read() {
 	defer func() {
-		c.engine.channel.DelAll(c)
+		c.engine.channelManager.DelAll(c)
 		_ = c.conn.Close()
 	}()
 	for {
@@ -57,7 +57,7 @@ func (c *Client) read() {
 // 監聽Hub發來的指令
 func (c *Client) write() {
 	defer func() {
-		c.engine.channel.DelAll(c)
+		c.engine.channelManager.DelAll(c)
 		_ = c.conn.Close()
 	}()
 	for {

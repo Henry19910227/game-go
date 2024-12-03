@@ -25,7 +25,7 @@ func (c *Context) WriteData(data []byte) {
 }
 
 func (c *Context) Broadcast(channel string, data []byte) {
-	c.engine.channel.Send(channel, data)
+	c.engine.channelManager.Send(channel, data)
 }
 
 func (c *Context) RawData() []byte {

@@ -11,7 +11,9 @@ import (
 )
 
 func main() {
-	engine := game.New()
+	engine := game.New(&game.KafkaSetting{
+		Brokers: []string{"localhost:9092"},
+	})
 	// 添加路由解析器邏輯
 	engine.PathResolver(func(b []byte) string {
 		tool := crypto.New()

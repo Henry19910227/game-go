@@ -16,20 +16,22 @@ type ResolveFunc func(b []byte) string
 
 type Engine struct {
 	RouterGroup
-	route    *Router
-	resolver ResolveFunc
-	// Todo: 未來這裡會加入Kafka
-	channel *Channel
+	route          *Router
+	resolver       ResolveFunc
+	channelManager *channelManager
 }
 
-func New() *Engine {
+func New(kafka *KafkaSetting) *Engine {
 	e := &Engine{
 		RouterGroup: RouterGroup{
 			Handlers: make([]HandlerFunc, 0),
 			basePath: "",
 		},
-		route:   NewRouter(),
-		channel: NewChannel(),
+		route: NewRouter(),
+		channelManager: &channelManager{
+			channels:     make(map[string]*channel),
+			kafkaSetting: kafka,
+		},
 	}
 	e.RouterGroup.engine = e
 	return e
@@ -71,5 +73,5 @@ func (e *Engine) ServeWs(w http.ResponseWriter, r *http.Request) {
 	// 註冊用戶
 	client := &Client{conn: conn, engine: e, send: make(chan []byte)}
 	go client.run()
-	e.channel.Add("default", client)
+	e.channelManager.Add("default", client)
 }
