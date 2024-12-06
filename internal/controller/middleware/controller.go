@@ -8,7 +8,7 @@ import (
 type controller struct {
 }
 
-func NewController() Controller {
+func New() Controller {
 	return &controller{}
 }
 
