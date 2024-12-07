@@ -2,6 +2,7 @@ package user
 
 import (
 	"fmt"
+	userAdapter "game-go/internal/adapter/user"
 	"game-go/internal/game"
 	"game-go/internal/model/req"
 	"game-go/internal/model/res"
@@ -10,10 +11,11 @@ import (
 )
 
 type controller struct {
+	adapter userAdapter.Adapter
 }
 
-func New() Controller {
-	return &controller{}
+func New(adapter userAdapter.Adapter) Controller {
+	return &controller{adapter: adapter}
 }
 
 func (c *controller) Unmarshal(ctx *game.Context) {
@@ -36,19 +38,15 @@ func (c *controller) HeartBeat(ctx *game.Context) {
 
 func (c *controller) Login(ctx *game.Context) {
 	loginReq := ctx.MustGet("pb").(*req.LoginReq)
-	loginSuccess := &res.InfoAfterLoginSuccess{
-		ResourceBaseUrl: loginReq.Nickname,
+	success, errMsg := c.adapter.Login(loginReq)
+	if errMsg != nil {
+		pb, _ := proto.Marshal(errMsg)
+		data, _ := crypto.New().Marshal(7, 107, pb)
+		ctx.WriteData(data)
+		return
 	}
-	// 物件轉換成 pb
-	pb, err := proto.Marshal(loginSuccess)
-	if err != nil {
-		fmt.Println(err)
-	}
-	// 加密
-	data, err := crypto.New().Marshal(7, 106, pb)
-	if err != nil {
-		fmt.Println(err)
-	}
+	pb, _ := proto.Marshal(success)
+	data, _ := crypto.New().Marshal(7, 106, pb)
 	ctx.WriteData(data)
 }
 

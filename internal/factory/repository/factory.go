@@ -6,16 +6,14 @@ import (
 )
 
 type factory struct {
-	db             *gorm.DB
-	userRepository userRepo.Repository
+	db *gorm.DB
 }
 
 func New(db *gorm.DB) Factory {
 	repoFactory := &factory{db: db}
-	repoFactory.userRepository = userRepo.New(db)
 	return repoFactory
 }
 
 func (r *factory) UserRepository() userRepo.Repository {
-	return r.userRepository
+	return userRepo.New(r.db)
 }

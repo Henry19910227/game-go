@@ -5,17 +5,15 @@ import (
 	"game-go/internal/service/user"
 )
 
-type service struct {
+type factory struct {
 	repoFactory repository.Factory
-	userService user.Service
 }
 
 func New(repoFactory repository.Factory) Factory {
-	serviceFactory := &service{repoFactory: repoFactory}
-	serviceFactory.userService = user.New(repoFactory)
+	serviceFactory := &factory{repoFactory: repoFactory}
 	return serviceFactory
 }
 
-func (s *service) UserService() user.Service {
-	return s.userService
+func (s *factory) UserService() user.Service {
+	return user.New(s.repoFactory.UserRepository())
 }

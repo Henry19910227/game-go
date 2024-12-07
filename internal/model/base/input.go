@@ -5,3 +5,8 @@ type ListInput struct {
 	CreateAtField
 	UpdateAtField
 }
+
+type PagingInput struct {
+	PageField
+	SizeField
+}

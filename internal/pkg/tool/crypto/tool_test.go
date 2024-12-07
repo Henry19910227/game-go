@@ -10,9 +10,8 @@ import (
 )
 
 func TestMarshal(t *testing.T) {
-	user := &res.UserData{}
-	user.UserId = 1
-	user.Score = 10000
+	user := &res.ErrorMessage{}
+	user.Code = 400
 
 	pb, err := proto.Marshal(user)
 	if err != nil {
@@ -21,7 +20,7 @@ func TestMarshal(t *testing.T) {
 	}
 
 	// 轉成 crypto
-	data, err := New().Marshal(99, 99, pb)
+	data, err := New().Marshal(7, 107, pb)
 	if err != nil {
 		log.Fatalf("Failed to Marshal: %v", err)
 	}
@@ -29,7 +28,7 @@ func TestMarshal(t *testing.T) {
 	HexBinary(data)
 
 	// 解出 payload
-	var u = res.UserData{}
+	var u = res.ErrorMessage{}
 	mid, sid, payload, err := New().UnMarshal(data)
 	if err != nil {
 		fmt.Println(err)
@@ -42,8 +41,8 @@ func TestMarshal(t *testing.T) {
 	}
 	fmt.Println(mid)
 	fmt.Println(sid)
-	fmt.Println(u.UserId)
-	fmt.Println(u.Score)
+	fmt.Println(u.Code)
+	fmt.Println(u.Desc)
 }
 
 func TestLoginMarshalToBinary(t *testing.T) {

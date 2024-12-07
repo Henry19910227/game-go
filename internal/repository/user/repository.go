@@ -2,6 +2,7 @@ package user
 
 import (
 	model "game-go/internal/model/user"
+	"game-go/internal/pkg/util"
 	"gorm.io/gorm"
 )
 
@@ -13,8 +14,17 @@ func New(db *gorm.DB) Repository {
 	return &repository{db: db}
 }
 
-func (r *repository) List(input *model.ListInput) (outputs []*model.Table, err error) {
-	table := &model.Table{}
+func (r *repository) List(input *model.ListInput) (outputs []*model.Output, err error) {
+	input.IsDeleted = util.PointerInt(0)
+	output, err := r.list(input)
+	if err != nil {
+		return output, err
+	}
+	return output, err
+}
+
+func (r *repository) list(input *model.ListInput) (outputs []*model.Output, err error) {
+	table := &model.Output{}
 	db := r.db.Model(table)
 	//加入 id 篩選條件
 	if input.ID != nil {
