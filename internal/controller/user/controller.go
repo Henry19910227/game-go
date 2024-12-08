@@ -1,11 +1,9 @@
 package user
 
 import (
-	"fmt"
 	userAdapter "game-go/internal/adapter/user"
 	"game-go/internal/game"
 	"game-go/internal/model/req"
-	"game-go/internal/model/res"
 	"game-go/internal/pkg/tool/crypto"
 	"google.golang.org/protobuf/proto"
 )
@@ -51,32 +49,14 @@ func (c *controller) Login(ctx *game.Context) {
 }
 
 func (c *controller) EnterRoom(ctx *game.Context) {
-	enterRoom := &res.EnterInfo{
-		ProtoVersion: "1.0",
-		GameConfigs: []*res.GameConfig{
-			{
-				MiniGameId: 1,
-				BetAreaConfigs: []*res.BetAreaConfig{
-					{
-						AreaCode: 1,
-						Name:     "",
-						Odds:     []float32{100},
-						MinLimit: 1000,
-						MaxLimit: 1000000,
-					},
-				},
-			},
-		},
+	enterInfo, errMsg := c.adapter.EnterRoom()
+	if errMsg != nil {
+		pb, _ := proto.Marshal(errMsg)
+		data, _ := crypto.New().Marshal(7, 600, pb)
+		ctx.WriteData(data)
+		return
 	}
-	// 物件轉換成 pb
-	pb, err := proto.Marshal(enterRoom)
-	if err != nil {
-		fmt.Println(err)
-	}
-	// 加密
-	data, err := crypto.New().Marshal(500, 1000, pb)
-	if err != nil {
-		fmt.Println(err)
-	}
+	pb, _ := proto.Marshal(enterInfo)
+	data, _ := crypto.New().Marshal(500, 1000, pb)
 	ctx.WriteData(data)
 }

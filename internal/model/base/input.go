@@ -10,3 +10,12 @@ type PagingInput struct {
 	PageField
 	SizeField
 }
+
+type Preload struct {
+	Field      string
+	Conditions []interface{}
+}
+
+type PreloadInput struct {
+	Preloads []*Preload
+}

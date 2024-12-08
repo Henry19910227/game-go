@@ -7,4 +7,5 @@ import (
 
 type Adapter interface {
 	Login(req *req.LoginReq) (*res.InfoAfterLoginSuccess, *res.ErrorMessage)
+	EnterRoom() (*res.EnterInfo, *res.ErrorMessage)
 }

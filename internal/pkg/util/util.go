@@ -19,7 +19,21 @@ func OnNilJustReturnInt64(input *int64, i int64) int64 {
 	return *input
 }
 
+func OnNilJustReturnInt32(input *int32, i int32) int32 {
+	if input == nil {
+		return i
+	}
+	return *input
+}
+
 func OnNilJustReturnFloat64(input *float64, i float64) float64 {
+	if input == nil {
+		return i
+	}
+	return *input
+}
+
+func OnNilJustReturnFloat32(input *float32, i float32) float32 {
 	if input == nil {
 		return i
 	}

@@ -15,5 +15,7 @@ func New(repoFactory repository.Factory) Factory {
 }
 
 func (s *factory) UserService() user.Service {
-	return user.New(s.repoFactory.UserRepository())
+	return user.New(
+		s.repoFactory.UserRepository(),
+		s.repoFactory.GameRepository())
 }
