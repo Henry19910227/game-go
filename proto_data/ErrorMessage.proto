@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-option go_package = "./internal/model/res";
+option go_package = "./core/model/res";
 
 message ErrorMessage {
   // 异常错误码

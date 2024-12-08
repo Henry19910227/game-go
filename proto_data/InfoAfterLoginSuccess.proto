@@ -1,5 +1,5 @@
 syntax = "proto3";
-option go_package = "./internal/model/res";
+option go_package = "./core/model/res";
 
 // 定義 InfoAfterLoginSuccess 訊息
 message InfoAfterLoginSuccess {
