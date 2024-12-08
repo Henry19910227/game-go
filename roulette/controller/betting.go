@@ -1,0 +1,53 @@
+package controller
+
+import (
+	"game-go/roulette/game"
+	"game-go/roulette/model/res"
+	"game-go/roulette/tool/crypto"
+	"google.golang.org/protobuf/proto"
+)
+
+type GameController struct {
+	id        int
+	deckRound int
+}
+
+func New(id int) *GameController {
+	return &GameController{id: id}
+}
+
+func (g *GameController) Betting(ctx *game.Context) {
+	g.deckRound++
+	newRound := &res.BeginNewRound{}
+	newRound.MiniGameId = int32(g.id)
+	newRound.CountDown = int32(ctx.Stage().Countdown)
+	newRound.DeckRound = int32(g.deckRound)
+	pb, _ := proto.Marshal(newRound)
+	data, _ := crypto.New().Marshal(500, 1004, pb)
+	ctx.WriteData(data)
+}
+
+func (g *GameController) Deal(ctx *game.Context) {
+	performs := []*res.ActorPerform{{Elements: []int32{1}}}
+	roundInfo := &res.RoundInfo{}
+	roundInfo.RoundId = "11111"
+	roundInfo.ElementType = 1
+	roundInfo.Performs = performs
+
+	newRound := &res.BeginDeal{}
+	newRound.MiniGameId = int32(g.id)
+	newRound.CountDown = int32(ctx.Stage().Countdown)
+	newRound.RoundInfo = roundInfo
+	pb, _ := proto.Marshal(newRound)
+	data, _ := crypto.New().Marshal(500, 1010, pb)
+	ctx.WriteData(data)
+}
+
+func (g *GameController) Settle(ctx *game.Context) {
+	settle := &res.BeginSettle{}
+	settle.MiniGameId = int32(g.id)
+	settle.CountDown = int32(ctx.Stage().Countdown)
+	pb, _ := proto.Marshal(settle)
+	data, _ := crypto.New().Marshal(500, 1005, pb)
+	ctx.WriteData(data)
+}
