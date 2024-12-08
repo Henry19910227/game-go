@@ -1,6 +1,8 @@
 package game
 
-import "game-go/core/game"
+import (
+	"game-go/core/game"
+)
 
 type Controller interface {
 	Unmarshal(ctx *game.Context)
@@ -16,4 +18,10 @@ type Controller interface {
 	Bet(ctx *game.Context)
 	// RefreshScore req 500/1035, res 500/1050
 	RefreshScore(ctx *game.Context)
+	// BeginNewRound req 500/1004, res 500/1004
+	BeginNewRound(ctx *game.Context)
+	// BeginDeal req 500/1010, res 500/1010
+	BeginDeal(ctx *game.Context)
+	// BeginSettle req 500/1005, res 500/1005
+	BeginSettle(ctx *game.Context)
 }
