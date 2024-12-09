@@ -6,7 +6,7 @@ import (
 
 type Controller interface {
 	Unmarshal(ctx *game.Context)
-	// EnterGroup req 500/1001, res 500/1000
+	// EnterGroup req 500/1001, res 500/1001
 	EnterGroup(ctx *game.Context)
 	// LeaveGroup req 500/1003, res 500/1008
 	LeaveGroup(ctx *game.Context)

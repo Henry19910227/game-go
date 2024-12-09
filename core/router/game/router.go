@@ -8,6 +8,7 @@ import (
 func SetRoute(group *game.RouterGroup, factory controller.Factory) {
 	gameController := factory.GameController()
 	group.Use(gameController.Unmarshal)
+	// 來自用戶的請求
 	group.EndPoint("1001", gameController.EnterGroup)
 	group.EndPoint("1003", gameController.LeaveGroup)
 	group.EndPoint("1005", gameController.EnterMiniGame)
@@ -15,6 +16,7 @@ func SetRoute(group *game.RouterGroup, factory controller.Factory) {
 	group.EndPoint("1030", gameController.Bet)
 	group.EndPoint("1035", gameController.RefreshScore)
 
+	// 來自遊戲的定時推播
 	group.EndPoint("1004", gameController.BeginNewRound)
 	group.EndPoint("1010", gameController.BeginDeal)
 	group.EndPoint("1005", gameController.BeginSettle)

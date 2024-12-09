@@ -2,7 +2,6 @@ package game
 
 import (
 	"github.com/gorilla/websocket"
-	"math"
 	"sync"
 )
 
@@ -26,6 +25,10 @@ func (c *Context) WriteData(data []byte) {
 
 func (c *Context) Broadcast(channel string, data []byte) {
 	c.engine.channelManager.Send(channel, data)
+}
+
+func (c *Context) Join(channel string) {
+	c.engine.channelManager.Add(channel, c.client)
 }
 
 func (c *Context) RawData() []byte {
@@ -65,5 +68,5 @@ func (c *Context) Next() {
 }
 
 func (c *Context) Abort() {
-	c.index = math.MaxInt
+	c.index = len(c.handlers)
 }

@@ -8,8 +8,7 @@ import (
 )
 
 type GameController struct {
-	id        int
-	deckRound int
+	id int
 }
 
 func New(id int) *GameController {
@@ -17,11 +16,9 @@ func New(id int) *GameController {
 }
 
 func (g *GameController) Betting(ctx *game.Context) {
-	g.deckRound++
 	newRound := &res.BeginNewRound{}
 	newRound.MiniGameId = int32(g.id)
-	newRound.CountDown = int32(ctx.Stage().Countdown)
-	newRound.DeckRound = int32(g.deckRound)
+	newRound.CountDown = int32(ctx.Stage().Countdown * 1000)
 	pb, _ := proto.Marshal(newRound)
 	data, _ := crypto.New().Marshal(500, 1004, pb)
 	ctx.WriteData(data)
@@ -36,7 +33,7 @@ func (g *GameController) Deal(ctx *game.Context) {
 
 	newRound := &res.BeginDeal{}
 	newRound.MiniGameId = int32(g.id)
-	newRound.CountDown = int32(ctx.Stage().Countdown)
+	newRound.CountDown = int32(ctx.Stage().Countdown * 1000)
 	newRound.RoundInfo = roundInfo
 	pb, _ := proto.Marshal(newRound)
 	data, _ := crypto.New().Marshal(500, 1010, pb)
@@ -46,7 +43,7 @@ func (g *GameController) Deal(ctx *game.Context) {
 func (g *GameController) Settle(ctx *game.Context) {
 	settle := &res.BeginSettle{}
 	settle.MiniGameId = int32(g.id)
-	settle.CountDown = int32(ctx.Stage().Countdown)
+	settle.CountDown = int32(ctx.Stage().Countdown * 1000)
 	pb, _ := proto.Marshal(settle)
 	data, _ := crypto.New().Marshal(500, 1005, pb)
 	ctx.WriteData(data)

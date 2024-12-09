@@ -1,6 +1,7 @@
 package user
 
 import (
+	"fmt"
 	userAdapter "game-go/core/adapter/user"
 	"game-go/core/game"
 	"game-go/core/model/req"
@@ -20,14 +21,20 @@ func (c *controller) Unmarshal(ctx *game.Context) {
 	mid := ctx.MustGet("mid").(uint16)
 	sid := ctx.MustGet("sid").(uint16)
 	payload := ctx.MustGet("payload").([]byte)
-	if mid == 7 && sid == 7 {
-		var pb = req.LoginReq{}
-		if err := proto.Unmarshal(payload, &pb); err != nil {
-			ctx.Abort()
-			return
-		}
-		ctx.Set("pb", &pb)
+	var pb proto.Message
+	switch {
+	case mid == 7 && sid == 7:
+		pb = &req.LoginReq{}
+	default:
+		fmt.Println("No matching case for the given mid and sid")
+		ctx.Abort()
+		return
 	}
+	if err := proto.Unmarshal(payload, pb); err != nil {
+		ctx.Abort()
+		return
+	}
+	ctx.Set("pb", pb)
 }
 
 func (c *controller) HeartBeat(ctx *game.Context) {

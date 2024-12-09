@@ -17,9 +17,9 @@ func (c *channelManager) createGroup(name string) {
 	if ok {
 		return
 	}
-	channel := NewChannel(name, kafkaReader(name, c.kafkaSetting), kafkaWriter(name, c.kafkaSetting))
-	go channel.Run()
-	c.channels[name] = channel
+	ch := NewChannel(name, kafkaReader(name, c.kafkaSetting), kafkaWriter(name, c.kafkaSetting))
+	go ch.Run()
+	c.channels[name] = ch
 }
 
 func (c *channelManager) Add(name string, client *Client) {
@@ -47,8 +47,8 @@ func (c *channelManager) DelAll(client *Client) {
 	defer func() {
 		c.mu.Unlock()
 	}()
-	for _, channel := range c.channels {
-		channel.DelClient(client)
+	for _, ch := range c.channels {
+		ch.DelClient(client)
 	}
 }
 
@@ -58,6 +58,9 @@ func (c *channelManager) Send(name string, b []byte) {
 	defer func() {
 		c.mu.Unlock()
 	}()
+	if _, ok := c.channels[name]; !ok {
+		return
+	}
 	c.channels[name].Send(b)
 }
 
@@ -91,7 +94,7 @@ func (c *channel) DelClient(client *Client) {
 	defer func() {
 		c.mu.Unlock()
 	}()
-	c.clients[client] = nil
+	delete(c.clients, client)
 }
 
 func (c *channel) Send(data []byte) {
