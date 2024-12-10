@@ -8,17 +8,24 @@ import (
 )
 
 type GameController struct {
-	id int
+	id        int
+	deckRound int
+	maxRound  int
 }
 
-func New(id int) *GameController {
-	return &GameController{id: id}
+func New(id int, maxRound int) *GameController {
+	return &GameController{id: id, maxRound: maxRound}
 }
 
 func (g *GameController) Betting(ctx *game.Context) {
+	g.deckRound++
+	if g.deckRound > g.maxRound {
+		g.deckRound = 0
+	}
 	newRound := &res.BeginNewRound{}
 	newRound.MiniGameId = int32(g.id)
 	newRound.CountDown = int32(ctx.Stage().Countdown * 1000)
+	newRound.DeckRound = int32(g.deckRound)
 	pb, _ := proto.Marshal(newRound)
 	data, _ := crypto.New().Marshal(500, 9004, pb)
 	ctx.WriteData(data)

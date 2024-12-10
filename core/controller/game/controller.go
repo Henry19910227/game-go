@@ -138,7 +138,6 @@ func (c *controller) RefreshScore(ctx *game.Context) {
 func (c *controller) BeginNewRound(ctx *game.Context) {
 	beginNewRound := ctx.MustGet("pb").(*res.BeginNewRound)
 	beginNewRound.RoundId = "202412091500"
-	beginNewRound.DeckRound = 1
 	gameId := strconv.Itoa(int(beginNewRound.MiniGameId))
 
 	pb, _ := proto.Marshal(beginNewRound)
