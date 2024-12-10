@@ -8,4 +8,5 @@ type Tool interface {
 	LPush(key string, value ...interface{}) error
 	RPush(key string, value ...interface{}) error
 	LRange(key string, start int, stop int) []string
+	HSet(key string, value ...interface{}) error
 }

@@ -39,3 +39,7 @@ func (t *tool) RPush(key string, value ...interface{}) error {
 func (t *tool) LRange(key string, start int, stop int) []string {
 	return t.client.LRange(t.ctx, key, int64(start), int64(stop)).Val()
 }
+
+func (t *tool) HSet(key string, value ...interface{}) error {
+	return t.client.HSet(t.ctx, key, value).Err()
+}

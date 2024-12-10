@@ -993,7 +993,7 @@ func (x *BeginNewRound) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use BeginNewRound.ProtoReflect.Descriptor instead.
+// Deprecated: Use beginNewRound.ProtoReflect.Descriptor instead.
 func (*BeginNewRound) Descriptor() ([]byte, []int) {
 	return file_proto_data_GameRes_proto_rawDescGZIP(), []int{13}
 }
@@ -1994,7 +1994,7 @@ var file_proto_data_GameRes_proto_goTypes = []any{
 	(*EnterMiniGameInfo)(nil),          // 10: game.mod.proc.yf.proto.res.EnterMiniGameInfo
 	(*AreaInfo)(nil),                   // 11: game.mod.proc.yf.proto.res.AreaInfo
 	(*AreaBet)(nil),                    // 12: game.mod.proc.yf.proto.res.AreaBet
-	(*BeginNewRound)(nil),              // 13: game.mod.proc.yf.proto.res.BeginNewRound
+	(*BeginNewRound)(nil),              // 13: game.mod.proc.yf.proto.res.beginNewRound
 	(*MyMiniGameBetResult)(nil),        // 14: game.mod.proc.yf.proto.res.MyMiniGameBetResult
 	(*BetResultInfo)(nil),              // 15: game.mod.proc.yf.proto.res.BetResultInfo
 	(*SyncAreaBetInfo)(nil),            // 16: game.mod.proc.yf.proto.res.SyncAreaBetInfo
