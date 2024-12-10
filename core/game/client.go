@@ -3,11 +3,14 @@ package game
 import (
 	"github.com/gorilla/websocket"
 	"log"
+	"sync"
 )
 
 type Client struct {
 	conn   *websocket.Conn // 當前連線
 	engine *Engine
+	keys   map[string]interface{}
+	mu     sync.RWMutex
 	send   chan []byte
 }
 
@@ -69,6 +72,38 @@ func (c *Client) write() {
 			_ = c.conn.WriteMessage(websocket.BinaryMessage, b)
 		}
 	}
+}
+
+func (c *Client) Set(key string, value interface{}) {
+	c.mu.Lock()
+	defer func() {
+		c.mu.Unlock()
+	}()
+	c.keys[key] = value
+}
+
+func (c *Client) Get(key string) (value interface{}, exists bool) {
+	c.mu.Lock()
+	defer func() {
+		c.mu.Unlock()
+	}()
+	value, exists = c.keys[key]
+	return
+}
+
+func (c *Client) Del(key string) {
+	c.mu.Lock()
+	defer func() {
+		c.mu.Unlock()
+	}()
+	delete(c.keys, key)
+}
+
+func (c *Client) MustGet(key string) interface{} {
+	if value, exists := c.Get(key); exists {
+		return value
+	}
+	panic("Key \"" + key + "\" does not exist")
 }
 
 func (c *Client) Send(msg []byte) {

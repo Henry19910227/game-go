@@ -25,6 +25,9 @@ func (c *controller) Unmarshal(ctx *game.Context) {
 	switch {
 	case mid == 500 && sid == 1001:
 		pb = &req.EnterGroup{}
+	case mid == 500 && sid == 1003:
+		ctx.Next()
+		return
 	case mid == 500 && sid == 1004:
 		pb = &res.BeginNewRound{}
 	case mid == 500 && sid == 1010:
@@ -45,14 +48,10 @@ func (c *controller) Unmarshal(ctx *game.Context) {
 
 func (c *controller) EnterGroup(ctx *game.Context) {
 	enterGroup := ctx.MustGet("pb").(*req.EnterGroup)
-	if len(enterGroup.MiniGameIdsArray) == 0 {
-		return
-	}
 	// 加入直播間
 	ctx.Join(enterGroup.IdP)
-	// 加入預設遊戲群組
-	gameId := strconv.Itoa(int(enterGroup.MiniGameIdsArray[0]))
-	ctx.Join(gameId)
+	// 紀錄
+	ctx.Client().Set("group", enterGroup.IdP)
 
 	gameInfo := &res.MiniGameBasicInfo{}
 	gameInfo.MiniGameId = 9
@@ -64,12 +63,29 @@ func (c *controller) EnterGroup(ctx *game.Context) {
 	groupInfo.MiniGameBasicInfoList = []*res.MiniGameBasicInfo{gameInfo}
 	pb, _ := proto.Marshal(groupInfo)
 	data, _ := crypto.New().Marshal(500, 1001, pb)
-	ctx.Broadcast(gameId, data)
+	ctx.WriteData(data)
 }
 
 func (c *controller) LeaveGroup(ctx *game.Context) {
-	//TODO implement me
+	// 取出紀錄
+	v, ok := ctx.Client().Get("group")
+	if !ok {
+		return
+	}
+	groupId, ok := v.(string)
+	if !ok {
+		return
+	}
+	// 離開直播間
+	ctx.Leave(groupId)
+	// 刪除紀錄
+	ctx.Client().Del(groupId)
 
+	leaveGroup := &res.LeaveGroup{}
+	leaveGroup.GroupId = groupId
+	pb, _ := proto.Marshal(leaveGroup)
+	data, _ := crypto.New().Marshal(500, 1008, pb)
+	ctx.WriteData(data)
 }
 
 func (c *controller) EnterMiniGame(ctx *game.Context) {

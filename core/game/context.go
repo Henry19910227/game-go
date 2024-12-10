@@ -15,6 +15,10 @@ type Context struct {
 	data     []byte
 }
 
+func (c *Context) Client() *Client {
+	return c.client
+}
+
 func (c *Context) Conn() *websocket.Conn {
 	return c.client.conn
 }
@@ -29,6 +33,10 @@ func (c *Context) Broadcast(channel string, data []byte) {
 
 func (c *Context) Join(channel string) {
 	c.engine.channelManager.Add(channel, c.client)
+}
+
+func (c *Context) Leave(channel string) {
+	c.engine.channelManager.Del(channel, c.client)
 }
 
 func (c *Context) RawData() []byte {
