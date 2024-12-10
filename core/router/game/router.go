@@ -17,7 +17,7 @@ func SetRoute(group *game.RouterGroup, factory controller.Factory) {
 	group.EndPoint("1035", gameController.RefreshScore)
 
 	// 來自遊戲的定時推播
-	group.EndPoint("1004", gameController.BeginNewRound)
-	group.EndPoint("1010", gameController.BeginDeal)
-	group.EndPoint("1005", gameController.BeginSettle)
+	group.EndPoint("9004", gameController.BeginNewRound)
+	group.EndPoint("9010", gameController.BeginDeal)
+	group.EndPoint("9005", gameController.BeginSettle)
 }

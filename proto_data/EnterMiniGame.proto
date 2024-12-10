@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+// 生產指令：protoc --go_out=. ./proto_data/*.proto
+option go_package = "./core/model/req";
+
+// 進入小遊戲
+message EnterMiniGame {
+  // 小遊戲 ID
+  int32 mini_game_id = 1;
+}

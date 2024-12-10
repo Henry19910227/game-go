@@ -20,7 +20,7 @@ func (g *GameController) Betting(ctx *game.Context) {
 	newRound.MiniGameId = int32(g.id)
 	newRound.CountDown = int32(ctx.Stage().Countdown * 1000)
 	pb, _ := proto.Marshal(newRound)
-	data, _ := crypto.New().Marshal(500, 1004, pb)
+	data, _ := crypto.New().Marshal(500, 9004, pb)
 	ctx.WriteData(data)
 }
 
@@ -36,7 +36,7 @@ func (g *GameController) Deal(ctx *game.Context) {
 	newRound.CountDown = int32(ctx.Stage().Countdown * 1000)
 	newRound.RoundInfo = roundInfo
 	pb, _ := proto.Marshal(newRound)
-	data, _ := crypto.New().Marshal(500, 1010, pb)
+	data, _ := crypto.New().Marshal(500, 9010, pb)
 	ctx.WriteData(data)
 }
 
@@ -45,6 +45,6 @@ func (g *GameController) Settle(ctx *game.Context) {
 	settle.MiniGameId = int32(g.id)
 	settle.CountDown = int32(ctx.Stage().Countdown * 1000)
 	pb, _ := proto.Marshal(settle)
-	data, _ := crypto.New().Marshal(500, 1005, pb)
+	data, _ := crypto.New().Marshal(500, 9005, pb)
 	ctx.WriteData(data)
 }

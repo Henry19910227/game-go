@@ -18,10 +18,10 @@ type Controller interface {
 	Bet(ctx *game.Context)
 	// RefreshScore req 500/1035, res 500/1050
 	RefreshScore(ctx *game.Context)
-	// BeginNewRound req 500/1004, res 500/1004
+	// BeginNewRound req 500/9004, res 500/1004
 	BeginNewRound(ctx *game.Context)
-	// BeginDeal req 500/1010, res 500/1010
+	// BeginDeal req 500/9010, res 500/1010
 	BeginDeal(ctx *game.Context)
-	// BeginSettle req 500/1005, res 500/1005
+	// BeginSettle req 500/9005, res 500/1005
 	BeginSettle(ctx *game.Context)
 }
