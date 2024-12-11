@@ -2,6 +2,7 @@ package game
 
 import (
 	"fmt"
+	gameAdapter "game-go/core/adapter/game"
 	"game-go/core/game"
 	"game-go/core/model/req"
 	"game-go/core/model/res"
@@ -11,10 +12,11 @@ import (
 )
 
 type controller struct {
+	gameAdapter gameAdapter.Adapter
 }
 
-func New() Controller {
-	return &controller{}
+func New(gameAdapter gameAdapter.Adapter) Controller {
+	return &controller{gameAdapter: gameAdapter}
 }
 
 func (c *controller) Unmarshal(ctx *game.Context) {
@@ -137,12 +139,15 @@ func (c *controller) RefreshScore(ctx *game.Context) {
 
 func (c *controller) BeginNewRound(ctx *game.Context) {
 	beginNewRound := ctx.MustGet("pb").(*res.BeginNewRound)
-	beginNewRound.RoundId = "202412091500"
-	gameId := strconv.Itoa(int(beginNewRound.MiniGameId))
-
-	pb, _ := proto.Marshal(beginNewRound)
-	data, _ := crypto.New().Marshal(500, 1004, pb)
-	ctx.Broadcast(gameId, data)
+	output, errMsg := c.gameAdapter.BeginNewRound(beginNewRound)
+	channelId := strconv.Itoa(int(beginNewRound.MiniGameId))
+	if errMsg != nil {
+		data, _ := ctx.MarshalData(7, 600, errMsg)
+		ctx.Broadcast(channelId, data)
+		return
+	}
+	data, _ := ctx.MarshalData(500, 1004, output)
+	ctx.Broadcast(channelId, data)
 }
 
 func (c *controller) BeginDeal(ctx *game.Context) {

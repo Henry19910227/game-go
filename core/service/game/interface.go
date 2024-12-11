@@ -1,7 +1,9 @@
 package game
 
-import "game-go/core/model/game/beginNewRound"
+import (
+	"game-go/core/model/game_status"
+)
 
 type Service interface {
-	BeginNewRound(input beginNewRound.Input)
+	BeginNewRound(input *game_status.Input) (output *game_status.Output, err error)
 }

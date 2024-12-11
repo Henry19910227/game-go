@@ -4,14 +4,14 @@ import (
 	gameController "game-go/core/controller/game"
 	middController "game-go/core/controller/middleware"
 	userController "game-go/core/controller/user"
-	adapterFactoru "game-go/core/factory/adapter"
+	adapterFactory "game-go/core/factory/adapter"
 )
 
 type factory struct {
-	adapterFactory adapterFactoru.Factory
+	adapterFactory adapterFactory.Factory
 }
 
-func New(adapterFactory adapterFactoru.Factory) Factory {
+func New(adapterFactory adapterFactory.Factory) Factory {
 	controllerFactory := &factory{adapterFactory: adapterFactory}
 	return controllerFactory
 }
@@ -21,7 +21,7 @@ func (f *factory) UserController() userController.Controller {
 }
 
 func (f *factory) GameController() gameController.Controller {
-	return gameController.New()
+	return gameController.New(f.adapterFactory.GameAdapter())
 }
 
 func (f *factory) MiddController() middController.Controller {

@@ -1,18 +1,28 @@
 package game
 
 import (
-	"game-go/core/model/game/beginNewRound"
-	"game-go/core/pkg/tool/redis"
+	gameStatusCache "game-go/core/cache/game_status"
+	"game-go/core/model/game_status"
 )
 
 type service struct {
-	redisTool redis.Tool
+	gameStatusCache gameStatusCache.Cache
 }
 
-func New(redisTool redis.Tool) Service {
-	return &service{redisTool: redisTool}
+func New(gameStatusCache gameStatusCache.Cache) Service {
+	return &service{gameStatusCache: gameStatusCache}
 }
 
-func (s *service) BeginNewRound(input beginNewRound.Input) {
+func (s *service) BeginNewRound(input *game_status.Input) (output *game_status.Output, err error) {
+	err = s.gameStatusCache.Save(input)
+	if err != nil {
+		return nil, err
+	}
+	output = &game_status.Output{}
+	output.GameId = input.GameId
+	output.RoundId = input.RoundId
+	output.DeckRound = input.DeckRound
+	output.CountDown = input.CountDown
 
+	return output, nil
 }

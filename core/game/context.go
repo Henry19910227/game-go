@@ -1,7 +1,9 @@
 package game
 
 import (
+	"game-go/core/pkg/tool/crypto"
 	"github.com/gorilla/websocket"
+	"google.golang.org/protobuf/proto"
 	"sync"
 )
 
@@ -25,6 +27,18 @@ func (c *Context) Conn() *websocket.Conn {
 
 func (c *Context) WriteData(data []byte) {
 	_ = c.Conn().WriteMessage(websocket.BinaryMessage, data)
+}
+
+func (c *Context) MarshalData(mid uint16, sid uint16, data proto.Message) ([]byte, error) {
+	pb, err := proto.Marshal(data)
+	if err != nil {
+		return nil, err
+	}
+	result, err := crypto.New().Marshal(mid, sid, pb)
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
 }
 
 func (c *Context) Broadcast(channel string, data []byte) {

@@ -1,7 +1,8 @@
 package adapter
 
 import (
-	"game-go/core/adapter/user"
+	gameAdapter "game-go/core/adapter/game"
+	userAdapter "game-go/core/adapter/user"
 	"game-go/core/factory/service"
 )
 
@@ -14,6 +15,10 @@ func New(serviceFactory service.Factory) Factory {
 	return adapterFactory
 }
 
-func (s *factory) UserAdapter() user.Adapter {
-	return user.New(s.serviceFactory.UserService())
+func (s *factory) UserAdapter() userAdapter.Adapter {
+	return userAdapter.New(s.serviceFactory.UserService())
+}
+
+func (s *factory) GameAdapter() gameAdapter.Adapter {
+	return gameAdapter.New(s.serviceFactory.GameService())
 }

@@ -14,13 +14,12 @@ type GameController struct {
 }
 
 func New(id int, maxRound int) *GameController {
-	return &GameController{id: id, maxRound: maxRound}
+	return &GameController{id: id, deckRound: 1, maxRound: maxRound}
 }
 
 func (g *GameController) Betting(ctx *game.Context) {
-	g.deckRound++
 	if g.deckRound > g.maxRound {
-		g.deckRound = 0
+		g.deckRound = 1
 	}
 	newRound := &res.BeginNewRound{}
 	newRound.MiniGameId = int32(g.id)
@@ -29,6 +28,7 @@ func (g *GameController) Betting(ctx *game.Context) {
 	pb, _ := proto.Marshal(newRound)
 	data, _ := crypto.New().Marshal(500, 9004, pb)
 	ctx.WriteData(data)
+	g.deckRound++
 }
 
 func (g *GameController) Deal(ctx *game.Context) {
