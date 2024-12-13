@@ -4,7 +4,6 @@ import (
 	model "game-go/core/model/game_status"
 	"game-go/core/pkg/tool/redis"
 	"strconv"
-	"time"
 )
 
 type cache struct {
@@ -16,13 +15,14 @@ func New(rdb redis.Tool) Cache {
 }
 
 func (c *cache) Save(input *model.Input) (err error) {
-	key := "game_status:" + strconv.Itoa(input.GameId)
+	key := "game_status:" + strconv.Itoa(int(*input.GameID))
 	err = c.rdb.HSet(key,
-		"game_id", input.GameId,
-		"round_id", input.RoundId,
-		"countdown", input.CountDown,
-		"deck_round", input.DeckRound,
-		"datetime", time.Now().Format("2006-01-02 15:04:05"),
+		"game_id", *input.GameID,
+		"round_id", *input.RoundInfoID,
+		"stage", *input.Stage,
+		"countdown", *input.CountDown,
+		"deck_round", *input.DeckRound,
+		"update_at", *input.UpdateAt,
 	)
 	return err
 }

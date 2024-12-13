@@ -1,9 +1,15 @@
 package game_status
 
+import (
+	base "game-go/core/model/field/base/optional"
+	gameStatus "game-go/core/model/field/game_status/optional"
+)
+
 type Input struct {
-	GameId    int
-	RoundId   string
-	CountDown int
-	DeckRound int
-	Datetime  string
+	gameStatus.GameIDField
+	gameStatus.RoundInfoIDField
+	gameStatus.StageField
+	gameStatus.CountDownField
+	gameStatus.DeckRoundField
+	base.UpdateAtField
 }

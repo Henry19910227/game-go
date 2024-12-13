@@ -1,4 +1,4 @@
-package base
+package optional
 
 type IsDeletedField struct {
 	IsDeleted *int `json:"is_deleted,omitempty" gorm:"column:is_deleted"` // 是否已刪除

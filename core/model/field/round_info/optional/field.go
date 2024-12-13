@@ -1,4 +1,4 @@
-package round_info
+package optional
 
 type IDField struct {
 	ID *string `json:"id,omitempty" gorm:"column:id"` // 期號

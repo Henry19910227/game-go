@@ -1,14 +1,18 @@
 package base
 
+import (
+	"game-go/core/model/field/base/optional"
+)
+
 type ListInput struct {
-	IsDeletedField
-	CreateAtField
-	UpdateAtField
+	optional.IsDeletedField
+	optional.CreateAtField
+	optional.UpdateAtField
 }
 
 type PagingInput struct {
-	PageField
-	SizeField
+	optional.PageField
+	optional.SizeField
 }
 
 type Preload struct {

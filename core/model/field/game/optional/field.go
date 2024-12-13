@@ -1,4 +1,4 @@
-package game
+package optional
 
 type IDField struct {
 	ID *int64 `json:"id,omitempty" gorm:"column:id"` // 遊戲id

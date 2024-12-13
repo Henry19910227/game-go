@@ -1,7 +1,11 @@
 package base
 
+import (
+	"game-go/core/model/field/base/optional"
+)
+
 type Table struct {
-	IsDeletedField
-	CreateAtField
-	UpdateAtField
+	optional.IsDeletedField
+	optional.CreateAtField
+	optional.UpdateAtField
 }

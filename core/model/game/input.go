@@ -1,11 +1,14 @@
 package game
 
-import baseInput "game-go/core/model/base"
+import (
+	baseInput "game-go/core/model/base"
+	"game-go/core/model/field/game/optional"
+)
 
 type ListInput struct {
-	IDField
-	NameField
-	TypeField
+	optional.IDField
+	optional.NameField
+	optional.TypeField
 	baseInput.ListInput
 	baseInput.PreloadInput
 }

@@ -1,8 +1,9 @@
 package game
 
 import (
-	"game-go/core/model/game_status"
+	"game-go/core/model/game/begin_new_round"
 	"game-go/core/model/res"
+	"game-go/core/pkg/util"
 	gameService "game-go/core/service/game"
 )
 
@@ -15,12 +16,12 @@ func New(gameService gameService.Service) Adapter {
 }
 
 func (a *adapter) BeginNewRound(input *res.BeginNewRound) (output *res.BeginNewRound, errMsg *res.ErrorMessage) {
-	param := &game_status.Input{}
-	param.GameId = int(input.MiniGameId)
-	param.RoundId = input.RoundId
-	param.CountDown = int(input.CountDown)
-	param.DeckRound = int(input.DeckRound)
-	result, err := a.gameService.BeginNewRound(param)
+	param := &begin_new_round.Input{}
+	param.ID = util.PointerInt64(int64(input.MiniGameId))
+	param.RoundInfoID = util.PointerString(input.RoundId)
+	param.CountDown = util.PointerInt32(input.CountDown)
+	param.DeckRound = util.PointerInt32(input.DeckRound)
+	err := a.gameService.BeginNewRound(param)
 	if err != nil {
 		errMsg = &res.ErrorMessage{}
 		errMsg.Code = 800
@@ -28,9 +29,14 @@ func (a *adapter) BeginNewRound(input *res.BeginNewRound) (output *res.BeginNewR
 		return output, errMsg
 	}
 	output = &res.BeginNewRound{}
-	output.MiniGameId = int32(result.GameId)
-	output.RoundId = result.RoundId
-	output.CountDown = int32(result.CountDown)
-	output.DeckRound = int32(result.DeckRound)
+	output.MiniGameId = input.MiniGameId
+	output.RoundId = input.RoundId
+	output.CountDown = input.CountDown
+	output.DeckRound = input.DeckRound
 	return output, errMsg
+}
+
+func (a *adapter) BeginDeal(input *res.BeginDeal) (output *res.BeginDeal, errMsg *res.ErrorMessage) {
+	//TODO implement me
+	panic("implement me")
 }
