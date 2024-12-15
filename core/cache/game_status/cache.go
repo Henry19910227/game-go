@@ -2,7 +2,7 @@ package game_status
 
 import (
 	model "game-go/core/model/game_status"
-	"game-go/core/pkg/tool/redis"
+	"game-go/shared/pkg/tool/redis"
 	"strconv"
 )
 

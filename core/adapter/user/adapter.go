@@ -1,11 +1,11 @@
 package user
 
 import (
-	"game-go/core/model/req"
-	"game-go/core/model/res"
 	"game-go/core/model/user/login"
-	"game-go/core/pkg/util"
 	userService "game-go/core/service/user"
+	"game-go/shared/pkg/util"
+	"game-go/shared/req"
+	"game-go/shared/res"
 	"strconv"
 	"strings"
 )

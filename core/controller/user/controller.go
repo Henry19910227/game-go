@@ -4,8 +4,8 @@ import (
 	"fmt"
 	userAdapter "game-go/core/adapter/user"
 	"game-go/core/game"
-	"game-go/core/model/req"
-	"game-go/core/pkg/tool/crypto"
+	"game-go/shared/pkg/tool/crypto"
+	"game-go/shared/req"
 	"google.golang.org/protobuf/proto"
 )
 

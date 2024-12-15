@@ -2,8 +2,8 @@ package controller
 
 import (
 	"game-go/roulette/game"
-	"game-go/roulette/model/res"
-	"game-go/roulette/tool/crypto"
+	"game-go/shared/pkg/tool/crypto"
+	"game-go/shared/res"
 	"google.golang.org/protobuf/proto"
 )
 

@@ -4,9 +4,9 @@ import (
 	"fmt"
 	gameAdapter "game-go/core/adapter/game"
 	"game-go/core/game"
-	"game-go/core/model/req"
-	"game-go/core/model/res"
-	"game-go/core/pkg/tool/crypto"
+	"game-go/shared/pkg/tool/crypto"
+	"game-go/shared/req"
+	"game-go/shared/res"
 	"google.golang.org/protobuf/proto"
 	"strconv"
 )

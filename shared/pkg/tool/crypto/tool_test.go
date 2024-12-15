@@ -2,8 +2,8 @@ package crypto
 
 import (
 	"fmt"
-	"game-go/core/model/req"
-	"game-go/core/model/res"
+	"game-go/shared/req"
+	"game-go/shared/res"
 	"google.golang.org/protobuf/proto"
 	"log"
 	"testing"

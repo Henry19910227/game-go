@@ -1,8 +1,8 @@
 package user
 
 import (
-	"game-go/core/model/req"
-	"game-go/core/model/res"
+	"game-go/shared/req"
+	"game-go/shared/res"
 )
 
 type Adapter interface {

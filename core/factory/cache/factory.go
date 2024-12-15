@@ -2,7 +2,7 @@ package cache
 
 import (
 	gameStatusCache "game-go/core/cache/game_status"
-	"game-go/core/pkg/tool/redis"
+	"game-go/shared/pkg/tool/redis"
 )
 
 type factory struct {

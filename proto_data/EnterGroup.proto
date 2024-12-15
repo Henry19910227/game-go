@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 // 生產指令：protoc --go_out=. ./proto_data/*.proto
-option go_package = "./core/model/req";
+option go_package = "./shared/req";
 
 // 進入群組(可用於進入直播間)
 message EnterGroup {

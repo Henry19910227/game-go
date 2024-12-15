@@ -1,6 +1,6 @@
 package game
 
-import "game-go/core/model/res"
+import "game-go/shared/res"
 
 type Adapter interface {
 	BeginNewRound(input *res.BeginNewRound) (output *res.BeginNewRound, errMsg *res.ErrorMessage)

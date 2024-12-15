@@ -1,7 +1,7 @@
 package game
 
 import (
-	"game-go/core/pkg/tool/crypto"
+	"game-go/shared/pkg/tool/crypto"
 	"github.com/gorilla/websocket"
 	"google.golang.org/protobuf/proto"
 	"sync"

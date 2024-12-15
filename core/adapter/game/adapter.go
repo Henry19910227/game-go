@@ -2,9 +2,9 @@ package game
 
 import (
 	"game-go/core/model/game/begin_new_round"
-	"game-go/core/model/res"
-	"game-go/core/pkg/util"
 	gameService "game-go/core/service/game"
+	"game-go/shared/pkg/util"
+	"game-go/shared/res"
 )
 
 type adapter struct {

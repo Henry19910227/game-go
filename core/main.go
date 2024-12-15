@@ -7,11 +7,11 @@ import (
 	"game-go/core/factory/repository"
 	"game-go/core/factory/service"
 	gameEngine "game-go/core/game"
-	"game-go/core/pkg/tool/crypto"
-	"game-go/core/pkg/tool/orm"
-	"game-go/core/pkg/tool/redis"
 	"game-go/core/router/game"
 	"game-go/core/router/user"
+	"game-go/shared/pkg/tool/crypto"
+	"game-go/shared/pkg/tool/orm"
+	"game-go/shared/pkg/tool/redis"
 	"strconv"
 )
 

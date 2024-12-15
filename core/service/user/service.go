@@ -5,9 +5,9 @@ import (
 	gameModel "game-go/core/model/game"
 	model "game-go/core/model/user"
 	"game-go/core/model/user/login"
-	"game-go/core/pkg/util"
 	"game-go/core/repository/game"
 	"game-go/core/repository/user"
+	"game-go/shared/pkg/util"
 )
 
 type service struct {

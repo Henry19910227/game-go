@@ -2,7 +2,7 @@ package crypto_json
 
 import (
 	"fmt"
-	"game-go/core/model/res"
+	"game-go/shared/res"
 	"log"
 	"testing"
 )

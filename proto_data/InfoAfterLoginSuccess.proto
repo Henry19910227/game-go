@@ -1,5 +1,7 @@
 syntax = "proto3";
-option go_package = "./core/model/res";
+
+// 指令：protoc --go_out=. ./proto_data/*.proto
+option go_package = "./shared/res";
 
 // 定義 InfoAfterLoginSuccess 訊息
 message InfoAfterLoginSuccess {

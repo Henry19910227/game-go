@@ -3,7 +3,7 @@ package game
 import (
 	baseModel "game-go/core/model/base"
 	model "game-go/core/model/game"
-	"game-go/core/pkg/util"
+	"game-go/shared/pkg/util"
 	"gorm.io/gorm"
 )
 

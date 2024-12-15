@@ -2,7 +2,8 @@ package user
 
 import (
 	model "game-go/core/model/user"
-	"game-go/core/pkg/util"
+	"game-go/shared/pkg/util"
+
 	"gorm.io/gorm"
 )
 

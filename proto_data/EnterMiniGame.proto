@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 // 生產指令：protoc --go_out=. ./proto_data/*.proto
-option go_package = "./core/model/req";
+option go_package = "./shared/req";
 
 // 進入小遊戲
 message EnterMiniGame {
