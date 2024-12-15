@@ -7,5 +7,5 @@ import (
 
 type Service interface {
 	BeginNewRound(input *begin_new_round.Input) error
-	BeginDeal(input *begin_deal.Input) error
+	BeginDeal(input *begin_deal.Input) (err error)
 }

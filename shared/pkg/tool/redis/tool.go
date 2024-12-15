@@ -43,3 +43,7 @@ func (t *tool) LRange(key string, start int, stop int) []string {
 func (t *tool) HSet(key string, value ...interface{}) error {
 	return t.client.HSet(t.ctx, key, value).Err()
 }
+
+func (t *tool) Del(keys ...string) error {
+	return t.client.Del(t.ctx, keys...).Err()
+}

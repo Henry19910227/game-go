@@ -2,6 +2,7 @@ package cache
 
 import (
 	gameStatusCache "game-go/core/cache/game_status"
+	roundInfoCache "game-go/core/cache/round_info"
 	"game-go/shared/pkg/tool/redis"
 )
 
@@ -16,4 +17,8 @@ func New(rdb redis.Tool) Factory {
 
 func (f *factory) GameStatusCache() gameStatusCache.Cache {
 	return gameStatusCache.New(f.rdb)
+}
+
+func (f *factory) RoundInfoCache() roundInfoCache.Cache {
+	return roundInfoCache.New(f.rdb)
 }

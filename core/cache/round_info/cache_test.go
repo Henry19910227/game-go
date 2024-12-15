@@ -3,8 +3,8 @@ package round_info
 import (
 	"fmt"
 	"game-go/core/model/round_info"
-	"game-go/core/pkg/tool/redis"
-	"game-go/core/pkg/util"
+	"game-go/shared/pkg/tool/redis"
+	"game-go/shared/pkg/util"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )

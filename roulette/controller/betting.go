@@ -5,10 +5,12 @@ import (
 	"game-go/shared/pkg/tool/crypto"
 	"game-go/shared/res"
 	"google.golang.org/protobuf/proto"
+	"time"
 )
 
 type GameController struct {
 	id        int
+	roundId   string
 	deckRound int
 	maxRound  int
 }
@@ -21,10 +23,12 @@ func (g *GameController) Betting(ctx *game.Context) {
 	if g.deckRound > g.maxRound {
 		g.deckRound = 1
 	}
+	g.roundId = time.Now().Format("20060102150405")
 	newRound := &res.BeginNewRound{}
 	newRound.MiniGameId = int32(g.id)
 	newRound.CountDown = int32(ctx.Stage().Countdown * 1000)
 	newRound.DeckRound = int32(g.deckRound)
+	newRound.RoundId = g.roundId
 	pb, _ := proto.Marshal(newRound)
 	data, _ := crypto.New().Marshal(500, 9004, pb)
 	ctx.WriteData(data)
@@ -34,7 +38,7 @@ func (g *GameController) Betting(ctx *game.Context) {
 func (g *GameController) Deal(ctx *game.Context) {
 	performs := []*res.ActorPerform{{Elements: []int32{1}}}
 	roundInfo := &res.RoundInfo{}
-	roundInfo.RoundId = "11111"
+	roundInfo.RoundId = g.roundId
 	roundInfo.ElementType = 1
 	roundInfo.Performs = performs
 

@@ -152,12 +152,15 @@ func (c *controller) BeginNewRound(ctx *game.Context) {
 
 func (c *controller) BeginDeal(ctx *game.Context) {
 	beginDeal := ctx.MustGet("pb").(*res.BeginDeal)
-	beginDeal.RoundId = "202412091500"
-	gameId := strconv.Itoa(int(beginDeal.MiniGameId))
-
-	pb, _ := proto.Marshal(beginDeal)
-	data, _ := crypto.New().Marshal(500, 1010, pb)
-	ctx.Broadcast(gameId, data)
+	output, errMsg := c.gameAdapter.BeginDeal(beginDeal)
+	channelId := strconv.Itoa(int(beginDeal.MiniGameId))
+	if errMsg != nil {
+		data, _ := ctx.MarshalData(7, 600, errMsg)
+		ctx.Broadcast(channelId, data)
+		return
+	}
+	data, _ := ctx.MarshalData(500, 1010, output)
+	ctx.Broadcast(channelId, data)
 }
 
 func (c *controller) BeginSettle(ctx *game.Context) {

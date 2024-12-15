@@ -3,8 +3,8 @@ package round_info
 import (
 	"encoding/json"
 	model "game-go/core/model/round_info"
-	"game-go/core/pkg/tool/redis"
-	"game-go/core/pkg/util"
+	"game-go/shared/pkg/tool/redis"
+	"game-go/shared/pkg/util"
 	"strconv"
 )
 
@@ -38,4 +38,9 @@ func (c *cache) List(gameId int64) ([]*model.Table, error) {
 		tables = append(tables, table)
 	}
 	return tables, nil
+}
+
+func (c *cache) DelAll(gameId int64) (err error) {
+	key := "round_info:" + strconv.Itoa(int(gameId))
+	return c.rdb.Del(key)
 }
