@@ -26,8 +26,8 @@ func (c *cache) Save(table *model.Table) (err error) {
 	return err
 }
 
-func (c *cache) List(gameId int64) ([]*model.Table, error) {
-	key := "round_info:" + strconv.Itoa(int(gameId))
+func (c *cache) List(input *model.ListInput) ([]*model.Table, error) {
+	key := "round_info:" + strconv.Itoa(int(util.OnNilJustReturnInt64(input.GameId, 0)))
 	results := c.rdb.LRange(key, 0, -1)
 	tables := make([]*model.Table, 0)
 	for _, result := range results {
@@ -38,6 +38,19 @@ func (c *cache) List(gameId int64) ([]*model.Table, error) {
 		tables = append(tables, table)
 	}
 	return tables, nil
+}
+
+func (c *cache) FindLast(input *model.ListInput) (table *model.Table, err error) {
+	key := "round_info:" + strconv.Itoa(int(util.OnNilJustReturnInt64(input.GameId, 0)))
+	results := c.rdb.LRange(key, -1, -1)
+	if len(results) == 0 {
+		return nil, nil
+	}
+	table = &model.Table{}
+	if err = json.Unmarshal([]byte(results[0]), table); err != nil {
+		return nil, err
+	}
+	return table, nil
 }
 
 func (c *cache) DelAll(gameId int64) (err error) {

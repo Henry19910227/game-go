@@ -2,7 +2,7 @@ package round_info
 
 import (
 	"fmt"
-	"game-go/core/model/round_info"
+	model "game-go/core/model/round_info"
 	"game-go/shared/pkg/tool/redis"
 	"game-go/shared/pkg/util"
 	"github.com/stretchr/testify/assert"
@@ -10,7 +10,7 @@ import (
 )
 
 func TestCache_Save(t *testing.T) {
-	table := &round_info.Table{}
+	table := &model.Table{}
 	table.ID = util.PointerString("202412131632")
 	table.GameId = util.PointerInt64(9)
 	table.Type = util.PointerInt(1)
@@ -28,7 +28,9 @@ func TestCache_Save(t *testing.T) {
 
 func TestCache_List(t *testing.T) {
 	roundInfoCache := New(redis.New())
-	tables, err := roundInfoCache.List(9)
+	param := &model.ListInput{}
+	param.GameId = util.PointerInt64(1009)
+	tables, err := roundInfoCache.List(param)
 	if err != nil {
 		t.Fatalf(err.Error())
 	}
@@ -36,4 +38,15 @@ func TestCache_List(t *testing.T) {
 		fmt.Println(*table.ID)
 		fmt.Println(*table.Elements)
 	}
+}
+
+func TestCache_FindLast(t *testing.T) {
+	roundInfoCache := New(redis.New())
+	param := &model.ListInput{}
+	param.GameId = util.PointerInt64(1009)
+	table, err := roundInfoCache.FindLast(param)
+	if err != nil {
+		t.Fatalf(err.Error())
+	}
+	fmt.Println(table)
 }

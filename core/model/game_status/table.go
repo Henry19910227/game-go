@@ -5,15 +5,11 @@ import (
 	gameStatus "game-go/core/model/field/game_status/optional"
 )
 
-type Input struct {
+type Table struct {
 	gameStatus.GameIDField
 	gameStatus.RoundInfoIDField
 	gameStatus.StageField
 	gameStatus.CountDownField
 	gameStatus.DeckRoundField
 	base.UpdateAtField
-}
-
-type FindInput struct {
-	gameStatus.GameIDField
 }

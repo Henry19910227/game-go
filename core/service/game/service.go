@@ -5,6 +5,7 @@ import (
 	roundInfoCache "game-go/core/cache/round_info"
 	"game-go/core/model/game/begin_deal"
 	"game-go/core/model/game/begin_new_round"
+	"game-go/core/model/game/enter_room"
 	gameStatusModel "game-go/core/model/game_status"
 	roundInfoModel "game-go/core/model/round_info"
 	"game-go/shared/pkg/util"
@@ -20,6 +21,34 @@ func New(gameStatusCache gameStatusCache.Cache, roundInfoCache roundInfoCache.Ca
 	return &service{gameStatusCache: gameStatusCache, roundInfoCache: roundInfoCache}
 }
 
+func (s *service) EnterGroup(input *enter_room.Input) (output *enter_room.Output, err error) {
+	param := &gameStatusModel.FindInput{}
+	param.GameID = input.ID
+	table, err := s.gameStatusCache.Find(param)
+	if err != nil {
+		return nil, err
+	}
+	roundInfoParam := &roundInfoModel.ListInput{}
+	roundInfoParam.GameId = input.ID
+	roundInfoTable, err := s.roundInfoCache.FindLast(roundInfoParam)
+	if err != nil {
+		return nil, err
+	}
+	output = &enter_room.Output{}
+	output.GameID = table.GameID
+	output.Stage = table.Stage
+	output.CountDown = table.CountDown
+	if roundInfoTable != nil {
+		output.LastRoundInfo = &enter_room.LastRoundInfo{}
+		output.LastRoundInfo.RoundInfoID = roundInfoTable.ID
+		output.LastRoundInfo.Type = roundInfoTable.Type
+		output.LastRoundInfo.Elements = roundInfoTable.Elements
+		output.LastRoundInfo.Patterns = roundInfoTable.Patterns
+		output.LastRoundInfo.Results = roundInfoTable.Results
+	}
+	return output, nil
+}
+
 func (s *service) BeginNewRound(input *begin_new_round.Input) error {
 	// 如果是第一局則清空 round info list
 	if util.OnNilJustReturnInt32(input.DeckRound, 0) == 1 {
@@ -29,7 +58,7 @@ func (s *service) BeginNewRound(input *begin_new_round.Input) error {
 		}
 	}
 	// 儲存 game status
-	param := &gameStatusModel.Input{}
+	param := &gameStatusModel.Table{}
 	param.GameID = input.ID
 	param.RoundInfoID = input.RoundInfoID
 	param.Stage = util.PointerInt32(1)
@@ -44,7 +73,7 @@ func (s *service) BeginNewRound(input *begin_new_round.Input) error {
 }
 
 func (s *service) BeginDeal(input *begin_deal.Input) (err error) {
-	param := &gameStatusModel.Input{}
+	param := &gameStatusModel.Table{}
 	param.GameID = input.ID
 	param.RoundInfoID = input.RoundInfoID
 	param.Stage = util.PointerInt32(2)

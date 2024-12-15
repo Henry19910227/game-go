@@ -7,7 +7,7 @@ import (
 
 func main() {
 
-	gameController := controller.New(9, 10)
+	gameController := controller.New(1009, 10)
 
 	engine := game.New()
 	engine.AddStage(&game.Stage{

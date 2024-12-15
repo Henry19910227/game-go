@@ -56,17 +56,14 @@ func (c *controller) EnterGroup(ctx *game.Context) {
 	ctx.Join(enterGroup.IdP)
 	// 紀錄
 	ctx.Client().Set("group", enterGroup.IdP)
-	// 回傳
-	gameInfo := &res.MiniGameBasicInfo{}
-	gameInfo.MiniGameId = 9
-	gameInfo.CountDown = 20
-	gameInfo.Stage = 1
-	gameInfo.Name = "輪盤"
-
-	groupInfo := &res.GroupInfo{}
-	groupInfo.MiniGameBasicInfoList = []*res.MiniGameBasicInfo{gameInfo}
-	pb, _ := proto.Marshal(groupInfo)
-	data, _ := crypto.New().Marshal(500, 1001, pb)
+	// API
+	output, errMsg := c.gameAdapter.EnterGroup(enterGroup)
+	if errMsg != nil {
+		data, _ := ctx.MarshalData(7, 600, errMsg)
+		ctx.WriteData(data)
+		return
+	}
+	data, _ := ctx.MarshalData(500, 1001, output)
 	ctx.WriteData(data)
 }
 

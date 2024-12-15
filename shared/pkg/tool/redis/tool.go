@@ -44,6 +44,14 @@ func (t *tool) HSet(key string, value ...interface{}) error {
 	return t.client.HSet(t.ctx, key, value).Err()
 }
 
+func (t *tool) HGetAll(key string, dest interface{}) error {
+	return t.client.HGetAll(t.ctx, key).Scan(dest)
+}
+
+func (t *tool) HGetAllMap(key string) (map[string]string, error) {
+	return t.client.HGetAll(t.ctx, key).Result()
+}
+
 func (t *tool) Del(keys ...string) error {
 	return t.client.Del(t.ctx, keys...).Err()
 }

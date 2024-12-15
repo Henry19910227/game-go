@@ -9,5 +9,7 @@ type Tool interface {
 	RPush(key string, value ...interface{}) error
 	LRange(key string, start int, stop int) []string
 	HSet(key string, value ...interface{}) error
+	HGetAll(key string, dest interface{}) error
+	HGetAllMap(key string) (map[string]string, error)
 	Del(keys ...string) error
 }
