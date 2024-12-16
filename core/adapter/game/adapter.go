@@ -3,7 +3,8 @@ package game
 import (
 	"game-go/core/model/game/begin_deal"
 	"game-go/core/model/game/begin_new_round"
-	"game-go/core/model/game/enter_room"
+	"game-go/core/model/game/enter_game"
+	"game-go/core/model/game/enter_group"
 	gameService "game-go/core/service/game"
 	"game-go/shared/pkg/util"
 	"game-go/shared/req"
@@ -27,7 +28,7 @@ func (a *adapter) EnterGroup(input *req.EnterGroup) (output *res.GroupInfo, errM
 		errMsg.Desc = "miniGameIdsArray 不可為空"
 		return output, errMsg
 	}
-	param := &enter_room.Input{}
+	param := &enter_group.Input{}
 	param.ID = util.PointerInt64(int64(input.MiniGameIdsArray[0]))
 	result, err := a.gameService.EnterGroup(param)
 	if err != nil {
@@ -59,6 +60,46 @@ func (a *adapter) EnterGroup(input *req.EnterGroup) (output *res.GroupInfo, errM
 	}
 	output = &res.GroupInfo{}
 	output.MiniGameBasicInfoList = []*res.MiniGameBasicInfo{basicInfo}
+	return output, nil
+}
+
+func (a *adapter) EnterGame(input *req.EnterMiniGame) (output *res.EnterMiniGameInfo, errMsg *res.ErrorMessage) {
+	param := &enter_game.Input{}
+	param.ID = util.PointerInt64(int64(input.MiniGameId))
+	result, err := a.gameService.EnterGame(param)
+	if err != nil {
+		errMsg = &res.ErrorMessage{}
+		errMsg.Code = 800
+		errMsg.Desc = err.Error()
+		return output, errMsg
+	}
+
+	output = &res.EnterMiniGameInfo{}
+	output.MiniGameId = int32(util.OnNilJustReturnInt64(result.GameID, 0))
+	output.Stage = util.OnNilJustReturnInt32(result.Stage, 0)
+	output.CountDown = util.OnNilJustReturnInt32(result.CountDown, 0)
+	output.DeckRound = util.OnNilJustReturnInt32(result.DeckRound, 0)
+	output.RoundId = util.OnNilJustReturnString(result.RoundInfoID, "")
+	output.Trend = &res.Trend{RoundInfoList: []*res.RoundInfo{}}
+	roundInfos := make([]*res.RoundInfo, 0)
+	for _, roundInfoTable := range result.RoundInfos {
+		roundInfo := &res.RoundInfo{}
+		roundInfo.RoundId = util.OnNilJustReturnString(roundInfoTable.ID, "")
+		roundInfo.ElementType = int32(util.OnNilJustReturnInt(roundInfoTable.Type, 0))
+
+		// 轉換 ActorPerform
+		perform := &res.ActorPerform{}
+		elementStr := util.OnNilJustReturnString(roundInfoTable.Elements, "")
+		patternStr := util.OnNilJustReturnString(roundInfoTable.Patterns, "")
+		resultStr := util.OnNilJustReturnString(roundInfoTable.Results, "")
+		perform.Elements = util.StringToInt32Array(elementStr, ",")
+		perform.Patterns = util.StringToInt32Array(patternStr, ",")
+		perform.PerformResult = util.StringToInt32Array(resultStr, ",")
+		roundInfo.Performs = []*res.ActorPerform{perform}
+
+		roundInfos = append(roundInfos, roundInfo)
+	}
+	output.Trend.RoundInfoList = roundInfos
 	return output, nil
 }
 

@@ -39,7 +39,7 @@ func (g *GameController) Deal(ctx *game.Context) {
 	performs := []*res.ActorPerform{{Elements: []int32{1}}}
 	roundInfo := &res.RoundInfo{}
 	roundInfo.RoundId = g.roundId
-	roundInfo.ElementType = 1
+	roundInfo.ElementType = 7
 	roundInfo.Performs = performs
 
 	newRound := &res.BeginDeal{}

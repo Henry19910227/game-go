@@ -1,4 +1,4 @@
-package enter_room
+package enter_group
 
 import game "game-go/core/model/field/game/optional"
 

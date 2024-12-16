@@ -1,12 +1,15 @@
 package bet_area
 
-import baseTable "game-go/core/model/base"
+import (
+	baseTable "game-go/core/model/base"
+	"game-go/core/model/field/bet_area/optional"
+)
 
 type Table struct {
-	IDField
-	GameIdField
-	NameField
-	MinLimitField
-	MaxLimitField
+	optional.IDField
+	optional.GameIdField
+	optional.NameField
+	optional.MinLimitField
+	optional.MaxLimitField
 	baseTable.Table
 }

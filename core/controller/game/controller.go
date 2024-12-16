@@ -106,16 +106,14 @@ func (c *controller) EnterMiniGame(ctx *game.Context) {
 	games = append(games, enterMiniGame.MiniGameId)
 	ctx.Client().Set("games", games)
 
-	// 回傳
-	enterMiniGameInfo := &res.EnterMiniGameInfo{}
-	enterMiniGameInfo.MiniGameId = enterMiniGame.MiniGameId
-	enterMiniGameInfo.RoundId = "1"
-	enterMiniGameInfo.Stage = 1
-	enterMiniGameInfo.CountDown = 10
-	enterMiniGameInfo.DeckRound = 10
-
-	pb, _ := proto.Marshal(enterMiniGameInfo)
-	data, _ := crypto.New().Marshal(500, 1003, pb)
+	// API
+	output, errMsg := c.gameAdapter.EnterGame(enterMiniGame)
+	if errMsg != nil {
+		data, _ := ctx.MarshalData(7, 600, errMsg)
+		ctx.WriteData(data)
+		return
+	}
+	data, _ := ctx.MarshalData(500, 1003, output)
 	ctx.WriteData(data)
 }
 

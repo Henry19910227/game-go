@@ -1,4 +1,4 @@
-package enter_room
+package enter_group
 
 import (
 	game_status "game-go/core/model/field/game_status/optional"
