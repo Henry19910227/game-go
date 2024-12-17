@@ -4,6 +4,7 @@ import (
 	"game-go/core/model/game/begin_deal"
 	"game-go/core/model/game/begin_new_round"
 	"game-go/core/model/game/begin_settle"
+	"game-go/core/model/game/clear_trends"
 	"game-go/core/model/game/enter_game"
 	"game-go/core/model/game/enter_group"
 	gameService "game-go/core/service/game"
@@ -102,6 +103,25 @@ func (a *adapter) EnterGame(input *req.EnterMiniGame) (output *res.EnterMiniGame
 	}
 	output.Trend.RoundInfoList = roundInfos
 	return output, nil
+}
+
+func (a *adapter) ClearTrends(input *res.ClearTrends) (output *res.ClearTrends, errMsg *res.ErrorMessage) {
+	if len(input.MiniGameIds) == 0 {
+		errMsg = &res.ErrorMessage{}
+		errMsg.Code = 800
+		errMsg.Desc = "MiniGameIds 不可為空"
+		return output, errMsg
+	}
+	param := &clear_trends.Input{}
+	param.ID = util.PointerInt64(int64(input.MiniGameIds[0]))
+	if err := a.gameService.ClearTrends(param); err != nil {
+		errMsg = &res.ErrorMessage{}
+		errMsg.Code = 800
+		errMsg.Desc = err.Error()
+		return output, errMsg
+	}
+	output = input
+	return output, errMsg
 }
 
 func (a *adapter) BeginNewRound(input *res.BeginNewRound) (output *res.BeginNewRound, errMsg *res.ErrorMessage) {

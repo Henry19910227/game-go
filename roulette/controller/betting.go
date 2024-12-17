@@ -17,13 +17,20 @@ type GameController struct {
 }
 
 func New(id int, maxRound int) *GameController {
-	return &GameController{id: id, deckRound: 1, maxRound: maxRound}
+	return &GameController{id: id, deckRound: 0, maxRound: maxRound}
 }
 
 func (g *GameController) Betting(ctx *game.Context) {
-	if g.deckRound > g.maxRound {
-		g.deckRound = 1
+	// 大於最大局數時則清空局數
+	if g.deckRound == 0 || g.deckRound >= g.maxRound {
+		g.deckRound = 0
+		clearTrends := &res.ClearTrends{}
+		clearTrends.MiniGameIds = []int32{int32(g.id)}
+		pb, _ := proto.Marshal(clearTrends)
+		data, _ := crypto.New().Marshal(500, 9011, pb)
+		ctx.WriteData(data)
 	}
+	g.deckRound++
 	g.roundId = time.Now().Format("20060102150405")
 	newRound := &res.BeginNewRound{}
 	newRound.MiniGameId = int32(g.id)
@@ -33,7 +40,6 @@ func (g *GameController) Betting(ctx *game.Context) {
 	pb, _ := proto.Marshal(newRound)
 	data, _ := crypto.New().Marshal(500, 9004, pb)
 	ctx.WriteData(data)
-	g.deckRound++
 }
 
 func (g *GameController) Deal(ctx *game.Context) {

@@ -32,6 +32,8 @@ func (c *controller) Unmarshal(ctx *game.Context) {
 		return
 	case mid == 500 && sid == 1005:
 		pb = &req.EnterMiniGame{}
+	case mid == 500 && sid == 9011:
+		pb = &res.ClearTrends{}
 	case mid == 500 && sid == 9004:
 		pb = &res.BeginNewRound{}
 	case mid == 500 && sid == 9010:
@@ -130,6 +132,19 @@ func (c *controller) Bet(ctx *game.Context) {
 func (c *controller) RefreshScore(ctx *game.Context) {
 	//TODO implement me
 
+}
+
+func (c *controller) ClearTrends(ctx *game.Context) {
+	clearTrends := ctx.MustGet("pb").(*res.ClearTrends)
+	output, errMsg := c.gameAdapter.ClearTrends(clearTrends)
+	channelId := strconv.Itoa(int(clearTrends.MiniGameIds[0]))
+	if errMsg != nil {
+		data, _ := ctx.MarshalData(7, 600, errMsg)
+		ctx.Broadcast(channelId, data)
+		return
+	}
+	data, _ := ctx.MarshalData(500, 1011, output)
+	ctx.Broadcast(channelId, data)
 }
 
 func (c *controller) BeginNewRound(ctx *game.Context) {
