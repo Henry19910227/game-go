@@ -160,11 +160,13 @@ func (c *controller) BeginDeal(ctx *game.Context) {
 
 func (c *controller) BeginSettle(ctx *game.Context) {
 	beginSettle := ctx.MustGet("pb").(*res.BeginSettle)
-	beginSettle.WinAreaCodes = []int32{1, 2, 3}
-	beginSettle.WinScore = 1000
-	gameId := strconv.Itoa(int(beginSettle.MiniGameId))
-
-	pb, _ := proto.Marshal(beginSettle)
-	data, _ := crypto.New().Marshal(500, 1005, pb)
-	ctx.Broadcast(gameId, data)
+	output, errMsg := c.gameAdapter.BeginSettle(beginSettle)
+	channelId := strconv.Itoa(int(beginSettle.MiniGameId))
+	if errMsg != nil {
+		data, _ := ctx.MarshalData(7, 600, errMsg)
+		ctx.Broadcast(channelId, data)
+		return
+	}
+	data, _ := ctx.MarshalData(500, 1005, output)
+	ctx.Broadcast(channelId, data)
 }

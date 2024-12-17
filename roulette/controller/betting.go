@@ -5,6 +5,7 @@ import (
 	"game-go/shared/pkg/tool/crypto"
 	"game-go/shared/res"
 	"google.golang.org/protobuf/proto"
+	"math/rand"
 	"time"
 )
 
@@ -36,7 +37,7 @@ func (g *GameController) Betting(ctx *game.Context) {
 }
 
 func (g *GameController) Deal(ctx *game.Context) {
-	performs := []*res.ActorPerform{{Elements: []int32{1}}}
+	performs := []*res.ActorPerform{{Elements: []int32{int32(getRandomNumber())}}}
 	roundInfo := &res.RoundInfo{}
 	roundInfo.RoundId = g.roundId
 	roundInfo.ElementType = 7
@@ -58,4 +59,11 @@ func (g *GameController) Settle(ctx *game.Context) {
 	pb, _ := proto.Marshal(settle)
 	data, _ := crypto.New().Marshal(500, 9005, pb)
 	ctx.WriteData(data)
+}
+
+func getRandomNumber() int {
+	// 設定亂數種子，確保每次執行結果不同
+	rand.Seed(time.Now().UnixNano())
+	// 生成 0 到 36 之間的隨機數字 (包含 0 和 36)
+	return rand.Intn(37)
 }

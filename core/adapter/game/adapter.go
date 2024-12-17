@@ -3,6 +3,7 @@ package game
 import (
 	"game-go/core/model/game/begin_deal"
 	"game-go/core/model/game/begin_new_round"
+	"game-go/core/model/game/begin_settle"
 	"game-go/core/model/game/enter_game"
 	"game-go/core/model/game/enter_group"
 	gameService "game-go/core/service/game"
@@ -165,4 +166,23 @@ func (a *adapter) BeginDeal(input *res.BeginDeal) (output *res.BeginDeal, errMsg
 	output.CountDown = input.CountDown
 	output.RoundInfo = input.RoundInfo
 	return output, errMsg
+}
+
+func (a *adapter) BeginSettle(input *res.BeginSettle) (output *res.BeginSettle, errMsg *res.ErrorMessage) {
+	param := &begin_settle.Input{}
+	param.ID = util.PointerInt64(int64(input.MiniGameId))
+	param.CountDown = util.PointerInt32(input.CountDown)
+	if err := a.gameService.BeginSettle(param); err != nil {
+		errMsg = &res.ErrorMessage{}
+		errMsg.Code = 800
+		errMsg.Desc = err.Error()
+		return nil, errMsg
+	}
+	output = &res.BeginSettle{}
+	output.MiniGameId = input.MiniGameId
+	output.CountDown = input.CountDown
+	output.MySettleResult = []*res.SettleResult{}
+	output.WinAreaCodes = []int32{1, 2, 3}
+	output.WinScore = 1000
+	return output, nil
 }

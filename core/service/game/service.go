@@ -7,6 +7,7 @@ import (
 	betModel "game-go/core/model/bet"
 	"game-go/core/model/game/begin_deal"
 	"game-go/core/model/game/begin_new_round"
+	"game-go/core/model/game/begin_settle"
 	"game-go/core/model/game/enter_game"
 	"game-go/core/model/game/enter_group"
 	gameStatusModel "game-go/core/model/game_status"
@@ -77,8 +78,8 @@ func (s *service) EnterGame(input *enter_game.Input) (output *enter_game.Output,
 		return nil, err
 	}
 	countDown := util.OnNilJustReturnInt32(gameStatusTable.CountDown, 0) / 1000
-	originTime := int32(time.Now().In(location).Sub(updateTime).Abs().Seconds())
-	leftSeconds := countDown - originTime
+	originTime := int32(time.Now().In(location).Sub(updateTime).Seconds())
+	leftSeconds := util.SubtractWithFloor(countDown, originTime)
 	fmt.Println(leftSeconds)
 
 	output = &enter_game.Output{}
@@ -144,6 +145,23 @@ func (s *service) BeginDeal(input *begin_deal.Input) (err error) {
 	table.Patterns = input.Patterns
 	table.Results = input.Results
 	err = s.roundInfoCache.Save(table)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *service) BeginSettle(input *begin_settle.Input) (err error) {
+	location, err := time.LoadLocation("Asia/Taipei")
+	if err != nil {
+		return err
+	}
+	param := &gameStatusModel.Table{}
+	param.GameID = input.ID
+	param.Stage = util.PointerInt32(2)
+	param.CountDown = input.CountDown
+	param.UpdateAt = util.PointerString(time.Now().In(location).Format("2006-01-02 15:04:05"))
+	err = s.gameStatusCache.Save(param)
 	if err != nil {
 		return err
 	}
