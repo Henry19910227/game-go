@@ -32,6 +32,8 @@ func (c *controller) Unmarshal(ctx *game.Context) {
 		return
 	case mid == 500 && sid == 1005:
 		pb = &req.EnterMiniGame{}
+	case mid == 500 && sid == 1030:
+		pb = &req.BetReq{}
 	case mid == 500 && sid == 9011:
 		pb = &res.ClearTrends{}
 	case mid == 500 && sid == 9004:
@@ -125,8 +127,15 @@ func (c *controller) LeaveMiniGame(ctx *game.Context) {
 }
 
 func (c *controller) Bet(ctx *game.Context) {
-	//TODO implement me
-
+	betReq := ctx.MustGet("pb").(*req.BetReq)
+	output, errMsg := c.gameAdapter.Bet(betReq)
+	if errMsg != nil {
+		data, _ := ctx.MarshalData(7, 600, errMsg)
+		ctx.WriteData(data)
+		return
+	}
+	data, _ := ctx.MarshalData(500, 1006, output)
+	ctx.WriteData(data)
 }
 
 func (c *controller) RefreshScore(ctx *game.Context) {

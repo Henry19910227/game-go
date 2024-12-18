@@ -8,6 +8,7 @@ import (
 	"game-go/core/model/game/begin_deal"
 	"game-go/core/model/game/begin_new_round"
 	"game-go/core/model/game/begin_settle"
+	"game-go/core/model/game/bet"
 	"game-go/core/model/game/clear_trends"
 	"game-go/core/model/game/enter_game"
 	"game-go/core/model/game/enter_group"
@@ -103,19 +104,18 @@ func (s *service) ClearTrends(input *clear_trends.Input) (err error) {
 	return nil
 }
 
+func (s *service) Bet(input *bet.Input) (output *bet.Output, err error) {
+	output = &bet.Output{}
+	output.GameID = input.GameID
+	output.Bets = input.Bets
+	return output, nil
+}
+
 func (s *service) BeginNewRound(input *begin_new_round.Input) (err error) {
 	location, err := time.LoadLocation("Asia/Taipei")
 	if err != nil {
 		return err
 	}
-
-	// 如果是第一局則清空 round info list
-	//if util.OnNilJustReturnInt32(input.DeckRound, 0) == 1 {
-	//	err = s.roundInfoCache.DelAll(util.OnNilJustReturnInt64(input.ID, 0))
-	//	if err != nil {
-	//		return err
-	//	}
-	//}
 	// 儲存 game status
 	param := &gameStatusModel.Table{}
 	param.GameID = input.ID

@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+// 生產指令：protoc --go_out=. ./proto_data/*.proto
+option go_package = "./shared/req";
+
+// 每个注区的押注资料
+message AreaBetReq {
+  // 注区ID
+  int32 areaCode = 1;
+
+  // 玩家注区总下注金额
+  int32 betScore = 2;
+}
+
+// 玩家下注请求
+message BetReq {
+  // 小游戏 ID
+  int32 miniGameId = 1;
+
+  // 下注资料列表
+  repeated AreaBetReq areaBetArray = 2;
+}

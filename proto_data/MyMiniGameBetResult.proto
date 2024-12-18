@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+// 指令：protoc --go_out=. ./proto_data/*.proto
+option go_package = "./shared/req";
+// 下注结果
+message MyMiniGameBetResult {
+  // 小游戏 ID
+  int32 miniGameId = 1;
+
+  // 押注资讯列表
+  repeated BetResultInfo betResultInfoListArray = 2;
+}
+
+// 单个下注结果信息
+message BetResultInfo {
+  // 押注信息
+  AreaBet areaBet = 1;
+
+  // 下注状态
+  int32 result = 2;
+}
+
+// 单个押注的具体信息
+message AreaBet {
+  // 注区ID
+  int32 areaCode = 1;
+
+  // 玩家注区总下注金额
+  int32 betScore = 2;
+}

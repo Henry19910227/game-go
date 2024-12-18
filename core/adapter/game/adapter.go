@@ -4,6 +4,7 @@ import (
 	"game-go/core/model/game/begin_deal"
 	"game-go/core/model/game/begin_new_round"
 	"game-go/core/model/game/begin_settle"
+	"game-go/core/model/game/bet"
 	"game-go/core/model/game/clear_trends"
 	"game-go/core/model/game/enter_game"
 	"game-go/core/model/game/enter_group"
@@ -122,6 +123,40 @@ func (a *adapter) ClearTrends(input *res.ClearTrends) (output *res.ClearTrends, 
 	}
 	output = input
 	return output, errMsg
+}
+
+func (a *adapter) Bet(input *req.BetReq) (output *req.MyMiniGameBetResult, errMsg *res.ErrorMessage) {
+	bets := make([]*bet.Bet, 0)
+	for _, areaBet := range input.AreaBetArray {
+		item := &bet.Bet{}
+		item.BetAreaID = util.PointerInt(int(areaBet.AreaCode))
+		item.Score = util.PointerInt(int(areaBet.BetScore))
+		bets = append(bets, item)
+	}
+	param := &bet.Input{}
+	param.GameID = util.PointerInt64(int64(input.MiniGameId))
+	param.Bets = bets
+	result, err := a.gameService.Bet(param)
+	if err != nil {
+		errMsg = &res.ErrorMessage{}
+		errMsg.Code = 800
+		errMsg.Desc = err.Error()
+		return nil, errMsg
+	}
+
+	betResults := make([]*req.BetResultInfo, 0)
+	for _, item := range result.Bets {
+		areaBet := &req.AreaBet{}
+		areaBet.AreaCode = int32(util.OnNilJustReturnInt(item.BetAreaID, 0))
+		areaBet.BetScore = int32(util.OnNilJustReturnInt(item.Score, 0))
+		info := &req.BetResultInfo{}
+		info.AreaBet = areaBet
+		betResults = append(betResults, info)
+	}
+	output = &req.MyMiniGameBetResult{}
+	output.MiniGameId = int32(util.OnNilJustReturnInt64(result.GameID, 0))
+	output.BetResultInfoListArray = betResults
+	return output, nil
 }
 
 func (a *adapter) BeginNewRound(input *res.BeginNewRound) (output *res.BeginNewRound, errMsg *res.ErrorMessage) {
