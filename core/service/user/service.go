@@ -4,6 +4,8 @@ import (
 	"errors"
 	gameModel "game-go/core/model/game"
 	model "game-go/core/model/user"
+	userModel "game-go/core/model/user"
+	"game-go/core/model/user/enter_room"
 	"game-go/core/model/user/login"
 	"game-go/core/repository/game"
 	"game-go/core/repository/user"
@@ -30,8 +32,24 @@ func (s *service) Login(input *login.Input) (err error) {
 	return err
 }
 
-func (s *service) EnterRoom() (output []*gameModel.Output, err error) {
-	param := gameModel.ListInput{}
-	outputs, err := s.gameRepo.List(&param)
-	return outputs, err
+func (s *service) EnterRoom(input *enter_room.Input) (output *enter_room.Output, err error) {
+	userParam := &userModel.ListInput{}
+	userParam.ID = input.ID
+	userParam.Password = input.Password
+	userOutputs, err := s.userRepo.List(userParam)
+	if err != nil {
+		return nil, err
+	}
+	if len(userOutputs) == 0 {
+		return nil, errors.New("登入失敗")
+	}
+	gameParam := &gameModel.ListInput{}
+	games, err := s.gameRepo.List(gameParam)
+	if err != nil {
+		return nil, err
+	}
+	output = &enter_room.Output{}
+	output.User = userOutputs[0]
+	output.Games = games
+	return output, nil
 }

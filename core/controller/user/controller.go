@@ -50,13 +50,13 @@ func (c *controller) Login(ctx *game.Context) {
 		ctx.WriteData(data)
 		return
 	}
-	pb, _ := proto.Marshal(success)
-	data, _ := crypto.New().Marshal(7, 106, pb)
+	ctx.Client().Set("token", loginReq.Token)
+	data, _ := ctx.MarshalData(7, 106, success)
 	ctx.WriteData(data)
 }
 
 func (c *controller) EnterRoom(ctx *game.Context) {
-	enterInfo, errMsg := c.adapter.EnterRoom()
+	enterInfo, errMsg := c.adapter.EnterRoom(ctx.Client().MustGet("token").(string))
 	if errMsg != nil {
 		pb, _ := proto.Marshal(errMsg)
 		data, _ := crypto.New().Marshal(7, 600, pb)

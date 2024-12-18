@@ -1,6 +1,7 @@
 package user
 
 import (
+	"game-go/core/model/user/enter_room"
 	"game-go/core/model/user/login"
 	userService "game-go/core/service/user"
 	"game-go/shared/pkg/util"
@@ -39,20 +40,37 @@ func (a *adapter) Login(req *req.LoginReq) (*res.InfoAfterLoginSuccess, *res.Err
 	return successMessage, nil
 }
 
-func (a *adapter) EnterRoom() (*res.EnterInfo, *res.ErrorMessage) {
-	errorMessage := &res.ErrorMessage{}
-	enterInfo := &res.EnterInfo{}
-	outputs, err := a.userService.EnterRoom()
+func (a *adapter) EnterRoom(token string) (*res.EnterInfo, *res.ErrorMessage) {
+	// 從Token擷取登入資訊
+	infos := strings.Split(token, ":")
+	if len(infos) < 2 {
+		errorMessage := &res.ErrorMessage{}
+		errorMessage.Code = 800
+		errorMessage.Desc = "Token 格式不正確"
+		return nil, errorMessage
+	}
+	uid, _ := strconv.Atoi(infos[0])
+	//登入
+	param := &enter_room.Input{}
+	param.ID = util.PointerInt64(int64(uid))
+	param.Password = util.PointerString(infos[1])
+	output, err := a.userService.EnterRoom(param)
 	if err != nil {
+		errorMessage := &res.ErrorMessage{}
 		errorMessage.Code = 800
 		errorMessage.Desc = err.Error()
 		return nil, errorMessage
 	}
 	// output parser
-	for _, output := range outputs {
+	userData := &res.UserData{}
+	userData.UserId = util.OnNilJustReturnInt64(output.User.UserId, 0)
+	userData.Score = util.OnNilJustReturnInt64(output.User.Score, 0)
+	enterInfo := &res.EnterInfo{}
+	enterInfo.Self = userData
+	for _, game := range output.Games {
 		gameConfig := &res.GameConfig{}
-		gameConfig.MiniGameId = int32(util.OnNilJustReturnInt64(output.ID, 0))
-		for _, betArea := range output.BetAreas {
+		gameConfig.MiniGameId = int32(util.OnNilJustReturnInt64(game.ID, 0))
+		for _, betArea := range game.BetAreas {
 			betAreaConfig := &res.BetAreaConfig{}
 			betAreaConfig.AreaCode = int32(util.OnNilJustReturnInt64(betArea.ID, 0))
 			betAreaConfig.Name = util.OnNilJustReturnString(betArea.Name, "")

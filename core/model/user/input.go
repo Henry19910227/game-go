@@ -1,12 +1,15 @@
 package user
 
-import baseInput "game-go/core/model/base"
+import (
+	baseInput "game-go/core/model/base"
+	"game-go/core/model/field/user"
+)
 
 type ListInput struct {
-	IDField
-	UserIdField
-	PasswordField
-	NicknameField
-	ScoreField
+	user.IDField
+	user.UserIdField
+	user.PasswordField
+	user.NicknameField
+	user.ScoreField
 	baseInput.ListInput
 }

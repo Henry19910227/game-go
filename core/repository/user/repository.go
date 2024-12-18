@@ -40,7 +40,7 @@ func (r *repository) list(input *model.ListInput) (outputs []*model.Output, err 
 		db = db.Where(table.TableName()+".password = ?", *input.Password)
 	}
 	//加入 nickname 篩選條件
-	if input.UserId != nil {
+	if input.Nickname != nil {
 		db = db.Where(table.TableName()+".nickname = ?", *input.Nickname)
 	}
 	//加入 score 篩選條件
