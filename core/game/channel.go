@@ -52,7 +52,6 @@ func (c *channelManager) DelAll(client *Client) {
 	}
 }
 
-// TODO: 感覺要改成Channel機制分發資料
 func (c *channelManager) Send(name string, b []byte) {
 	c.mu.Lock()
 	defer func() {

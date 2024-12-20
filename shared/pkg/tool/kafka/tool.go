@@ -18,3 +18,10 @@ func (t *tool) CreateReader(topic string) *kafka.Reader {
 		StartOffset: kafka.LastOffset,
 	})
 }
+
+func (t *tool) CreateWriter(topic string) *kafka.Writer {
+	return &kafka.Writer{
+		Addr:  kafka.TCP([]string{"localhost:9092"}...),
+		Topic: topic,
+	}
+}

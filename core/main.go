@@ -4,12 +4,14 @@ import (
 	"game-go/core/factory/adapter"
 	"game-go/core/factory/cache"
 	"game-go/core/factory/controller"
+	"game-go/core/factory/queue"
 	"game-go/core/factory/repository"
 	"game-go/core/factory/service"
 	gameEngine "game-go/core/game"
 	"game-go/core/router/game"
 	"game-go/core/router/user"
 	"game-go/shared/pkg/tool/crypto"
+	"game-go/shared/pkg/tool/kafka"
 	"game-go/shared/pkg/tool/orm"
 	"game-go/shared/pkg/tool/redis"
 	"strconv"
@@ -18,7 +20,7 @@ import (
 func main() {
 	// 創建 factory
 	ormTool := orm.New()
-	factory := controller.New(adapter.New(service.New(repository.New(ormTool.DB()), cache.New(redis.New()))))
+	factory := controller.New(adapter.New(service.New(repository.New(ormTool.DB()), cache.New(redis.New()), queue.New(kafka.New()))))
 	// 創建 game engine
 	engine := gameEngine.New(&gameEngine.KafkaSetting{
 		Brokers: []string{"localhost:9092"}, // 設置 kafka 地址

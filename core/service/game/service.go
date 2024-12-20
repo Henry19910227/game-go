@@ -14,6 +14,7 @@ import (
 	"game-go/core/model/game/enter_group"
 	gameStatusModel "game-go/core/model/game_status"
 	roundInfoModel "game-go/core/model/round_info"
+	betQueue "game-go/core/queue/bet"
 	"game-go/shared/pkg/util"
 	"time"
 )
@@ -21,10 +22,11 @@ import (
 type service struct {
 	gameStatusCache gameStatusCache.Cache
 	roundInfoCache  roundInfoCache.Cache
+	betQueue        betQueue.Queue
 }
 
-func New(gameStatusCache gameStatusCache.Cache, roundInfoCache roundInfoCache.Cache) Service {
-	return &service{gameStatusCache: gameStatusCache, roundInfoCache: roundInfoCache}
+func New(gameStatusCache gameStatusCache.Cache, roundInfoCache roundInfoCache.Cache, betQueue betQueue.Queue) Service {
+	return &service{gameStatusCache: gameStatusCache, roundInfoCache: roundInfoCache, betQueue: betQueue}
 }
 
 func (s *service) EnterGroup(input *enter_group.Input) (output *enter_group.Output, err error) {
@@ -105,6 +107,7 @@ func (s *service) ClearTrends(input *clear_trends.Input) (err error) {
 }
 
 func (s *service) Bet(input *bet.Input) (output *bet.Output, err error) {
+	// TODO: 寫入投注資訊
 	output = &bet.Output{}
 	output.GameID = input.GameID
 	output.Bets = input.Bets
