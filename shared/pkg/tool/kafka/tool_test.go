@@ -10,11 +10,17 @@ import (
 )
 
 func TestCreateTopic(t *testing.T) {
-	conn, err := kafka.DialLeader(context.Background(), "tcp", "localhost:9092", "my-topic", 0)
+	// 創建 conn
+	conn, err := kafka.DialLeader(context.Background(), "tcp", "localhost:9092", "conn1", 0)
+	if err != nil {
+		log.Fatal("failed to dial leader:", err)
+	}
+	conn1, err := kafka.DialLeader(context.Background(), "tcp", "localhost:9092", "conn2", 0)
 	if err != nil {
 		log.Fatal("failed to dial leader:", err)
 	}
 
+	// 寫入資料
 	_ = conn.SetWriteDeadline(time.Now().Add(10 * time.Second))
 	_, err = conn.WriteMessages(
 		kafka.Message{Value: []byte("one!")},
@@ -25,7 +31,22 @@ func TestCreateTopic(t *testing.T) {
 		log.Fatal("failed to write messages:", err)
 	}
 
+	_ = conn1.SetWriteDeadline(time.Now().Add(10 * time.Second))
+	_, err = conn1.WriteMessages(
+		kafka.Message{Value: []byte("one!")},
+		kafka.Message{Value: []byte("two!")},
+		kafka.Message{Value: []byte("three!")},
+	)
+	if err != nil {
+		log.Fatal("failed to write messages:", err)
+	}
+
+	// 關閉連接
 	if err := conn.Close(); err != nil {
+		log.Fatal("failed to close writer:", err)
+	}
+
+	if err := conn1.Close(); err != nil {
 		log.Fatal("failed to close writer:", err)
 	}
 }
@@ -58,16 +79,26 @@ func TestConsume(t *testing.T) {
 	}
 }
 
+func TestWriter(t *testing.T) {
+	w := &kafka.Writer{
+		Addr:  kafka.TCP([]string{"localhost:9092"}...),
+		Topic: "cat",
+	}
+	err := w.WriteMessages(context.Background(),
+		kafka.Message{Value: []byte("one!")},
+	)
+	log.Fatal(err)
+}
+
 func TestReader(t *testing.T) {
 	// make a new reader that consumes from topic-A, partition 0, at offset 42
 	r := kafka.NewReader(kafka.ReaderConfig{
 		Brokers:   []string{"localhost:9092"},
-		Topic:     "my-topic",
+		Topic:     "Hello",
 		Partition: 0,
 		MaxBytes:  10e6, // 10MB
 	})
 	r.SetOffset(0)
-
 	for {
 		m, err := r.ReadMessage(context.Background())
 		if err != nil {

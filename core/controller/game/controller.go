@@ -128,7 +128,8 @@ func (c *controller) LeaveMiniGame(ctx *game.Context) {
 
 func (c *controller) Bet(ctx *game.Context) {
 	betReq := ctx.MustGet("pb").(*req.BetReq)
-	output, errMsg := c.gameAdapter.Bet(betReq)
+	uid := ctx.Client().MustGet("uid").(int)
+	output, errMsg := c.gameAdapter.Bet(uid, betReq)
 	if errMsg != nil {
 		data, _ := ctx.MarshalData(7, 600, errMsg)
 		ctx.WriteData(data)

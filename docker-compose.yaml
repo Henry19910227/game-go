@@ -42,6 +42,22 @@ services:
       KAFKA_ZOOKEEPER_CONNECT: game-zookeeper:2181
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"   # 啟用自動創建主題
+      KAFKA_NUM_PARTITIONS: 1                  # 默認分區數
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 1      # 默認副本數
+
+  kafka-manager:
+    image: hlebalbau/kafka-manager:latest
+    container_name: kafka-manager
+    ports:
+      - "9000:9000"
+    networks:
+      - game-network
+    environment:
+      ZK_HOSTS: "game-zookeeper:2181" # 指定 Zookeeper 地址
+    depends_on:
+      - zookeeper
+      - kafka
 networks:
   game-network:
     driver: bridge

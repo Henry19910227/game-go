@@ -15,6 +15,7 @@ import (
 	gameStatusModel "game-go/core/model/game_status"
 	roundInfoModel "game-go/core/model/round_info"
 	betQueue "game-go/core/queue/bet"
+	"game-go/shared/model/kafka"
 	"game-go/shared/pkg/util"
 	"time"
 )
@@ -107,7 +108,17 @@ func (s *service) ClearTrends(input *clear_trends.Input) (err error) {
 }
 
 func (s *service) Bet(input *bet.Input) (output *bet.Output, err error) {
-	// TODO: 寫入投注資訊
+	// 寫入 Parser
+	betInfo := &kafka.BetInfo{}
+	err = util.Parser(input, betInfo)
+	if err != nil {
+		return nil, err
+	}
+	// 寫入 kafka queue
+	err = s.betQueue.Write(betInfo)
+	if err != nil {
+		return nil, err
+	}
 	output = &bet.Output{}
 	output.GameID = input.GameID
 	output.Bets = input.Bets

@@ -125,17 +125,7 @@ func (a *adapter) ClearTrends(input *res.ClearTrends) (output *res.ClearTrends, 
 	return output, errMsg
 }
 
-func (a *adapter) Bet(token string, input *req.BetReq) (output *req.MyMiniGameBetResult, errMsg *res.ErrorMessage) {
-	// 從Token擷取登入資訊
-	infos := strings.Split(token, ":")
-	if len(infos) < 2 {
-		errorMessage := &res.ErrorMessage{}
-		errorMessage.Code = 800
-		errorMessage.Desc = "Token 格式不正確"
-		return nil, errorMessage
-	}
-	uid, _ := strconv.Atoi(infos[0])
-
+func (a *adapter) Bet(uid int, input *req.BetReq) (output *req.MyMiniGameBetResult, errMsg *res.ErrorMessage) {
 	bets := make([]*bet.Bet, 0)
 	for _, areaBet := range input.AreaBetArray {
 		item := &bet.Bet{}
@@ -144,7 +134,7 @@ func (a *adapter) Bet(token string, input *req.BetReq) (output *req.MyMiniGameBe
 		bets = append(bets, item)
 	}
 	param := &bet.Input{}
-	param.ID = util.PointerInt64(int64(uid))
+	param.UserId = util.PointerInt64(int64(uid))
 	param.GameID = util.PointerInt64(int64(input.MiniGameId))
 	param.Bets = bets
 	result, err := a.gameService.Bet(param)

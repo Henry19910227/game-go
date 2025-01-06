@@ -15,5 +15,5 @@ func New(kafkaTool kafka.Tool) Factory {
 }
 
 func (f *factory) BetQueue() betQueue.Queue {
-	return betQueue.New(f.kafkaTool.CreateReader("bet"), f.kafkaTool.CreateWriter("bet"))
+	return betQueue.New(f.kafkaTool.CreateReader("bet"), f.kafkaTool.CreateWriter("bet"), f.kafkaTool.CreateConn("bet"))
 }

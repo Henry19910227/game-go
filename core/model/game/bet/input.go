@@ -7,9 +7,9 @@ import (
 )
 
 type Input struct {
-	user.IDField
+	user.UserIdField
 	game.GameIDField
-	Bets []*Bet
+	Bets []*Bet `json:"bets,omitempty"`
 }
 
 type Bet struct {

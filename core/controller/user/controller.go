@@ -7,6 +7,8 @@ import (
 	"game-go/shared/pkg/tool/crypto"
 	"game-go/shared/req"
 	"google.golang.org/protobuf/proto"
+	"strconv"
+	"strings"
 )
 
 type controller struct {
@@ -50,6 +52,8 @@ func (c *controller) Login(ctx *game.Context) {
 		ctx.WriteData(data)
 		return
 	}
+	uid, _ := strconv.Atoi(strings.Split(loginReq.Token, ":")[0])
+	ctx.Client().Set("uid", uid)
 	ctx.Client().Set("token", loginReq.Token)
 	data, _ := ctx.MarshalData(7, 106, success)
 	ctx.WriteData(data)

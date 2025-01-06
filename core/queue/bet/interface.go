@@ -1,5 +1,9 @@
 package bet
 
+import (
+	model "game-go/shared/model/kafka"
+)
+
 type Queue interface {
-	Write(data []byte) (err error)
+	Write(model *model.BetInfo) (err error)
 }
