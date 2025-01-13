@@ -1,8 +1,8 @@
 package queue
 
 import (
-	betQueue "game-go/core/queue/bet"
 	"game-go/shared/pkg/tool/kafka"
+	"game-go/shared/queue/bet"
 )
 
 type factory struct {
@@ -14,6 +14,6 @@ func New(kafkaTool kafka.Tool) Factory {
 	return queueFactory
 }
 
-func (f *factory) BetQueue() betQueue.Queue {
-	return betQueue.New(f.kafkaTool.CreateReader("bet"), f.kafkaTool.CreateWriter("bet"), f.kafkaTool.CreateConn("bet"))
+func (f *factory) BetQueue() bet.Queue {
+	return bet.New(nil, f.kafkaTool.CreateWriter("bet"), f.kafkaTool.CreateConn("bet"))
 }

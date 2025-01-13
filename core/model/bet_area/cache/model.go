@@ -1,14 +1,13 @@
 package cache
 
 import (
-	"game-go/core/model/field/bet_area/optional"
 	betAreaReq "game-go/core/model/field/bet_area/required"
 	oddReq "game-go/core/model/field/odd/required"
 )
 
 type FindInput struct {
-	optional.IDField
-	optional.GameIdField
+	oddReq.IDField
+	oddReq.GameIdField
 }
 
 type Item struct {

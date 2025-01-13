@@ -1,9 +1,12 @@
 package controller
 
 import (
+	"encoding/json"
+	"fmt"
 	"game-go/roulette/game"
-	"game-go/roulette/queue"
+	"game-go/shared/model/kafka"
 	"game-go/shared/pkg/tool/crypto"
+	betQueue "game-go/shared/queue/bet"
 	"game-go/shared/res"
 	"google.golang.org/protobuf/proto"
 	"math/rand"
@@ -15,10 +18,10 @@ type GameController struct {
 	roundId   string
 	deckRound int
 	maxRound  int
-	betQueue  *queue.BetQueue
+	betQueue  betQueue.Queue
 }
 
-func New(id int, maxRound int, betQueue *queue.BetQueue) *GameController {
+func New(id int, maxRound int, betQueue betQueue.Queue) *GameController {
 	return &GameController{id: id, deckRound: 0, maxRound: maxRound, betQueue: betQueue}
 }
 
@@ -61,17 +64,6 @@ func (g *GameController) Deal(ctx *game.Context) {
 	ctx.WriteData(data)
 
 	// 計算每筆下注輸贏結果
-	//for _, item := range g.betQueue.Data() {
-	//	betInfo := &kafka.BetInfo{}
-	//	_ = json.Unmarshal(item, betInfo)
-	//	fmt.Println(*betInfo.UserId)
-	//	fmt.Println(*betInfo.GameID)
-	//	fmt.Println(*betInfo.RoundInfoId)
-	//	for _, bet := range betInfo.Bets {
-	//		fmt.Println(*bet.BetAreaID)
-	//		fmt.Println(*bet.Score)
-	//	}
-	//}
 	calculate(g.betQueue.Data(), roundInfo.ElementType)
 	// 銷毀
 	g.betQueue.CleanData()
@@ -87,7 +79,18 @@ func (g *GameController) Settle(ctx *game.Context) {
 }
 
 func calculate(betData [][]byte, element int32) {
-
+	for _, item := range betData {
+		betInfo := &kafka.BetInfo{}
+		_ = json.Unmarshal(item, betInfo)
+		fmt.Println(*betInfo.UserId)
+		fmt.Println(*betInfo.GameID)
+		fmt.Println(*betInfo.RoundInfoId)
+		for _, bet := range betInfo.Bets {
+			fmt.Println(*bet.BetAreaID)
+			fmt.Println(*bet.Odd)
+			fmt.Println(*bet.Score)
+		}
+	}
 }
 
 func getRandomNumber() int {

@@ -29,5 +29,8 @@ func (s *factory) UserService() userService.Service {
 }
 
 func (s *factory) GameService() gameService.Service {
-	return gameService.New(s.cacheFactory.GameStatusCache(), s.cacheFactory.RoundInfoCache(), s.queueFactory.BetQueue())
+	return gameService.New(s.cacheFactory.GameStatusCache(),
+		s.cacheFactory.RoundInfoCache(),
+		s.cacheFactory.BetAreaCache(),
+		s.queueFactory.BetQueue())
 }

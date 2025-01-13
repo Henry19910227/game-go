@@ -36,7 +36,7 @@ func (c *cache) Save(input *model.Item) (err error) {
 }
 
 func (c *cache) Find(input *model.FindInput) (output *model.Item, err error) {
-	key := "bet_area:" + strconv.Itoa(int(*input.GameId)) + "-" + strconv.Itoa(int(*input.ID))
+	key := "bet_area:" + strconv.Itoa(int(input.GameId)) + "-" + strconv.Itoa(int(input.ID))
 	s := &struct {
 		ID       string `redis:"id"`      // 注區id
 		GameId   string `redis:"game_id"` // 遊戲id

@@ -3,9 +3,11 @@ package game
 import (
 	"errors"
 	"fmt"
+	betAreaCache "game-go/core/cache/bet_area"
 	gameStatusCache "game-go/core/cache/game_status"
 	roundInfoCache "game-go/core/cache/round_info"
 	betModel "game-go/core/model/bet"
+	betAreaCacheModel "game-go/core/model/bet_area/cache"
 	"game-go/core/model/game/begin_deal"
 	"game-go/core/model/game/begin_new_round"
 	"game-go/core/model/game/begin_settle"
@@ -15,20 +17,21 @@ import (
 	"game-go/core/model/game/enter_group"
 	gameStatusModel "game-go/core/model/game_status"
 	roundInfoModel "game-go/core/model/round_info"
-	betQueue "game-go/core/queue/bet"
 	"game-go/shared/model/kafka"
 	"game-go/shared/pkg/util"
+	betQueue "game-go/shared/queue/bet"
 	"time"
 )
 
 type service struct {
 	gameStatusCache gameStatusCache.Cache
 	roundInfoCache  roundInfoCache.Cache
+	betAreaCache    betAreaCache.Cache
 	betQueue        betQueue.Queue
 }
 
-func New(gameStatusCache gameStatusCache.Cache, roundInfoCache roundInfoCache.Cache, betQueue betQueue.Queue) Service {
-	return &service{gameStatusCache: gameStatusCache, roundInfoCache: roundInfoCache, betQueue: betQueue}
+func New(gameStatusCache gameStatusCache.Cache, roundInfoCache roundInfoCache.Cache, betAreaCache betAreaCache.Cache, betQueue betQueue.Queue) Service {
+	return &service{gameStatusCache: gameStatusCache, roundInfoCache: roundInfoCache, betAreaCache: betAreaCache, betQueue: betQueue}
 }
 
 func (s *service) EnterGroup(input *enter_group.Input) (output *enter_group.Output, err error) {
@@ -126,6 +129,17 @@ func (s *service) Bet(input *bet.Input) (output *bet.Output, err error) {
 	err = util.Parser(input, betInfo)
 	if err != nil {
 		return nil, err
+	}
+	for _, b := range betInfo.Bets {
+		// 查找賠率
+		cacheParam := &betAreaCacheModel.FindInput{}
+		cacheParam.ID = int64(util.OnNilJustReturnInt(b.BetAreaID, 0))
+		cacheParam.GameId = util.OnNilJustReturnInt64(betInfo.GameID, 0)
+		item, err := s.betAreaCache.Find(cacheParam)
+		if err != nil {
+			continue
+		}
+		b.Odd = util.PointerFloat32(item.Odds[0].Odd)
 	}
 	// 寫入 kafka queue
 	err = s.betQueue.Write(betInfo)

@@ -5,5 +5,8 @@ import (
 )
 
 type Queue interface {
+	Data() [][]byte
 	Write(model *model.BetInfo) (err error)
+	Read()
+	CleanData()
 }

@@ -3,15 +3,16 @@ package main
 import (
 	"game-go/roulette/controller"
 	"game-go/roulette/game"
-	"game-go/roulette/queue"
+	kafkaTool "game-go/shared/pkg/tool/kafka"
+	betQueue "game-go/shared/queue/bet"
 )
 
 func main() {
+	tool := kafkaTool.New()
+	queue := betQueue.New(tool.CreateReader("bet", "1009"), tool.CreateWriter("bet"), nil)
+	go queue.Read()
 
-	betQueue := queue.NewBetQueue([]string{"localhost:9092"})
-	go betQueue.Read()
-
-	gameController := controller.New(1009, 10, betQueue)
+	gameController := controller.New(1009, 10, queue)
 
 	engine := game.New()
 	engine.AddStage(&game.Stage{

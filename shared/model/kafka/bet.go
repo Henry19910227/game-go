@@ -9,6 +9,6 @@ type BetInfo struct {
 
 type Bet struct {
 	BetAreaID *int     `json:"bet_area_id,omitempty"` // 注區 id
-	Odd       *float32 `json:"odd" gorm:"column:odd"` // 賠率
+	Odd       *float32 `json:"odd"`                   // 賠率
 	Score     *int     `json:"score,omitempty"`       // 投注金額
 }
