@@ -3,7 +3,7 @@ package main
 import (
 	"game-go/core/factory/adapter"
 	"game-go/core/factory/cache"
-	"game-go/core/factory/controller"
+	controllerFactory "game-go/core/factory/controller"
 	"game-go/core/factory/queue"
 	"game-go/core/factory/repository"
 	"game-go/core/factory/service"
@@ -20,7 +20,7 @@ import (
 func main() {
 	// 創建 factory
 	ormTool := orm.New()
-	factory := controller.New(adapter.New(service.New(repository.New(ormTool.DB()), cache.New(redis.New()), queue.New(kafka.New()))))
+	factory := controllerFactory.New(adapter.New(service.New(repository.New(ormTool.DB()), cache.New(redis.New()), queue.New(kafka.New()))))
 	// 創建 game engine
 	engine := gameEngine.New(&gameEngine.KafkaSetting{
 		Brokers: []string{"localhost:9092"}, // 設置 kafka 地址
@@ -39,6 +39,8 @@ func main() {
 	// 添加路由
 	user.SetRoute(baseGroup, factory)
 	game.SetRoute(gameGroup, factory)
+	// cache 預熱
+	factory.InitController().InitBetAreaCache()
 	// 運行 game engine
 	_ = engine.Run(":8080")
 }

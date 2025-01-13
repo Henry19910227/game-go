@@ -5,6 +5,7 @@ import (
 	"game-go/core/factory/queue"
 	"game-go/core/factory/repository"
 	gameService "game-go/core/service/game"
+	initService "game-go/core/service/init"
 	userService "game-go/core/service/user"
 )
 
@@ -19,10 +20,12 @@ func New(repoFactory repository.Factory, cacheFactory cache.Factory, queueFactor
 	return serviceFactory
 }
 
+func (s *factory) InitService() initService.Service {
+	return initService.New(s.repoFactory.BetAreaRepository(), s.cacheFactory.BetAreaCache())
+}
+
 func (s *factory) UserService() userService.Service {
-	return userService.New(
-		s.repoFactory.UserRepository(),
-		s.repoFactory.GameRepository())
+	return userService.New(s.repoFactory.UserRepository(), s.repoFactory.GameRepository())
 }
 
 func (s *factory) GameService() gameService.Service {

@@ -35,7 +35,5 @@ func (t *tool) CreateConn(topic string) *kafka.Conn {
 	if err != nil {
 		return nil
 	}
-	//_ = conn.SetWriteDeadline(time.Now().Add(10 * time.Second))
-	//_ = conn.SetReadDeadline(time.Now().Add(10 * time.Second))
 	return conn
 }

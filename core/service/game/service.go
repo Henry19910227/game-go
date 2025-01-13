@@ -1,6 +1,7 @@
 package game
 
 import (
+	"errors"
 	"fmt"
 	gameStatusCache "game-go/core/cache/game_status"
 	roundInfoCache "game-go/core/cache/round_info"
@@ -108,8 +109,20 @@ func (s *service) ClearTrends(input *clear_trends.Input) (err error) {
 }
 
 func (s *service) Bet(input *bet.Input) (output *bet.Output, err error) {
-	// 寫入 Parser
+	// 獲取當前遊戲狀態
+	param := &gameStatusModel.FindInput{}
+	param.GameID = input.GameID
+	gameStatusTable, err := s.gameStatusCache.Find(param)
+	if err != nil {
+		return nil, err
+	}
+	// 判斷遊戲狀態
+	if util.OnNilJustReturnInt32(gameStatusTable.Stage, 0) != gameStatusModel.Betting {
+		return nil, errors.New("目前不是投注階段")
+	}
+	// Parser
 	betInfo := &kafka.BetInfo{}
+	betInfo.RoundInfoId = gameStatusTable.RoundInfoID
 	err = util.Parser(input, betInfo)
 	if err != nil {
 		return nil, err
@@ -119,6 +132,7 @@ func (s *service) Bet(input *bet.Input) (output *bet.Output, err error) {
 	if err != nil {
 		return nil, err
 	}
+	// 輸出
 	output = &bet.Output{}
 	output.GameID = input.GameID
 	output.Bets = input.Bets

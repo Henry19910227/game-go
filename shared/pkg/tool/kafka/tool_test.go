@@ -82,7 +82,7 @@ func TestConsume(t *testing.T) {
 func TestWriter(t *testing.T) {
 	w := &kafka.Writer{
 		Addr:  kafka.TCP([]string{"localhost:9092"}...),
-		Topic: "cat",
+		Topic: "Hello",
 	}
 	err := w.WriteMessages(context.Background(),
 		kafka.Message{Value: []byte("one!")},
@@ -91,22 +91,31 @@ func TestWriter(t *testing.T) {
 }
 
 func TestReader(t *testing.T) {
+	// 設置超時時間
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
 	// make a new reader that consumes from topic-A, partition 0, at offset 42
 	r := kafka.NewReader(kafka.ReaderConfig{
-		Brokers:   []string{"localhost:9092"},
-		Topic:     "Hello",
-		Partition: 0,
-		MaxBytes:  10e6, // 10MB
+		Brokers:     []string{"localhost:9092"},
+		Topic:       "Hello",
+		Partition:   0,
+		MaxBytes:    10e6, // 10MB
+		StartOffset: kafka.FirstOffset,
+		GroupID:     "1009",
 	})
-	r.SetOffset(0)
 	for {
-		m, err := r.ReadMessage(context.Background())
+		m, err := r.ReadMessage(ctx)
 		if err != nil {
 			break
 		}
 		fmt.Printf("message at offset %d: %s = %s\n", m.Offset, string(m.Key), string(m.Value))
-	}
 
+		// 確認消息已讀取（可選）
+		if err := r.CommitMessages(ctx, m); err != nil {
+			log.Fatalf("Failed to commit message: %v", err)
+		}
+	}
 	if err := r.Close(); err != nil {
 		log.Fatal("failed to close reader:", err)
 	}

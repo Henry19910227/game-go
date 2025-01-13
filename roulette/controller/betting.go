@@ -2,6 +2,7 @@ package controller
 
 import (
 	"game-go/roulette/game"
+	"game-go/roulette/queue"
 	"game-go/shared/pkg/tool/crypto"
 	"game-go/shared/res"
 	"google.golang.org/protobuf/proto"
@@ -14,10 +15,11 @@ type GameController struct {
 	roundId   string
 	deckRound int
 	maxRound  int
+	betQueue  *queue.BetQueue
 }
 
-func New(id int, maxRound int) *GameController {
-	return &GameController{id: id, deckRound: 0, maxRound: maxRound}
+func New(id int, maxRound int, betQueue *queue.BetQueue) *GameController {
+	return &GameController{id: id, deckRound: 0, maxRound: maxRound, betQueue: betQueue}
 }
 
 func (g *GameController) Betting(ctx *game.Context) {
@@ -43,19 +45,36 @@ func (g *GameController) Betting(ctx *game.Context) {
 }
 
 func (g *GameController) Deal(ctx *game.Context) {
+	// 開牌
 	performs := []*res.ActorPerform{{Elements: []int32{int32(getRandomNumber())}}}
 	roundInfo := &res.RoundInfo{}
 	roundInfo.RoundId = g.roundId
 	roundInfo.ElementType = 7
 	roundInfo.Performs = performs
 
-	newRound := &res.BeginDeal{}
-	newRound.MiniGameId = int32(g.id)
-	newRound.CountDown = int32(ctx.Stage().Countdown * 1000)
-	newRound.RoundInfo = roundInfo
-	pb, _ := proto.Marshal(newRound)
+	deal := &res.BeginDeal{}
+	deal.MiniGameId = int32(g.id)
+	deal.CountDown = int32(ctx.Stage().Countdown * 1000)
+	deal.RoundInfo = roundInfo
+	pb, _ := proto.Marshal(deal)
 	data, _ := crypto.New().Marshal(500, 9010, pb)
 	ctx.WriteData(data)
+
+	// 計算每筆下注輸贏結果
+	//for _, item := range g.betQueue.Data() {
+	//	betInfo := &kafka.BetInfo{}
+	//	_ = json.Unmarshal(item, betInfo)
+	//	fmt.Println(*betInfo.UserId)
+	//	fmt.Println(*betInfo.GameID)
+	//	fmt.Println(*betInfo.RoundInfoId)
+	//	for _, bet := range betInfo.Bets {
+	//		fmt.Println(*bet.BetAreaID)
+	//		fmt.Println(*bet.Score)
+	//	}
+	//}
+	calculate(g.betQueue.Data(), roundInfo.ElementType)
+	// 銷毀
+	g.betQueue.CleanData()
 }
 
 func (g *GameController) Settle(ctx *game.Context) {
@@ -65,6 +84,10 @@ func (g *GameController) Settle(ctx *game.Context) {
 	pb, _ := proto.Marshal(settle)
 	data, _ := crypto.New().Marshal(500, 9005, pb)
 	ctx.WriteData(data)
+}
+
+func calculate(betData [][]byte, element int32) {
+
 }
 
 func getRandomNumber() int {

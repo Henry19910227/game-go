@@ -1,6 +1,9 @@
 package game
 
-import "github.com/gorilla/websocket"
+import (
+	"game-go/roulette/queue"
+	"github.com/gorilla/websocket"
+)
 
 type Context struct {
 	engine *Engine
@@ -16,4 +19,8 @@ func (c *Context) WriteData(data []byte) {
 
 func (c *Context) Stage() Stage {
 	return *c.engine.stageChin.Current()
+}
+
+func (c *Context) BetQueue() *queue.BetQueue {
+	return c.engine.betQueue
 }

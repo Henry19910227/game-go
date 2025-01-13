@@ -2,7 +2,7 @@ package test
 
 import (
 	"game-go/core/game"
-	"game-go/core/pkg/tool/crypto"
+	"game-go/shared/pkg/tool/crypto"
 	"log"
 )
 
