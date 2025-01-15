@@ -1,31 +1,36 @@
 package main
 
 import (
-	"game-go/roulette/controller"
-	"game-go/roulette/game"
+	adapterFactory "game-go/roulette/factory/adapter"
+	controllerFactory "game-go/roulette/factory/controller"
+	managerFactory "game-go/roulette/factory/manager"
+	queueFactory "game-go/roulette/factory/queue"
+	serviceFactory "game-go/roulette/factory/service"
+	gameEngine "game-go/roulette/game"
 	kafkaTool "game-go/shared/pkg/tool/kafka"
-	betQueue "game-go/shared/queue/bet"
 )
 
 func main() {
-	tool := kafkaTool.New()
-	queue := betQueue.New(tool.CreateReader("bet", "1009"), tool.CreateWriter("bet"), nil)
-	go queue.Read()
+	managerMaker := managerFactory.New(1009, 10)
+	queueMaker := queueFactory.New(kafkaTool.New())
+	serviceMaker := serviceFactory.New(managerMaker, queueMaker)
+	adapterMaker := adapterFactory.New(serviceMaker)
+	factory := controllerFactory.New(adapterMaker)
 
-	gameController := controller.New(1009, 10, queue)
+	gameVC := factory.GameController()
 
-	engine := game.New()
-	engine.AddStage(&game.Stage{
-		Countdown: 20,
-		Handler:   gameController.Betting,
+	engine := gameEngine.New()
+	engine.AddStage(&gameEngine.Stage{
+		Countdown: 25,
+		Handler:   gameVC.Betting,
 	})
-	engine.AddStage(&game.Stage{
+	engine.AddStage(&gameEngine.Stage{
 		Countdown: 10,
-		Handler:   gameController.Deal,
+		Handler:   gameVC.Deal,
 	})
-	engine.AddStage(&game.Stage{
+	engine.AddStage(&gameEngine.Stage{
 		Countdown: 5,
-		Handler:   gameController.Settle,
+		Handler:   gameVC.Settle,
 	})
 	_ = engine.Run("ws", "localhost:8080", "/game")
 }
