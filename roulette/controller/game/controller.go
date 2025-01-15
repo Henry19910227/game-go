@@ -1,9 +1,11 @@
 package game
 
 import (
+	"fmt"
 	gameAdapter "game-go/roulette/adapter/game"
 	"game-go/roulette/game"
 	"game-go/shared/pkg/tool/crypto"
+	"github.com/petermattis/goid"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -16,6 +18,7 @@ func New(gameAdapter gameAdapter.Adapter) Controller {
 }
 
 func (g *controller) Betting(ctx *game.Context) {
+	fmt.Printf("Betting Goroutine ID: %d\n", goid.Get())
 	newRound, clearTrends := g.gameAdapter.Betting()
 	newRound.CountDown = int32(ctx.Stage().Countdown * 1000)
 	if clearTrends != nil {
