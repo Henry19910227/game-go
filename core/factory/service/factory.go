@@ -29,8 +29,11 @@ func (s *factory) UserService() userService.Service {
 }
 
 func (s *factory) GameService() gameService.Service {
-	return gameService.New(s.cacheFactory.GameStatusCache(),
-		s.cacheFactory.RoundInfoCache(),
-		s.cacheFactory.BetAreaCache(),
-		s.queueFactory.BetQueue())
+	gameStatusCache := s.cacheFactory.GameStatusCache()
+	roundInfoCache := s.cacheFactory.RoundInfoCache()
+	betAreaCache := s.cacheFactory.BetAreaCache()
+	betQueue := s.queueFactory.BetQueue()
+	settleQueue := s.queueFactory.SettleQueue()
+	go settleQueue.Read()
+	return gameService.New(gameStatusCache, roundInfoCache, betAreaCache, betQueue, settleQueue)
 }

@@ -6,5 +6,7 @@ type Manager interface {
 	DeckRound() int
 	MaxRound() int
 	NextRound() (deckRound int, roundId string)
+	CheckBetResult(betAreaId int, element int) int
+	WinBetAreaCodes(element int) []int
 	Elements() []int
 }

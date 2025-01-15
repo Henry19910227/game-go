@@ -1,8 +1,8 @@
 package game
 
 import (
+	"encoding/json"
 	"errors"
-	"fmt"
 	betAreaCache "game-go/core/cache/bet_area"
 	gameStatusCache "game-go/core/cache/game_status"
 	roundInfoCache "game-go/core/cache/round_info"
@@ -20,6 +20,7 @@ import (
 	"game-go/shared/model/kafka"
 	"game-go/shared/pkg/util"
 	betQueue "game-go/shared/queue/bet"
+	settleQueue "game-go/shared/queue/settle"
 	"time"
 )
 
@@ -28,10 +29,11 @@ type service struct {
 	roundInfoCache  roundInfoCache.Cache
 	betAreaCache    betAreaCache.Cache
 	betQueue        betQueue.Queue
+	settleQueue     settleQueue.Queue
 }
 
-func New(gameStatusCache gameStatusCache.Cache, roundInfoCache roundInfoCache.Cache, betAreaCache betAreaCache.Cache, betQueue betQueue.Queue) Service {
-	return &service{gameStatusCache: gameStatusCache, roundInfoCache: roundInfoCache, betAreaCache: betAreaCache, betQueue: betQueue}
+func New(gameStatusCache gameStatusCache.Cache, roundInfoCache roundInfoCache.Cache, betAreaCache betAreaCache.Cache, betQueue betQueue.Queue, settleQueue settleQueue.Queue) Service {
+	return &service{gameStatusCache: gameStatusCache, roundInfoCache: roundInfoCache, betAreaCache: betAreaCache, betQueue: betQueue, settleQueue: settleQueue}
 }
 
 func (s *service) EnterGroup(input *enter_group.Input) (output *enter_group.Output, err error) {
@@ -89,7 +91,6 @@ func (s *service) EnterGame(input *enter_game.Input) (output *enter_game.Output,
 	countDown := util.OnNilJustReturnInt32(gameStatusTable.CountDown, 0) / 1000
 	originTime := int32(time.Now().In(location).Sub(updateTime).Seconds())
 	leftSeconds := util.SubtractWithFloor(countDown, originTime)
-	fmt.Println(leftSeconds)
 
 	output = &enter_game.Output{}
 	output.GameID = gameStatusTable.GameID
@@ -154,6 +155,7 @@ func (s *service) Bet(input *bet.Input) (output *bet.Output, err error) {
 }
 
 func (s *service) BeginNewRound(input *begin_new_round.Input) (err error) {
+	// 儲存當前遊戲狀態
 	location, err := time.LoadLocation("Asia/Taipei")
 	if err != nil {
 		return err
@@ -174,6 +176,7 @@ func (s *service) BeginNewRound(input *begin_new_round.Input) (err error) {
 }
 
 func (s *service) BeginDeal(input *begin_deal.Input) (err error) {
+	// 儲存當前遊戲狀態
 	location, err := time.LoadLocation("Asia/Taipei")
 	if err != nil {
 		return err
@@ -188,6 +191,7 @@ func (s *service) BeginDeal(input *begin_deal.Input) (err error) {
 	if err != nil {
 		return err
 	}
+	// 儲存開獎歷史
 	table := &roundInfoModel.Table{}
 	table.ID = input.RoundInfoID
 	table.GameId = input.ID
@@ -202,10 +206,11 @@ func (s *service) BeginDeal(input *begin_deal.Input) (err error) {
 	return nil
 }
 
-func (s *service) BeginSettle(input *begin_settle.Input) (err error) {
+func (s *service) BeginSettle(input *begin_settle.Input) (output *begin_settle.Output, err error) {
+	// 儲存當前遊戲狀態
 	location, err := time.LoadLocation("Asia/Taipei")
 	if err != nil {
-		return err
+		return output, err
 	}
 	param := &gameStatusModel.Table{}
 	param.GameID = input.ID
@@ -214,7 +219,29 @@ func (s *service) BeginSettle(input *begin_settle.Input) (err error) {
 	param.UpdateAt = util.PointerString(time.Now().In(location).Format("2006-01-02 15:04:05"))
 	err = s.gameStatusCache.Save(param)
 	if err != nil {
-		return err
+		return output, err
 	}
-	return nil
+	// 獲取結算數據
+	// TODO 區分不同遊戲的 Queue
+	output = &begin_settle.Output{}
+	output.Items = []*begin_settle.Data{}
+	for _, item := range s.settleQueue.Data() {
+		settleInfo := &kafka.SettleInfo{}
+		_ = json.Unmarshal(item, settleInfo)
+		data := &begin_settle.Data{}
+		data.GameID = *settleInfo.GameID
+		data.ID = *settleInfo.UserId
+		data.RoundInfoID = *settleInfo.RoundInfoId
+		data.WinAreaCode = settleInfo.WinAreaCode
+		data.Results = []*begin_settle.SettleResult{}
+		for _, settle := range settleInfo.Settles {
+			result := &begin_settle.SettleResult{}
+			result.AreaCode = *settle.BetAreaID
+			result.BetScore = *settle.Score
+			result.WinScore = *settle.WinScore
+		}
+		output.Items = append(output.Items, data)
+	}
+	s.settleQueue.CleanData()
+	return output, err
 }

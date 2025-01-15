@@ -7,7 +7,6 @@ import (
 	"game-go/shared/pkg/tool/crypto"
 	"game-go/shared/req"
 	"game-go/shared/res"
-	"github.com/petermattis/goid"
 	"google.golang.org/protobuf/proto"
 	"strconv"
 )
@@ -33,15 +32,15 @@ func (c *controller) Unmarshal(ctx *game.Context) {
 		return
 	case mid == 500 && sid == 1005:
 		pb = &req.EnterMiniGame{}
-	case mid == 500 && sid == 1030:
+	case mid == 500 && sid == 1030: // 投注 (user 傳入指令)
 		pb = &req.BetReq{}
-	case mid == 500 && sid == 9011:
+	case mid == 500 && sid == 9011: // 清除歷史紀錄 (game 傳入指令)
 		pb = &res.ClearTrends{}
-	case mid == 500 && sid == 9004:
+	case mid == 500 && sid == 9004: // 開始新局 (game 傳入指令)
 		pb = &res.BeginNewRound{}
-	case mid == 500 && sid == 9010:
+	case mid == 500 && sid == 9010: // 開始開牌 (game 傳入指令)
 		pb = &res.BeginDeal{}
-	case mid == 500 && sid == 9005:
+	case mid == 500 && sid == 9005: // 開始結算 (game 傳入指令)
 		pb = &res.BeginSettle{}
 	default:
 		fmt.Println("No matching case for the given mid and sid")
@@ -128,7 +127,6 @@ func (c *controller) LeaveMiniGame(ctx *game.Context) {
 }
 
 func (c *controller) Bet(ctx *game.Context) {
-	fmt.Printf("Bet Goroutine ID: %d\n", goid.Get())
 	betReq := ctx.MustGet("pb").(*req.BetReq)
 	uid := ctx.Client().MustGet("uid").(int)
 	output, errMsg := c.gameAdapter.Bet(uid, betReq)

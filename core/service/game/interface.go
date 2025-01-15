@@ -17,5 +17,5 @@ type Service interface {
 	Bet(input *bet.Input) (output *bet.Output, err error)
 	BeginNewRound(input *begin_new_round.Input) error
 	BeginDeal(input *begin_deal.Input) (err error)
-	BeginSettle(input *begin_settle.Input) (err error)
+	BeginSettle(input *begin_settle.Input) (output *begin_settle.Output, err error)
 }

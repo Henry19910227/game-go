@@ -2,15 +2,15 @@ package user
 
 import (
 	baseTable "game-go/core/model/base"
-	"game-go/core/model/field/user"
+	"game-go/core/model/field/user/optional"
 )
 
 type Table struct {
-	user.IDField
-	user.UserIdField
-	user.PasswordField
-	user.NicknameField
-	user.ScoreField
+	optional.IDField
+	optional.UserIdField
+	optional.PasswordField
+	optional.NicknameField
+	optional.ScoreField
 	baseTable.Table
 }
 

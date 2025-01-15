@@ -40,6 +40,10 @@ func (c *channelManager) Del(name string, client *Client) {
 		c.mu.Unlock()
 	}()
 	c.channels[name].DelClient(client)
+	// 刪除 channel (如果 client 為 0)
+	if len(c.channels[name].clients) == 0 {
+		delete(c.channels, name)
+	}
 }
 
 func (c *channelManager) DelAll(client *Client) {

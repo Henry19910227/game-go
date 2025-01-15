@@ -3,11 +3,11 @@ package bet
 import (
 	bet "game-go/core/model/field/bet/optional"
 	game "game-go/core/model/field/game/optional"
-	"game-go/core/model/field/user"
+	"game-go/core/model/field/user/optional"
 )
 
 type Input struct {
-	user.UserIdField
+	optional.UserIdField
 	game.GameIDField
 	Bets []*Bet `json:"bets,omitempty"`
 }

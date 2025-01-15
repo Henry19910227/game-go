@@ -18,6 +18,7 @@ func New(managerFactory managerFactory.Factory, queueFactory queueFactory.Factor
 func (f *factory) GameService() gameService.Service {
 	gameManager := f.managerFactory.GameManager()
 	betQueue := f.queueFactory.BetQueue()
+	settleQueue := f.queueFactory.SettleQueue()
 	go betQueue.Read()
-	return gameService.New(gameManager, betQueue)
+	return gameService.New(gameManager, betQueue, settleQueue)
 }

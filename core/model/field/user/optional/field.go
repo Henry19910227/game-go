@@ -1,4 +1,4 @@
-package user
+package optional
 
 type IDField struct {
 	ID *int64 `json:"id,omitempty" gorm:"column:id"` // 用戶流水號

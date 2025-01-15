@@ -228,7 +228,7 @@ func (a *adapter) BeginSettle(input *res.BeginSettle) (output *res.BeginSettle, 
 	param := &begin_settle.Input{}
 	param.ID = util.PointerInt64(int64(input.MiniGameId))
 	param.CountDown = util.PointerInt32(input.CountDown)
-	if err := a.gameService.BeginSettle(param); err != nil {
+	if _, err := a.gameService.BeginSettle(param); err != nil {
 		errMsg = &res.ErrorMessage{}
 		errMsg.Code = 800
 		errMsg.Desc = err.Error()
@@ -239,6 +239,6 @@ func (a *adapter) BeginSettle(input *res.BeginSettle) (output *res.BeginSettle, 
 	output.CountDown = input.CountDown
 	output.MySettleResult = []*res.SettleResult{}
 	output.WinAreaCodes = []int32{1, 2, 3}
-	output.WinScore = 1000
+	output.WinScore = 10000
 	return output, nil
 }

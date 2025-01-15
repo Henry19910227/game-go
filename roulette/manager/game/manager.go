@@ -47,6 +47,24 @@ func (m *manager) NextRound() (deckRound int, roundId string) {
 	return m.deckRound, m.roundId
 }
 
+func (m *manager) CheckBetResult(betAreaId int, element int) int {
+	if _, ok := m.betMap[betAreaId][element]; !ok {
+		return 0
+	}
+	return 1
+}
+
+func (m *manager) WinBetAreaCodes(element int) []int {
+	areaCodes := make([]int, 0)
+	for index, areaMap := range m.betMap {
+		if _, ok := areaMap[element]; !ok {
+			continue
+		}
+		areaCodes = append(areaCodes, index)
+	}
+	return areaCodes
+}
+
 func (m *manager) Elements() []int {
 	return m.elements
 }
