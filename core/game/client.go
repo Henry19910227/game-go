@@ -53,7 +53,7 @@ func (c *Client) read() {
 			data:     b,
 		}
 		// 執行路由
-		context.Next()
+		go context.Next()
 	}
 }
 

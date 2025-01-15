@@ -7,6 +7,7 @@ import (
 	"game-go/shared/pkg/tool/crypto"
 	"game-go/shared/req"
 	"game-go/shared/res"
+	"github.com/petermattis/goid"
 	"google.golang.org/protobuf/proto"
 	"strconv"
 )
@@ -127,6 +128,7 @@ func (c *controller) LeaveMiniGame(ctx *game.Context) {
 }
 
 func (c *controller) Bet(ctx *game.Context) {
+	fmt.Printf("Bet Goroutine ID: %d\n", goid.Get())
 	betReq := ctx.MustGet("pb").(*req.BetReq)
 	uid := ctx.Client().MustGet("uid").(int)
 	output, errMsg := c.gameAdapter.Bet(uid, betReq)
