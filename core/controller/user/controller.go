@@ -55,7 +55,6 @@ func (c *controller) Login(ctx *game.Context) {
 	uid, _ := strconv.Atoi(strings.Split(loginReq.Token, ":")[0])
 	ctx.Client().Set("uid", uid)
 	ctx.Client().Set("token", loginReq.Token)
-	ctx.Join(strconv.Itoa(uid))
 	data, _ := ctx.MarshalData(7, 106, success)
 	ctx.WriteData(data)
 }

@@ -53,6 +53,10 @@ func (c *Context) Leave(channel string) {
 	c.engine.channelManager.Del(channel, c.client)
 }
 
+func (c *Context) Clients(channel string) map[*Client]*Client {
+	return c.engine.channelManager.Clients(channel)
+}
+
 func (c *Context) RawData() []byte {
 	return c.data
 }

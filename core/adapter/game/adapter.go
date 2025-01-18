@@ -243,13 +243,36 @@ func (a *adapter) BeginSettle(input *res.BeginSettle) (output map[int]*res.Begin
 		settle.WinAreaCodes = util.IntArrayToInt32Array(item.WinAreaCode)
 		settle.WinScore = int32(item.WinScore)
 		settle.MySettleResult = []*res.SettleResult{}
+		tmp := make(map[int32]*res.SettleResult)
 		for _, result := range item.Results {
 			settleResult := &res.SettleResult{}
 			settleResult.AreaCode = int32(result.AreaCode)
 			settleResult.BetScore = int32(result.BetScore)
 			settleResult.WinScore = int32(result.WinScore)
 			settle.MySettleResult = append(settle.MySettleResult, settleResult)
+			tmp[settleResult.AreaCode] = settleResult
 		}
+		// 合併投注紀錄 (如果同一個用戶投注多筆)
+		if origin, ok := output[int(item.ID)]; ok {
+			origin.WinScore += settle.WinScore
+			// 合併相同注區
+			for _, result := range origin.MySettleResult {
+				t, ok := tmp[result.AreaCode]
+				if !ok {
+					continue
+				}
+				result.BetScore += t.BetScore
+				result.WinScore += t.WinScore
+				// 刪除合併過的投注區域
+				delete(tmp, result.AreaCode)
+			}
+			// 加入剩餘注區
+			for _, t := range tmp {
+				origin.MySettleResult = append(origin.MySettleResult, t)
+			}
+			continue
+		}
+		// 不合併投注紀錄
 		output[int(item.ID)] = settle
 	}
 	return output, nil

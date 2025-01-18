@@ -7,6 +7,7 @@ import (
 	"game-go/shared/pkg/tool/crypto"
 	"game-go/shared/req"
 	"game-go/shared/res"
+	"github.com/gorilla/websocket"
 	"google.golang.org/protobuf/proto"
 	"strconv"
 )
@@ -192,8 +193,20 @@ func (c *controller) BeginSettle(ctx *game.Context) {
 		ctx.Broadcast(channelId, data)
 		return
 	}
-	for uid, settle := range settles {
+	clients := ctx.Clients(channelId)
+	for _, client := range clients {
+		value, ok := client.Get("uid")
+		if !ok {
+			continue
+		}
+		uid, _ := value.(int)
+		settle, ok := settles[uid]
+		if !ok {
+			data, _ := ctx.MarshalData(500, 1005, beginSettle)
+			_ = client.Conn().WriteMessage(websocket.BinaryMessage, data)
+			continue
+		}
 		data, _ := ctx.MarshalData(500, 1005, settle)
-		ctx.Broadcast(strconv.Itoa(uid), data)
+		_ = client.Conn().WriteMessage(websocket.BinaryMessage, data)
 	}
 }

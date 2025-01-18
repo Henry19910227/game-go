@@ -56,6 +56,10 @@ func (c *channelManager) DelAll(client *Client) {
 	}
 }
 
+func (c *channelManager) Clients(channel string) map[*Client]*Client {
+	return c.channels[channel].clients
+}
+
 func (c *channelManager) Send(name string, b []byte) {
 	c.mu.Lock()
 	defer func() {
@@ -98,6 +102,10 @@ func (c *channel) DelClient(client *Client) {
 		c.mu.Unlock()
 	}()
 	delete(c.clients, client)
+}
+
+func (c *channel) Clients() map[*Client]*Client {
+	return c.clients
 }
 
 func (c *channel) Send(data []byte) {
