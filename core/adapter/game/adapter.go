@@ -224,21 +224,33 @@ func (a *adapter) BeginDeal(input *res.BeginDeal) (output *res.BeginDeal, errMsg
 	return output, errMsg
 }
 
-func (a *adapter) BeginSettle(input *res.BeginSettle) (output *res.BeginSettle, errMsg *res.ErrorMessage) {
+func (a *adapter) BeginSettle(input *res.BeginSettle) (output map[int]*res.BeginSettle, errMsg *res.ErrorMessage) {
 	param := &begin_settle.Input{}
 	param.ID = util.PointerInt64(int64(input.MiniGameId))
 	param.CountDown = util.PointerInt32(input.CountDown)
-	if _, err := a.gameService.BeginSettle(param); err != nil {
+	outputItem, err := a.gameService.BeginSettle(param)
+	if err != nil {
 		errMsg = &res.ErrorMessage{}
 		errMsg.Code = 800
 		errMsg.Desc = err.Error()
 		return nil, errMsg
 	}
-	output = &res.BeginSettle{}
-	output.MiniGameId = input.MiniGameId
-	output.CountDown = input.CountDown
-	output.MySettleResult = []*res.SettleResult{}
-	output.WinAreaCodes = []int32{1, 2, 3}
-	output.WinScore = 10000
+	output = make(map[int]*res.BeginSettle)
+	for _, item := range outputItem.Items {
+		settle := &res.BeginSettle{}
+		settle.MiniGameId = input.MiniGameId
+		settle.CountDown = input.CountDown
+		settle.WinAreaCodes = util.IntArrayToInt32Array(item.WinAreaCode)
+		settle.WinScore = int32(item.WinScore)
+		settle.MySettleResult = []*res.SettleResult{}
+		for _, result := range item.Results {
+			settleResult := &res.SettleResult{}
+			settleResult.AreaCode = int32(result.AreaCode)
+			settleResult.BetScore = int32(result.BetScore)
+			settleResult.WinScore = int32(result.WinScore)
+			settle.MySettleResult = append(settle.MySettleResult, settleResult)
+		}
+		output[int(item.ID)] = settle
+	}
 	return output, nil
 }

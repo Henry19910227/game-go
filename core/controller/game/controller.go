@@ -185,13 +185,15 @@ func (c *controller) BeginDeal(ctx *game.Context) {
 
 func (c *controller) BeginSettle(ctx *game.Context) {
 	beginSettle := ctx.MustGet("pb").(*res.BeginSettle)
-	output, errMsg := c.gameAdapter.BeginSettle(beginSettle)
+	settles, errMsg := c.gameAdapter.BeginSettle(beginSettle)
 	channelId := strconv.Itoa(int(beginSettle.MiniGameId))
 	if errMsg != nil {
 		data, _ := ctx.MarshalData(7, 600, errMsg)
 		ctx.Broadcast(channelId, data)
 		return
 	}
-	data, _ := ctx.MarshalData(500, 1005, output)
-	ctx.Broadcast(channelId, data)
+	for uid, settle := range settles {
+		data, _ := ctx.MarshalData(500, 1005, settle)
+		ctx.Broadcast(strconv.Itoa(uid), data)
+	}
 }

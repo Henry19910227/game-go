@@ -43,7 +43,8 @@ func (m *manager) NextRound() (deckRound int, roundId string) {
 	// 設定亂數種子，確保每次執行結果不同
 	rand.Seed(time.Now().UnixNano())
 	// 生成 0 到 36 之間的隨機數字 (包含 0 和 36)
-	m.elements = []int{rand.Intn(37)}
+	//m.elements = []int{rand.Intn(37)}
+	m.elements = []int{10}
 	return m.deckRound, m.roundId
 }
 

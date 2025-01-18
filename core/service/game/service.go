@@ -232,6 +232,7 @@ func (s *service) BeginSettle(input *begin_settle.Input) (output *begin_settle.O
 		data.GameID = *settleInfo.GameID
 		data.ID = *settleInfo.UserId
 		data.RoundInfoID = *settleInfo.RoundInfoId
+		data.WinScore = 0
 		data.WinAreaCode = settleInfo.WinAreaCode
 		data.Results = []*begin_settle.SettleResult{}
 		for _, settle := range settleInfo.Settles {
@@ -239,6 +240,8 @@ func (s *service) BeginSettle(input *begin_settle.Input) (output *begin_settle.O
 			result.AreaCode = *settle.BetAreaID
 			result.BetScore = *settle.Score
 			result.WinScore = *settle.WinScore
+			data.WinScore += *settle.WinScore
+			data.Results = append(data.Results, result)
 		}
 		output.Items = append(output.Items, data)
 	}
