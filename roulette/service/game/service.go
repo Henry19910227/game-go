@@ -49,6 +49,7 @@ func (s *service) Settle() *gameModel.BeginSettle {
 	settle := &gameModel.BeginSettle{}
 	settle.MiniGameId = s.gameManager.ID()
 	settle.RoundId = s.gameManager.RoundId()
+	settle.WinAreaCode = s.gameManager.WinBetAreaCodes(s.gameManager.Elements()[0])
 	return settle
 }
 

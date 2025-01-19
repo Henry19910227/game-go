@@ -2,6 +2,8 @@ package game
 
 import (
 	"context"
+	"fmt"
+	"github.com/gorilla/websocket"
 	"github.com/segmentio/kafka-go"
 	"sync"
 )
@@ -17,8 +19,9 @@ func (c *channelManager) createGroup(name string) {
 	if ok {
 		return
 	}
-	ch := NewChannel(name, kafkaReader(name, c.kafkaSetting), kafkaWriter(name, c.kafkaSetting))
-	go ch.Run()
+	//ch := NewChannel(name, kafkaReader(name, c.kafkaSetting), kafkaWriter(name, c.kafkaSetting))
+	//go ch.Run()
+	ch := NewChannel(name, nil, nil)
 	c.channels[name] = ch
 }
 
@@ -57,18 +60,28 @@ func (c *channelManager) DelAll(client *Client) {
 }
 
 func (c *channelManager) Clients(channel string) map[*Client]*Client {
-	return c.channels[channel].clients
-}
-
-func (c *channelManager) Send(name string, b []byte) {
 	c.mu.Lock()
 	defer func() {
 		c.mu.Unlock()
 	}()
-	if _, ok := c.channels[name]; !ok {
+	if _, ok := c.channels[channel]; !ok {
+		fmt.Println("channel not found")
+		return nil
+	}
+	return c.channels[channel].clients
+}
+
+func (c *channelManager) Send(channel string, b []byte) {
+	c.mu.Lock()
+	defer func() {
+		c.mu.Unlock()
+	}()
+	if _, ok := c.channels[channel]; !ok {
 		return
 	}
-	c.channels[name].Send(b)
+	for _, client := range c.channels[channel].Clients() {
+		_ = client.Conn().WriteMessage(websocket.BinaryMessage, b)
+	}
 }
 
 type channel struct {

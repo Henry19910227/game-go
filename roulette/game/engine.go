@@ -2,7 +2,6 @@ package game
 
 import (
 	"errors"
-	"game-go/roulette/queue"
 	"github.com/gorilla/websocket"
 	"net/url"
 	"time"
@@ -12,7 +11,6 @@ type Engine struct {
 	conn      *websocket.Conn
 	countdown int
 	stageChin *StageLinkedList
-	betQueue  *queue.BetQueue
 }
 
 func New() *Engine {

@@ -186,14 +186,25 @@ func (c *controller) BeginDeal(ctx *game.Context) {
 
 func (c *controller) BeginSettle(ctx *game.Context) {
 	beginSettle := ctx.MustGet("pb").(*res.BeginSettle)
-	settles, errMsg := c.gameAdapter.BeginSettle(beginSettle)
 	channelId := strconv.Itoa(int(beginSettle.MiniGameId))
+	clients := ctx.Clients(channelId)
+	userIds := make([]int, 0)
+	for _, client := range clients {
+		value, ok := client.Get("uid")
+		if !ok {
+			continue
+		}
+		uid, _ := value.(int)
+		userIds = append(userIds, uid)
+	}
+
+	settles, errMsg := c.gameAdapter.BeginSettle(beginSettle, userIds)
 	if errMsg != nil {
 		data, _ := ctx.MarshalData(7, 600, errMsg)
 		ctx.Broadcast(channelId, data)
 		return
 	}
-	clients := ctx.Clients(channelId)
+
 	for _, client := range clients {
 		value, ok := client.Get("uid")
 		if !ok {
@@ -202,8 +213,6 @@ func (c *controller) BeginSettle(ctx *game.Context) {
 		uid, _ := value.(int)
 		settle, ok := settles[uid]
 		if !ok {
-			data, _ := ctx.MarshalData(500, 1005, beginSettle)
-			_ = client.Conn().WriteMessage(websocket.BinaryMessage, data)
 			continue
 		}
 		data, _ := ctx.MarshalData(500, 1005, settle)

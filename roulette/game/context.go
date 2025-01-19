@@ -1,7 +1,6 @@
 package game
 
 import (
-	"game-go/roulette/queue"
 	"github.com/gorilla/websocket"
 )
 
@@ -19,8 +18,4 @@ func (c *Context) WriteData(data []byte) {
 
 func (c *Context) Stage() Stage {
 	return *c.engine.stageChin.Current()
-}
-
-func (c *Context) BetQueue() *queue.BetQueue {
-	return c.engine.betQueue
 }

@@ -224,7 +224,8 @@ func (a *adapter) BeginDeal(input *res.BeginDeal) (output *res.BeginDeal, errMsg
 	return output, errMsg
 }
 
-func (a *adapter) BeginSettle(input *res.BeginSettle) (output map[int]*res.BeginSettle, errMsg *res.ErrorMessage) {
+func (a *adapter) BeginSettle(input *res.BeginSettle, userIds []int) (settles map[int]*res.BeginSettle, errMsg *res.ErrorMessage) {
+	settles = make(map[int]*res.BeginSettle, 0)
 	param := &begin_settle.Input{}
 	param.ID = util.PointerInt64(int64(input.MiniGameId))
 	param.CountDown = util.PointerInt32(input.CountDown)
@@ -233,47 +234,66 @@ func (a *adapter) BeginSettle(input *res.BeginSettle) (output map[int]*res.Begin
 		errMsg = &res.ErrorMessage{}
 		errMsg.Code = 800
 		errMsg.Desc = err.Error()
-		return nil, errMsg
+		return settles, errMsg
 	}
-	output = make(map[int]*res.BeginSettle)
-	for _, item := range outputItem.Items {
+	// 合併注單
+	itemMap := mergeItem(outputItem.Items)
+	// 組合每個用戶結算訊息
+	for _, uid := range userIds {
+		// 基礎結算資訊
 		settle := &res.BeginSettle{}
 		settle.MiniGameId = input.MiniGameId
 		settle.CountDown = input.CountDown
-		settle.WinAreaCodes = util.IntArrayToInt32Array(item.WinAreaCode)
-		settle.WinScore = int32(item.WinScore)
+		settle.WinAreaCodes = input.WinAreaCodes
 		settle.MySettleResult = []*res.SettleResult{}
-		tmp := make(map[int32]*res.SettleResult)
-		for _, result := range item.Results {
-			settleResult := &res.SettleResult{}
-			settleResult.AreaCode = int32(result.AreaCode)
-			settleResult.BetScore = int32(result.BetScore)
-			settleResult.WinScore = int32(result.WinScore)
-			settle.MySettleResult = append(settle.MySettleResult, settleResult)
-			tmp[settleResult.AreaCode] = settleResult
+		// 有下注紀錄的結算資訊 (未下注則沒有)
+		item, ok := itemMap[uid]
+		if ok {
+			settle.WinScore = int32(item.WinScore)
+			for _, result := range item.Results {
+				settleResult := &res.SettleResult{}
+				settleResult.AreaCode = int32(result.AreaCode)
+				settleResult.BetScore = int32(result.BetScore)
+				settleResult.WinScore = int32(result.WinScore)
+				settle.MySettleResult = append(settle.MySettleResult, settleResult)
+			}
+		}
+		settles[uid] = settle
+	}
+	return settles, nil
+}
+
+func mergeItem(items []*begin_settle.Data) map[int]*begin_settle.Data {
+	itemMap := make(map[int]*begin_settle.Data)
+	for _, newItem := range items {
+		tmp := make(map[int]*begin_settle.SettleResult)
+		// cache 一筆投注紀錄中的多個投注區
+		for _, result := range newItem.Results {
+			tmp[result.AreaCode] = result
 		}
 		// 合併投注紀錄 (如果同一個用戶投注多筆)
-		if origin, ok := output[int(item.ID)]; ok {
-			origin.WinScore += settle.WinScore
+		if oldItem, ok := itemMap[int(newItem.ID)]; ok {
+			// 合併獲勝注金
+			oldItem.WinScore += newItem.WinScore
 			// 合併相同注區
-			for _, result := range origin.MySettleResult {
+			for _, result := range oldItem.Results {
 				t, ok := tmp[result.AreaCode]
 				if !ok {
 					continue
 				}
 				result.BetScore += t.BetScore
 				result.WinScore += t.WinScore
-				// 刪除合併過的投注區域
+				// 刪除合併過的注區
 				delete(tmp, result.AreaCode)
 			}
 			// 加入剩餘注區
-			for _, t := range tmp {
-				origin.MySettleResult = append(origin.MySettleResult, t)
+			for _, newResult := range tmp {
+				oldItem.Results = append(oldItem.Results, newResult)
 			}
 			continue
 		}
 		// 不合併投注紀錄
-		output[int(item.ID)] = settle
+		itemMap[int(newItem.ID)] = newItem
 	}
-	return output, nil
+	return itemMap
 }
