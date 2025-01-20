@@ -9,6 +9,7 @@ import (
 	"game-go/shared/res"
 	"github.com/gorilla/websocket"
 	"google.golang.org/protobuf/proto"
+	"gorm.io/gorm"
 	"strconv"
 )
 
@@ -130,13 +131,18 @@ func (c *controller) LeaveMiniGame(ctx *game.Context) {
 func (c *controller) Bet(ctx *game.Context) {
 	betReq := ctx.MustGet("pb").(*req.BetReq)
 	uid := ctx.Client().MustGet("uid").(int)
-	output, errMsg := c.gameAdapter.Bet(uid, betReq)
+
+	output, userScore, errMsg := c.gameAdapter.Bet(ctx.MustGet("tx").(*gorm.DB), uid, betReq)
 	if errMsg != nil {
 		data, _ := ctx.MarshalData(7, 600, errMsg)
 		ctx.WriteData(data)
 		return
 	}
+	// 回傳投注結果
 	data, _ := ctx.MarshalData(500, 1006, output)
+	ctx.WriteData(data)
+	// 回傳用戶餘額
+	data, _ = ctx.MarshalData(500, 1050, userScore)
 	ctx.WriteData(data)
 }
 

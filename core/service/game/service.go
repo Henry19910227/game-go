@@ -17,14 +17,18 @@ import (
 	"game-go/core/model/game/enter_group"
 	gameStatusModel "game-go/core/model/game_status"
 	roundInfoModel "game-go/core/model/round_info"
+	userModel "game-go/core/model/user"
+	userRepo "game-go/core/repository/user"
 	"game-go/shared/model/kafka"
 	"game-go/shared/pkg/util"
 	betQueue "game-go/shared/queue/bet"
 	settleQueue "game-go/shared/queue/settle"
+	"gorm.io/gorm"
 	"time"
 )
 
 type service struct {
+	userRepo        userRepo.Repository
 	gameStatusCache gameStatusCache.Cache
 	roundInfoCache  roundInfoCache.Cache
 	betAreaCache    betAreaCache.Cache
@@ -34,7 +38,9 @@ type service struct {
 	settleQueueMap  map[int]settleQueue.Queue
 }
 
-func New(gameStatusCache gameStatusCache.Cache,
+func New(
+	userRepo userRepo.Repository,
+	gameStatusCache gameStatusCache.Cache,
 	roundInfoCache roundInfoCache.Cache,
 	betAreaCache betAreaCache.Cache,
 	rouletteBetQueue betQueue.Queue,
@@ -46,13 +52,15 @@ func New(gameStatusCache gameStatusCache.Cache,
 	settleQueueMap := make(map[int]settleQueue.Queue)
 	settleQueueMap[1009] = rouletteSettleQueue
 
-	return &service{gameStatusCache: gameStatusCache,
-		roundInfoCache: roundInfoCache,
-		betAreaCache:   betAreaCache,
-		betQueue:       rouletteBetQueue,
-		settleQueue:    rouletteSettleQueue,
-		betQueueMap:    betQueueMap,
-		settleQueueMap: settleQueueMap}
+	return &service{
+		userRepo:        userRepo,
+		gameStatusCache: gameStatusCache,
+		roundInfoCache:  roundInfoCache,
+		betAreaCache:    betAreaCache,
+		betQueue:        rouletteBetQueue,
+		settleQueue:     rouletteSettleQueue,
+		betQueueMap:     betQueueMap,
+		settleQueueMap:  settleQueueMap}
 }
 
 func (s *service) EnterGroup(input *enter_group.Input) (output *enter_group.Output, err error) {
@@ -131,7 +139,8 @@ func (s *service) ClearTrends(input *clear_trends.Input) (err error) {
 	return nil
 }
 
-func (s *service) Bet(input *bet.Input) (output *bet.Output, err error) {
+func (s *service) Bet(tx *gorm.DB, input *bet.Input) (output *bet.Output, err error) {
+	defer tx.Rollback()
 	// 獲取當前遊戲狀態
 	param := &gameStatusModel.FindInput{}
 	param.GameID = input.GameID
@@ -143,13 +152,14 @@ func (s *service) Bet(input *bet.Input) (output *bet.Output, err error) {
 	if util.OnNilJustReturnInt32(gameStatusTable.Stage, 0) != gameStatusModel.Betting {
 		return nil, errors.New("目前不是投注階段")
 	}
-	// Parser
+	// 整合投注資訊
 	betInfo := &kafka.BetInfo{}
 	betInfo.RoundInfoId = gameStatusTable.RoundInfoID
 	err = util.Parser(input, betInfo)
 	if err != nil {
 		return nil, err
 	}
+	totalBetScore := 0
 	for _, b := range betInfo.Bets {
 		// 查找賠率
 		cacheParam := &betAreaCacheModel.FindInput{}
@@ -160,6 +170,29 @@ func (s *service) Bet(input *bet.Input) (output *bet.Output, err error) {
 			continue
 		}
 		b.Odd = util.PointerFloat32(item.Odds[0].Odd)
+		// 判斷限額
+		if util.OnNilJustReturnInt(b.Score, 0) > int(item.MaxLimit) {
+			return nil, errors.New("超出限額")
+		}
+		if util.OnNilJustReturnInt(b.Score, 0) < int(item.MinLimit) {
+			return nil, errors.New("低於限額")
+		}
+		// 計算總投注額
+		totalBetScore += util.OnNilJustReturnInt(b.Score, 0)
+	}
+	// 判斷餘額是否足夠
+	userParam := userModel.FindInput{}
+	userParam.ID = input.UserId
+	userData, err := s.userRepo.Tx(tx).Find(&userParam)
+	if err != nil {
+		return nil, err
+	}
+	if util.OnNilJustReturnInt64(userData.Score, 0) < int64(totalBetScore) {
+		return nil, errors.New("餘額不足")
+	}
+	// 扣款
+	if err := s.userRepo.Tx(tx).Debit(totalBetScore); err != nil {
+		return nil, err
 	}
 	// 選擇 betQueue
 	queue, ok := s.betQueueMap[int(*param.GameID)]
@@ -171,10 +204,12 @@ func (s *service) Bet(input *bet.Input) (output *bet.Output, err error) {
 	if err != nil {
 		return nil, err
 	}
+	tx.Commit()
 	// 輸出
 	output = &bet.Output{}
 	output.GameID = input.GameID
 	output.Bets = input.Bets
+	output.Balance = int(util.OnNilJustReturnInt64(userData.Score, 0)) - totalBetScore
 	return output, nil
 }
 

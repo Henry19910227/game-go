@@ -12,6 +12,7 @@ import (
 	"game-go/shared/pkg/util"
 	"game-go/shared/req"
 	"game-go/shared/res"
+	"gorm.io/gorm"
 	"strconv"
 	"strings"
 )
@@ -125,7 +126,7 @@ func (a *adapter) ClearTrends(input *res.ClearTrends) (output *res.ClearTrends, 
 	return output, errMsg
 }
 
-func (a *adapter) Bet(uid int, input *req.BetReq) (output *req.MyMiniGameBetResult, errMsg *res.ErrorMessage) {
+func (a *adapter) Bet(tx *gorm.DB, uid int, input *req.BetReq) (output *req.MyMiniGameBetResult, userScore *res.RefreshUserScore, errMsg *res.ErrorMessage) {
 	bets := make([]*bet.Bet, 0)
 	for _, areaBet := range input.AreaBetArray {
 		item := &bet.Bet{}
@@ -137,12 +138,12 @@ func (a *adapter) Bet(uid int, input *req.BetReq) (output *req.MyMiniGameBetResu
 	param.UserId = util.PointerInt64(int64(uid))
 	param.GameID = util.PointerInt64(int64(input.MiniGameId))
 	param.Bets = bets
-	result, err := a.gameService.Bet(param)
+	result, err := a.gameService.Bet(tx, param)
 	if err != nil {
 		errMsg = &res.ErrorMessage{}
 		errMsg.Code = 800
 		errMsg.Desc = err.Error()
-		return nil, errMsg
+		return nil, nil, errMsg
 	}
 
 	betResults := make([]*req.BetResultInfo, 0)
@@ -157,7 +158,10 @@ func (a *adapter) Bet(uid int, input *req.BetReq) (output *req.MyMiniGameBetResu
 	output = &req.MyMiniGameBetResult{}
 	output.MiniGameId = int32(util.OnNilJustReturnInt64(result.GameID, 0))
 	output.BetResultInfoListArray = betResults
-	return output, nil
+
+	userScore = &res.RefreshUserScore{}
+	userScore.Score = util.PointerInt64(int64(result.Balance))
+	return output, userScore, nil
 }
 
 func (a *adapter) BeginNewRound(input *res.BeginNewRound) (output *res.BeginNewRound, errMsg *res.ErrorMessage) {

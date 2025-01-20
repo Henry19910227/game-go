@@ -29,11 +29,12 @@ func (s *factory) UserService() userService.Service {
 }
 
 func (s *factory) GameService() gameService.Service {
+	userRepo := s.repoFactory.UserRepository()
 	gameStatusCache := s.cacheFactory.GameStatusCache()
 	roundInfoCache := s.cacheFactory.RoundInfoCache()
 	betAreaCache := s.cacheFactory.BetAreaCache()
 	rouletteBetQueue := s.queueFactory.RouletteBetQueue()
 	rouletteSettleQueue := s.queueFactory.RouletteSettleQueue()
 	go rouletteSettleQueue.Read()
-	return gameService.New(gameStatusCache, roundInfoCache, betAreaCache, rouletteBetQueue, rouletteSettleQueue)
+	return gameService.New(userRepo, gameStatusCache, roundInfoCache, betAreaCache, rouletteBetQueue, rouletteSettleQueue)
 }

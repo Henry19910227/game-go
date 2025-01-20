@@ -15,12 +15,47 @@ func New(db *gorm.DB) Repository {
 	return &repository{db: db}
 }
 
+func (r *repository) Tx(tx *gorm.DB) Repository {
+	return New(tx)
+}
+
+func (r *repository) Find(input *model.FindInput) (output *model.Output, err error) {
+	input.IsDeleted = util.PointerInt(0)
+	output, err = r.find(input)
+	if err != nil {
+		return output, err
+	}
+	return output, err
+}
+
 func (r *repository) List(input *model.ListInput) (outputs []*model.Output, err error) {
 	input.IsDeleted = util.PointerInt(0)
 	output, err := r.list(input)
 	if err != nil {
 		return output, err
 	}
+	return output, err
+}
+
+func (r *repository) Debit(score int) (err error) {
+	table := &model.Output{}
+	db := r.db.Model(table)
+	db = db.Where("id = ?", 1).Update("score", gorm.Expr("score - ?", score))
+	return db.Error
+}
+
+func (r *repository) find(input *model.FindInput) (output *model.Output, err error) {
+	db := r.db.Model(&model.Output{})
+	//加入 id 篩選條件
+	if input.ID != nil {
+		db = db.Where("id = ?", *input.ID)
+	}
+	//加入 is_deleted 篩選條件
+	if input.IsDeleted != nil {
+		db = db.Where("is_deleted = ?", *input.IsDeleted)
+	}
+	//查詢數據
+	err = db.First(&output).Error
 	return output, err
 }
 

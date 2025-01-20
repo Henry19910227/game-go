@@ -19,9 +19,10 @@ import (
 
 func main() {
 	// 創建 factory
+	ormTool := orm.New()
 	queueMaker := queueFactory.New(kafkaTool.New())
 	cacheMaker := cacheFactory.New(redis.New())
-	repoMaker := repoFactory.New(orm.New().DB())
+	repoMaker := repoFactory.New(ormTool.DB())
 	serviceMaker := serviceFactory.New(repoMaker, cacheMaker, queueMaker)
 	adapterMaker := adapterFactory.New(serviceMaker)
 	factory := controllerFactory.New(adapterMaker)
@@ -43,7 +44,7 @@ func main() {
 	gameGroup := baseGroup.Group("500/")
 	// 添加路由
 	user.SetRoute(baseGroup, factory)
-	game.SetRoute(gameGroup, factory)
+	game.SetRoute(gameGroup, factory, ormTool)
 	// cache 預熱
 	factory.InitController().InitBetAreaCache()
 	// 運行 game engine
