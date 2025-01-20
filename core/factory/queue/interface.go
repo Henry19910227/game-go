@@ -6,6 +6,6 @@ import (
 )
 
 type Factory interface {
-	BetQueue() betQueue.Queue
-	SettleQueue() settleQueue.Queue
+	RouletteBetQueue() betQueue.Queue
+	RouletteSettleQueue() settleQueue.Queue
 }

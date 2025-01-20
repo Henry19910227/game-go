@@ -16,11 +16,11 @@ func New(kafkaTool kafka.Tool) Factory {
 }
 
 func (f *factory) BetQueue() betQueue.Queue {
-	queue := betQueue.New(f.kafkaTool.CreateReader("bet", "1009"), nil, f.kafkaTool.CreateConn("bet"))
+	queue := betQueue.New(f.kafkaTool.CreateReader("bet-1009", "1009"), nil, f.kafkaTool.CreateConn("bet-1009"))
 	return queue
 }
 
 func (f *factory) SettleQueue() settleQueue.Queue {
-	queue := settleQueue.New(nil, f.kafkaTool.CreateWriter("settle"), f.kafkaTool.CreateConn("settle"))
+	queue := settleQueue.New(nil, f.kafkaTool.CreateWriter("settle-1009"), f.kafkaTool.CreateConn("settle-1009"))
 	return queue
 }

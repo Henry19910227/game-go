@@ -30,10 +30,29 @@ type service struct {
 	betAreaCache    betAreaCache.Cache
 	betQueue        betQueue.Queue
 	settleQueue     settleQueue.Queue
+	betQueueMap     map[int]betQueue.Queue
+	settleQueueMap  map[int]settleQueue.Queue
 }
 
-func New(gameStatusCache gameStatusCache.Cache, roundInfoCache roundInfoCache.Cache, betAreaCache betAreaCache.Cache, betQueue betQueue.Queue, settleQueue settleQueue.Queue) Service {
-	return &service{gameStatusCache: gameStatusCache, roundInfoCache: roundInfoCache, betAreaCache: betAreaCache, betQueue: betQueue, settleQueue: settleQueue}
+func New(gameStatusCache gameStatusCache.Cache,
+	roundInfoCache roundInfoCache.Cache,
+	betAreaCache betAreaCache.Cache,
+	rouletteBetQueue betQueue.Queue,
+	rouletteSettleQueue settleQueue.Queue) Service {
+
+	betQueueMap := make(map[int]betQueue.Queue)
+	betQueueMap[1009] = rouletteBetQueue
+
+	settleQueueMap := make(map[int]settleQueue.Queue)
+	settleQueueMap[1009] = rouletteSettleQueue
+
+	return &service{gameStatusCache: gameStatusCache,
+		roundInfoCache: roundInfoCache,
+		betAreaCache:   betAreaCache,
+		betQueue:       rouletteBetQueue,
+		settleQueue:    rouletteSettleQueue,
+		betQueueMap:    betQueueMap,
+		settleQueueMap: settleQueueMap}
 }
 
 func (s *service) EnterGroup(input *enter_group.Input) (output *enter_group.Output, err error) {
@@ -142,8 +161,13 @@ func (s *service) Bet(input *bet.Input) (output *bet.Output, err error) {
 		}
 		b.Odd = util.PointerFloat32(item.Odds[0].Odd)
 	}
+	// 選擇 betQueue
+	queue, ok := s.betQueueMap[int(*param.GameID)]
+	if !ok {
+		return nil, errors.New("game id 尚未配置 bet queue")
+	}
 	// 寫入 kafka queue
-	err = s.betQueue.Write(betInfo)
+	err = queue.Write(betInfo)
 	if err != nil {
 		return nil, err
 	}
@@ -221,11 +245,15 @@ func (s *service) BeginSettle(input *begin_settle.Input) (output *begin_settle.O
 	if err != nil {
 		return output, err
 	}
+	// 選擇 settleQueue
+	queue, ok := s.settleQueueMap[int(*param.GameID)]
+	if !ok {
+		return nil, errors.New("game id 尚未配置 settleQueue")
+	}
 	// 獲取結算數據
-	// TODO 區分不同遊戲的 Queue
 	output = &begin_settle.Output{}
 	output.Items = []*begin_settle.Data{}
-	for _, item := range s.settleQueue.Data() {
+	for _, item := range queue.Data() {
 		settleInfo := &kafka.SettleInfo{}
 		_ = json.Unmarshal(item, settleInfo)
 		data := &begin_settle.Data{}
