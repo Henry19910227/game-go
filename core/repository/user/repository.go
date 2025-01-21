@@ -37,10 +37,25 @@ func (r *repository) List(input *model.ListInput) (outputs []*model.Output, err 
 	return output, err
 }
 
-func (r *repository) Debit(score int) (err error) {
+func (r *repository) RangeList(input *model.RangeInput) (outputs []*model.Output, err error) {
+	output, err := r.rangeList(input)
+	if err != nil {
+		return output, err
+	}
+	return output, err
+}
+
+func (r *repository) Debit(uid int64, score int) (err error) {
 	table := &model.Output{}
 	db := r.db.Model(table)
-	db = db.Where("id = ?", 1).Update("score", gorm.Expr("score - ?", score))
+	db = db.Where("id = ?", uid).Update("score", gorm.Expr("score - ?", score))
+	return db.Error
+}
+
+func (r *repository) Deposit(uid int64, score int) (err error) {
+	table := &model.Output{}
+	db := r.db.Model(table)
+	db = db.Where("id = ?", uid).Update("score", gorm.Expr("score + ?", score))
 	return db.Error
 }
 
@@ -85,6 +100,17 @@ func (r *repository) list(input *model.ListInput) (outputs []*model.Output, err 
 	//加入 is_deleted 篩選條件
 	if input.IsDeleted != nil {
 		db = db.Where(table.TableName()+".is_deleted = ?", *input.IsDeleted)
+	}
+	err = db.Find(&outputs).Error
+	return outputs, err
+}
+
+func (r *repository) rangeList(input *model.RangeInput) (outputs []*model.Output, err error) {
+	table := &model.Output{}
+	db := r.db.Model(table)
+	//加入 id 篩選條件
+	if len(input.IDList) > 0 {
+		db = db.Where(table.TableName()+".id IN ?", input.IDList)
 	}
 	err = db.Find(&outputs).Error
 	return outputs, err

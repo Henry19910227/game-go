@@ -19,3 +19,7 @@ type ListInput struct {
 	optional.ScoreField
 	baseInput.ListInput
 }
+
+type RangeInput struct {
+	IDList []int64
+}

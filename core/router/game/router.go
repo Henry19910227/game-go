@@ -22,5 +22,5 @@ func SetRoute(group *game.RouterGroup, factory controller.Factory, ormTool orm.T
 	group.EndPoint("9011", gameController.ClearTrends)
 	group.EndPoint("9004", gameController.BeginNewRound)
 	group.EndPoint("9010", gameController.BeginDeal)
-	group.EndPoint("9005", gameController.BeginSettle)
+	group.EndPoint("9005", middController.Transaction(ormTool.DB()), gameController.BeginSettle)
 }

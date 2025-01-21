@@ -16,6 +16,7 @@ type Data struct {
 	roundInfoReq.RoundInfoIDField
 	WinScore    int
 	WinAreaCode []int
+	Balance     int
 	Results     []*SettleResult
 }
 

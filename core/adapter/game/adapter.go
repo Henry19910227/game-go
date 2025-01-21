@@ -228,17 +228,19 @@ func (a *adapter) BeginDeal(input *res.BeginDeal) (output *res.BeginDeal, errMsg
 	return output, errMsg
 }
 
-func (a *adapter) BeginSettle(input *res.BeginSettle, userIds []int) (settles map[int]*res.BeginSettle, errMsg *res.ErrorMessage) {
-	settles = make(map[int]*res.BeginSettle, 0)
+func (a *adapter) BeginSettle(tx *gorm.DB, input *res.BeginSettle, userIds []int) (settles map[int]*res.BeginSettle, userScores map[int]*res.RefreshUserScore, errMsg *res.ErrorMessage) {
+	settles = make(map[int]*res.BeginSettle)
+	userScores = make(map[int]*res.RefreshUserScore)
+
 	param := &begin_settle.Input{}
 	param.ID = util.PointerInt64(int64(input.MiniGameId))
 	param.CountDown = util.PointerInt32(input.CountDown)
-	outputItem, err := a.gameService.BeginSettle(param)
+	outputItem, err := a.gameService.BeginSettle(tx, param)
 	if err != nil {
 		errMsg = &res.ErrorMessage{}
 		errMsg.Code = 800
 		errMsg.Desc = err.Error()
-		return settles, errMsg
+		return settles, userScores, errMsg
 	}
 	// 合併注單
 	itemMap := mergeItem(outputItem.Items)
@@ -261,10 +263,14 @@ func (a *adapter) BeginSettle(input *res.BeginSettle, userIds []int) (settles ma
 				settleResult.WinScore = int32(result.WinScore)
 				settle.MySettleResult = append(settle.MySettleResult, settleResult)
 			}
+			// 統計中獎者中獎後餘額
+			if settle.WinScore > 0 {
+				userScores[uid] = &res.RefreshUserScore{Score: util.PointerInt64(int64(item.Balance))}
+			}
 		}
 		settles[uid] = settle
 	}
-	return settles, nil
+	return settles, userScores, nil
 }
 
 func mergeItem(items []*begin_settle.Data) map[int]*begin_settle.Data {

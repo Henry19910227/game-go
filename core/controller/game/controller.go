@@ -204,7 +204,7 @@ func (c *controller) BeginSettle(ctx *game.Context) {
 		userIds = append(userIds, uid)
 	}
 
-	settles, errMsg := c.gameAdapter.BeginSettle(beginSettle, userIds)
+	settles, userScores, errMsg := c.gameAdapter.BeginSettle(ctx.MustGet("tx").(*gorm.DB), beginSettle, userIds)
 	if errMsg != nil {
 		data, _ := ctx.MarshalData(7, 600, errMsg)
 		ctx.Broadcast(channelId, data)
@@ -217,11 +217,20 @@ func (c *controller) BeginSettle(ctx *game.Context) {
 			continue
 		}
 		uid, _ := value.(int)
+		// 發送投注結果 (遊戲內每個用戶都會收到)
 		settle, ok := settles[uid]
 		if !ok {
 			continue
 		}
 		data, _ := ctx.MarshalData(500, 1005, settle)
+		_ = client.Conn().WriteMessage(websocket.BinaryMessage, data)
+
+		// 發送金額 (只有中獎者才會收到)
+		userScore, ok := userScores[uid]
+		if !ok {
+			continue
+		}
+		data, _ = ctx.MarshalData(500, 1050, userScore)
 		_ = client.Conn().WriteMessage(websocket.BinaryMessage, data)
 	}
 }
