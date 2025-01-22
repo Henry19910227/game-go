@@ -21,6 +21,7 @@ import (
 	userRepo "game-go/core/repository/user"
 	"game-go/shared/model/kafka"
 	"game-go/shared/pkg/util"
+	areaBetQueue "game-go/shared/queue/area_bet"
 	betQueue "game-go/shared/queue/bet"
 	settleQueue "game-go/shared/queue/settle"
 	"gorm.io/gorm"
@@ -34,8 +35,10 @@ type service struct {
 	betAreaCache    betAreaCache.Cache
 	betQueue        betQueue.Queue
 	settleQueue     settleQueue.Queue
+	areaBetQueue    areaBetQueue.Queue
 	betQueueMap     map[int]betQueue.Queue
 	settleQueueMap  map[int]settleQueue.Queue
+	areaBetQueueMap map[int]areaBetQueue.Queue
 }
 
 func New(
@@ -44,13 +47,17 @@ func New(
 	roundInfoCache roundInfoCache.Cache,
 	betAreaCache betAreaCache.Cache,
 	rouletteBetQueue betQueue.Queue,
-	rouletteSettleQueue settleQueue.Queue) Service {
+	rouletteSettleQueue settleQueue.Queue,
+	rouletteAreaBetQueue areaBetQueue.Queue) Service {
 
 	betQueueMap := make(map[int]betQueue.Queue)
 	betQueueMap[1009] = rouletteBetQueue
 
 	settleQueueMap := make(map[int]settleQueue.Queue)
 	settleQueueMap[1009] = rouletteSettleQueue
+
+	areaBetQueueMap := make(map[int]areaBetQueue.Queue)
+	areaBetQueueMap[1009] = rouletteAreaBetQueue
 
 	return &service{
 		userRepo:        userRepo,
@@ -59,8 +66,10 @@ func New(
 		betAreaCache:    betAreaCache,
 		betQueue:        rouletteBetQueue,
 		settleQueue:     rouletteSettleQueue,
+		areaBetQueue:    rouletteAreaBetQueue,
 		betQueueMap:     betQueueMap,
-		settleQueueMap:  settleQueueMap}
+		settleQueueMap:  settleQueueMap,
+		areaBetQueueMap: areaBetQueueMap}
 }
 
 func (s *service) EnterGroup(input *enter_group.Input) (output *enter_group.Output, err error) {
@@ -154,6 +163,7 @@ func (s *service) Bet(tx *gorm.DB, input *bet.Input) (output *bet.Output, err er
 	}
 	// 整合投注資訊
 	betInfo := &kafka.BetInfo{}
+	areaBets := make([]*kafka.AreaBet, 0)
 	betInfo.RoundInfoId = gameStatusTable.RoundInfoID
 	err = util.Parser(input, betInfo)
 	if err != nil {
@@ -179,6 +189,12 @@ func (s *service) Bet(tx *gorm.DB, input *bet.Input) (output *bet.Output, err er
 		}
 		// 計算總投注額
 		totalBetScore += util.OnNilJustReturnInt(b.Score, 0)
+		// 計算投注區總額
+		areaBet := &kafka.AreaBet{}
+		areaBet.UserId = util.OnNilJustReturnInt64(input.UserId, 0)
+		areaBet.BetAreaID = util.OnNilJustReturnInt(b.BetAreaID, 0)
+		areaBet.Score = util.OnNilJustReturnInt(b.Score, 0)
+		areaBets = append(areaBets, areaBet)
 	}
 	// 判斷餘額是否足夠
 	userParam := userModel.FindInput{}
@@ -194,16 +210,23 @@ func (s *service) Bet(tx *gorm.DB, input *bet.Input) (output *bet.Output, err er
 	if err := s.userRepo.Tx(tx).Debit(util.OnNilJustReturnInt64(input.UserId, 0), totalBetScore); err != nil {
 		return nil, err
 	}
-	// 選擇 betQueue
-	queue, ok := s.betQueueMap[int(*param.GameID)]
+	// 寫入 betQueue
+	betQ, ok := s.betQueueMap[int(*param.GameID)]
 	if !ok {
 		return nil, errors.New("game id 尚未配置 bet queue")
 	}
-	// 寫入 kafka queue
-	err = queue.Write(betInfo)
-	if err != nil {
+	if err = betQ.Write(betInfo); err != nil {
 		return nil, err
 	}
+	// 寫入 areaBetQueue
+	areaQ, ok := s.areaBetQueueMap[int(*param.GameID)]
+	if !ok {
+		return nil, errors.New("game id 尚未配置 area_bet queue")
+	}
+	if err = areaQ.WriteArray(areaBets); err != nil {
+		return nil, err
+	}
+	// 提交 transaction
 	tx.Commit()
 	// 輸出
 	output = &bet.Output{}

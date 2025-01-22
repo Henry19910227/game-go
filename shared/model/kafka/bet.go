@@ -12,3 +12,9 @@ type Bet struct {
 	Odd       *float32 `json:"odd"`                   // 賠率
 	Score     *int     `json:"score,omitempty"`       // 投注金額
 }
+
+type AreaBet struct {
+	UserId    int64 `json:"user_id"`     // 用戶 id
+	BetAreaID int   `json:"bet_area_id"` // 注區 id
+	Score     int   `json:"score"`       // 投注金額
+}

@@ -18,7 +18,7 @@ type queue struct {
 }
 
 func New(r *kafka.Reader, w *kafka.Writer, conn *kafka.Conn) Queue {
-	return &queue{r: r, w: w, conn: conn}
+	return &queue{r: r, w: w, conn: conn, data: [][]byte{}}
 }
 
 func (q *queue) Read() {

@@ -35,6 +35,8 @@ func (s *factory) GameService() gameService.Service {
 	betAreaCache := s.cacheFactory.BetAreaCache()
 	rouletteBetQueue := s.queueFactory.RouletteBetQueue()
 	rouletteSettleQueue := s.queueFactory.RouletteSettleQueue()
+	rouletteAreaBetQueue := s.queueFactory.RouletteAreaBetQueue()
 	go rouletteSettleQueue.Read()
+	go rouletteBetQueue.Read()
 	return gameService.New(userRepo, gameStatusCache, roundInfoCache, betAreaCache, rouletteBetQueue, rouletteSettleQueue)
 }
