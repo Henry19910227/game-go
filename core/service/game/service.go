@@ -36,9 +36,6 @@ type service struct {
 	betQueue        betQueue.Queue
 	settleQueue     settleQueue.Queue
 	areaBetQueue    areaBetQueue.Queue
-	betQueueMap     map[int]betQueue.Queue
-	settleQueueMap  map[int]settleQueue.Queue
-	areaBetQueueMap map[int]areaBetQueue.Queue
 }
 
 func New(
@@ -46,30 +43,18 @@ func New(
 	gameStatusCache gameStatusCache.Cache,
 	roundInfoCache roundInfoCache.Cache,
 	betAreaCache betAreaCache.Cache,
-	rouletteBetQueue betQueue.Queue,
-	rouletteSettleQueue settleQueue.Queue,
-	rouletteAreaBetQueue areaBetQueue.Queue) Service {
-
-	betQueueMap := make(map[int]betQueue.Queue)
-	betQueueMap[1009] = rouletteBetQueue
-
-	settleQueueMap := make(map[int]settleQueue.Queue)
-	settleQueueMap[1009] = rouletteSettleQueue
-
-	areaBetQueueMap := make(map[int]areaBetQueue.Queue)
-	areaBetQueueMap[1009] = rouletteAreaBetQueue
+	betQueue betQueue.Queue,
+	settleQueue settleQueue.Queue,
+	areaBetQueue areaBetQueue.Queue) Service {
 
 	return &service{
 		userRepo:        userRepo,
 		gameStatusCache: gameStatusCache,
 		roundInfoCache:  roundInfoCache,
 		betAreaCache:    betAreaCache,
-		betQueue:        rouletteBetQueue,
-		settleQueue:     rouletteSettleQueue,
-		areaBetQueue:    rouletteAreaBetQueue,
-		betQueueMap:     betQueueMap,
-		settleQueueMap:  settleQueueMap,
-		areaBetQueueMap: areaBetQueueMap}
+		betQueue:        betQueue,
+		settleQueue:     settleQueue,
+		areaBetQueue:    areaBetQueue}
 }
 
 func (s *service) EnterGroup(input *enter_group.Input) (output *enter_group.Output, err error) {
@@ -211,19 +196,11 @@ func (s *service) Bet(tx *gorm.DB, input *bet.Input) (output *bet.Output, err er
 		return nil, err
 	}
 	// 寫入 betQueue
-	betQ, ok := s.betQueueMap[int(*param.GameID)]
-	if !ok {
-		return nil, errors.New("game id 尚未配置 bet queue")
-	}
-	if err = betQ.Write(betInfo); err != nil {
+	if err = s.betQueue.Write(betInfo); err != nil {
 		return nil, err
 	}
 	// 寫入 areaBetQueue
-	areaQ, ok := s.areaBetQueueMap[int(*param.GameID)]
-	if !ok {
-		return nil, errors.New("game id 尚未配置 area_bet queue")
-	}
-	if err = areaQ.WriteArray(areaBets); err != nil {
+	if err = s.areaBetQueue.WriteArray(areaBets); err != nil {
 		return nil, err
 	}
 	// 提交 transaction
@@ -304,16 +281,11 @@ func (s *service) BeginSettle(tx *gorm.DB, input *begin_settle.Input) (output *b
 	if err != nil {
 		return output, err
 	}
-	// 選擇 settleQueue
-	queue, ok := s.settleQueueMap[int(*param.GameID)]
-	if !ok {
-		return nil, errors.New("game id 尚未配置 settleQueue")
-	}
 	// 獲取結算數據
 	userIds := make([]int64, 0)
 	output = &begin_settle.Output{}
 	output.Items = []*begin_settle.Data{}
-	for _, item := range queue.Data() {
+	for _, item := range s.settleQueue.Data() {
 		settleInfo := &kafka.SettleInfo{}
 		_ = json.Unmarshal(item, settleInfo)
 		data := &begin_settle.Data{}
