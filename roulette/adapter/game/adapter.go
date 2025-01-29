@@ -46,6 +46,24 @@ func (a *adapter) Settle() (beginSettle *res.BeginSettle) {
 	return beginSettle
 }
 
+func (a *adapter) SyncAreaBetInfo() (syncAreaBetInfo *res.SyncAreaBetInfo) {
+	data := a.service.SyncAreaBetInfo()
+	if data == nil {
+		return nil
+	}
+	syncAreaBetInfo = &res.SyncAreaBetInfo{}
+	syncAreaBetInfo.MiniGameId = int32(data.MiniGameId)
+	syncAreaBetInfo.AreaBets = []*res.AreaBet{}
+	for _, item := range data.AreaBets {
+		areaBet := &res.AreaBet{}
+		areaBet.AreaCode = int32(item.AreaCode)
+		areaBet.BetScore = int32(item.BetScore)
+		areaBet.UserCount = int32(item.UserCount)
+		syncAreaBetInfo.AreaBets = append(syncAreaBetInfo.AreaBets, areaBet)
+	}
+	return syncAreaBetInfo
+}
+
 func IntToInt32Slice(input []int) []int32 {
 	output := make([]int32, len(input))
 	for i, v := range input {

@@ -4,9 +4,10 @@ import (
 	"game-go/core/factory/controller"
 	"game-go/core/game"
 	"game-go/shared/pkg/tool/orm"
+	"github.com/robfig/cron/v3"
 )
 
-func SetRoute(group *game.RouterGroup, factory controller.Factory, ormTool orm.Tool) {
+func SetRoute(group *game.RouterGroup, factory controller.Factory, ormTool orm.Tool, cron *cron.Cron) {
 	gameController := factory.GameController()
 	middController := factory.MiddController()
 	group.Use(gameController.Unmarshal)
@@ -23,4 +24,5 @@ func SetRoute(group *game.RouterGroup, factory controller.Factory, ormTool orm.T
 	group.EndPoint("9004", gameController.BeginNewRound)
 	group.EndPoint("9010", gameController.BeginDeal)
 	group.EndPoint("9005", middController.Transaction(ormTool.DB()), gameController.BeginSettle)
+	group.EndPoint("9007", gameController.SyncAreaBetInfo)
 }

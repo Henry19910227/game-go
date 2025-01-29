@@ -33,3 +33,14 @@ type SettleResult struct {
 	BetScore int
 	WinScore int
 }
+
+type SyncAreaBetInfo struct {
+	MiniGameId int
+	AreaBets   []*AreaBet
+}
+
+type AreaBet struct {
+	AreaCode  int
+	BetScore  int
+	UserCount int // 下注的人数
+}

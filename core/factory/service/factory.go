@@ -2,7 +2,7 @@ package service
 
 import (
 	"game-go/core/factory/cache"
-	"game-go/core/factory/queue"
+	"game-go/core/factory/queue_manager"
 	"game-go/core/factory/repository"
 	gameService "game-go/core/service/game"
 	initService "game-go/core/service/init"
@@ -12,11 +12,12 @@ import (
 type factory struct {
 	repoFactory  repository.Factory
 	cacheFactory cache.Factory
-	queueFactory queue.Factory
+	queueManagerFactory queue_manager.Factory
+
 }
 
-func New(repoFactory repository.Factory, cacheFactory cache.Factory, queueFactory queue.Factory) Factory {
-	serviceFactory := &factory{repoFactory: repoFactory, cacheFactory: cacheFactory, queueFactory: queueFactory}
+func New(repoFactory repository.Factory, cacheFactory cache.Factory, queueManagerFactory queue_manager.Factory) Factory {
+	serviceFactory := &factory{repoFactory: repoFactory, cacheFactory: cacheFactory, queueManagerFactory: queueManagerFactory}
 	return serviceFactory
 }
 
@@ -33,10 +34,6 @@ func (s *factory) GameService() gameService.Service {
 	gameStatusCache := s.cacheFactory.GameStatusCache()
 	roundInfoCache := s.cacheFactory.RoundInfoCache()
 	betAreaCache := s.cacheFactory.BetAreaCache()
-	rouletteBetQueue := s.queueFactory.BetQueue()
-	rouletteSettleQueue := s.queueFactory.SettleQueue()
-	rouletteAreaBetQueue := s.queueFactory.AreaBetQueue()
-	go rouletteSettleQueue.Read()
-	go rouletteAreaBetQueue.Read()
-	return gameService.New(userRepo, gameStatusCache, roundInfoCache, betAreaCache, rouletteBetQueue, rouletteSettleQueue, rouletteAreaBetQueue)
+	queueManager := s.queueManagerFactory.QueueManager()
+	return gameService.New(userRepo, gameStatusCache, roundInfoCache, betAreaCache, queueManager)
 }

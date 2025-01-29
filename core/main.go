@@ -5,6 +5,7 @@ import (
 	cacheFactory "game-go/core/factory/cache"
 	controllerFactory "game-go/core/factory/controller"
 	queueFactory "game-go/core/factory/queue"
+	queueManagetFactory "game-go/core/factory/queue_manager"
 	repoFactory "game-go/core/factory/repository"
 	serviceFactory "game-go/core/factory/service"
 	gameEngine "game-go/core/game"
@@ -14,6 +15,7 @@ import (
 	kafkaTool "game-go/shared/pkg/tool/kafka"
 	"game-go/shared/pkg/tool/orm"
 	"game-go/shared/pkg/tool/redis"
+	"github.com/robfig/cron/v3"
 	"strconv"
 )
 
@@ -21,9 +23,10 @@ func main() {
 	// 創建 factory
 	ormTool := orm.New()
 	queueMaker := queueFactory.New(kafkaTool.New())
+	queueManagerMaker := queueManagetFactory.New(queueMaker)
 	cacheMaker := cacheFactory.New(redis.New())
 	repoMaker := repoFactory.New(ormTool.DB())
-	serviceMaker := serviceFactory.New(repoMaker, cacheMaker, queueMaker)
+	serviceMaker := serviceFactory.New(repoMaker, cacheMaker, queueManagerMaker)
 	adapterMaker := adapterFactory.New(serviceMaker)
 	factory := controllerFactory.New(adapterMaker)
 
@@ -43,8 +46,10 @@ func main() {
 	// 設定Game路由組
 	gameGroup := baseGroup.Group("500/")
 	// 添加路由
+	timer := cron.New(cron.WithSeconds())
 	user.SetRoute(baseGroup, factory)
-	game.SetRoute(gameGroup, factory, ormTool)
+	game.SetRoute(gameGroup, factory, ormTool, timer)
+	timer.Start()
 	// cache 預熱
 	factory.InitController().InitBetAreaCache()
 	// 運行 game engine

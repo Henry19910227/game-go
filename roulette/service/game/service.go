@@ -7,18 +7,21 @@ import (
 	gameModel "game-go/roulette/model/game"
 	"game-go/shared/model/kafka"
 	"game-go/shared/pkg/util"
+	areaBetQueue "game-go/shared/queue/area_bet"
 	betQueue "game-go/shared/queue/bet"
 	settleQueue "game-go/shared/queue/settle"
 )
 
 type service struct {
-	gameManager gameManager.Manager
-	betQueue    betQueue.Queue
-	settleQueue settleQueue.Queue
+	gameManager  gameManager.Manager
+	betQueue     betQueue.Queue
+	settleQueue  settleQueue.Queue
+	areaBetQueue areaBetQueue.Queue
+	isBetting    bool
 }
 
-func New(gameManager gameManager.Manager, betQueue betQueue.Queue, settleQueue settleQueue.Queue) Service {
-	return &service{gameManager: gameManager, betQueue: betQueue, settleQueue: settleQueue}
+func New(gameManager gameManager.Manager, betQueue betQueue.Queue, settleQueue settleQueue.Queue, areaBetQueue areaBetQueue.Queue) Service {
+	return &service{gameManager: gameManager, betQueue: betQueue, settleQueue: settleQueue, areaBetQueue: areaBetQueue, isBetting: false}
 }
 
 func (s *service) Betting() *gameModel.BeginNewRound {
@@ -28,6 +31,7 @@ func (s *service) Betting() *gameModel.BeginNewRound {
 	beginNewRound.RoundId = roundId
 	beginNewRound.DeckRound = deckRound
 	beginNewRound.MaxRound = s.gameManager.MaxRound()
+	s.isBetting = true
 	return beginNewRound
 }
 
@@ -42,6 +46,8 @@ func (s *service) Deal() *gameModel.BeginDeal {
 	s.calculate(s.betQueue.Data(), s.gameManager.Elements()[0])
 	// 清空數據
 	s.betQueue.CleanData()
+	s.areaBetQueue.CleanData()
+	s.isBetting = false
 	return deal
 }
 
@@ -51,6 +57,33 @@ func (s *service) Settle() *gameModel.BeginSettle {
 	settle.RoundId = s.gameManager.RoundId()
 	settle.WinAreaCode = s.gameManager.WinBetAreaCodes(s.gameManager.Elements()[0])
 	return settle
+}
+
+func (s *service) SyncAreaBetInfo() *gameModel.SyncAreaBetInfo {
+	if !s.isBetting {
+		return nil
+	}
+	betInfo := &gameModel.SyncAreaBetInfo{}
+	betInfo.MiniGameId = s.gameManager.ID()
+	betInfo.AreaBets = []*gameModel.AreaBet{}
+	m := make(map[int]*gameModel.AreaBet)
+	for _, item := range s.areaBetQueue.Data() {
+		areaBet, ok := m[item.BetAreaID]
+		if !ok {
+			m[item.BetAreaID] = &gameModel.AreaBet{
+				AreaCode:  item.BetAreaID,
+				BetScore:  item.Score,
+				UserCount: 1,
+			}
+			continue
+		}
+		areaBet.BetScore += item.Score
+		areaBet.UserCount++
+	}
+	for _, item := range m {
+		betInfo.AreaBets = append(betInfo.AreaBets, item)
+	}
+	return betInfo
 }
 
 func (s *service) calculate(betData [][]byte, element int) {

@@ -26,4 +26,6 @@ type Controller interface {
 	BeginDeal(ctx *game.Context)
 	// BeginSettle req 500/9005, res 500/1005
 	BeginSettle(ctx *game.Context)
+	// SyncAreaBetInfo req 500/9007, res 500/1007
+	SyncAreaBetInfo(ctx *game.Context)
 }

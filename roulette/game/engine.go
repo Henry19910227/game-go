@@ -3,6 +3,7 @@ package game
 import (
 	"errors"
 	"github.com/gorilla/websocket"
+	"github.com/robfig/cron/v3"
 	"net/url"
 	"time"
 )
@@ -11,12 +12,18 @@ type Engine struct {
 	conn      *websocket.Conn
 	countdown int
 	stageChin *StageLinkedList
+	timer     *cron.Cron
 }
 
 func New() *Engine {
 	return &Engine{
 		stageChin: &StageLinkedList{},
+		timer:     cron.New(cron.WithSeconds()),
 	}
+}
+
+func (e *Engine) AddCronFunc(spec string, f func(ctx *Context) func()) {
+	_, _ = e.timer.AddFunc(spec, f(&Context{engine: e}))
 }
 
 func (e *Engine) AddStage(stage *Stage) {
@@ -52,6 +59,9 @@ func (e *Engine) Run(scheme string, host string, path string) error {
 	// 初始化
 	e.countdown = e.stageChin.Current().Countdown
 	e.stageChin.Current().Handler(&Context{engine: e})
+
+	// 啟動 cron 排程
+	e.timer.Start()
 
 	// 主循環
 	ticker := time.NewTicker(time.Second)

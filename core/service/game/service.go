@@ -18,12 +18,10 @@ import (
 	gameStatusModel "game-go/core/model/game_status"
 	roundInfoModel "game-go/core/model/round_info"
 	userModel "game-go/core/model/user"
+	"game-go/core/queue_manager"
 	userRepo "game-go/core/repository/user"
 	"game-go/shared/model/kafka"
 	"game-go/shared/pkg/util"
-	areaBetQueue "game-go/shared/queue/area_bet"
-	betQueue "game-go/shared/queue/bet"
-	settleQueue "game-go/shared/queue/settle"
 	"gorm.io/gorm"
 	"time"
 )
@@ -33,9 +31,7 @@ type service struct {
 	gameStatusCache gameStatusCache.Cache
 	roundInfoCache  roundInfoCache.Cache
 	betAreaCache    betAreaCache.Cache
-	betQueue        betQueue.Queue
-	settleQueue     settleQueue.Queue
-	areaBetQueue    areaBetQueue.Queue
+	queueManager    queue_manager.QueueManager
 }
 
 func New(
@@ -43,18 +39,14 @@ func New(
 	gameStatusCache gameStatusCache.Cache,
 	roundInfoCache roundInfoCache.Cache,
 	betAreaCache betAreaCache.Cache,
-	betQueue betQueue.Queue,
-	settleQueue settleQueue.Queue,
-	areaBetQueue areaBetQueue.Queue) Service {
+	queueManager queue_manager.QueueManager) Service {
 
 	return &service{
 		userRepo:        userRepo,
 		gameStatusCache: gameStatusCache,
 		roundInfoCache:  roundInfoCache,
 		betAreaCache:    betAreaCache,
-		betQueue:        betQueue,
-		settleQueue:     settleQueue,
-		areaBetQueue:    areaBetQueue}
+		queueManager:    queueManager}
 }
 
 func (s *service) EnterGroup(input *enter_group.Input) (output *enter_group.Output, err error) {
@@ -134,6 +126,9 @@ func (s *service) ClearTrends(input *clear_trends.Input) (err error) {
 }
 
 func (s *service) Bet(tx *gorm.DB, input *bet.Input) (output *bet.Output, err error) {
+	betQueueItem := s.queueManager.BetQueue(int32(util.OnNilJustReturnInt64(input.GameID, 0)))
+	areaBetQueueItem := s.queueManager.AreaBetQueue(int32(util.OnNilJustReturnInt64(input.GameID, 0)))
+
 	defer tx.Rollback()
 	// 獲取當前遊戲狀態
 	param := &gameStatusModel.FindInput{}
@@ -196,11 +191,11 @@ func (s *service) Bet(tx *gorm.DB, input *bet.Input) (output *bet.Output, err er
 		return nil, err
 	}
 	// 寫入 betQueue
-	if err = s.betQueue.Write(betInfo); err != nil {
+	if err = betQueueItem.Write(betInfo); err != nil {
 		return nil, err
 	}
 	// 寫入 areaBetQueue
-	if err = s.areaBetQueue.WriteArray(areaBets); err != nil {
+	if err = areaBetQueueItem.WriteArray(areaBets); err != nil {
 		return nil, err
 	}
 	// 提交 transaction
@@ -266,6 +261,8 @@ func (s *service) BeginDeal(input *begin_deal.Input) (err error) {
 }
 
 func (s *service) BeginSettle(tx *gorm.DB, input *begin_settle.Input) (output *begin_settle.Output, err error) {
+	settleQueueItem := s.queueManager.SettleQueue(int32(util.OnNilJustReturnInt64(input.ID, 0)))
+
 	defer tx.Rollback()
 	// 儲存當前遊戲狀態
 	location, err := time.LoadLocation("Asia/Taipei")
@@ -285,7 +282,7 @@ func (s *service) BeginSettle(tx *gorm.DB, input *begin_settle.Input) (output *b
 	userIds := make([]int64, 0)
 	output = &begin_settle.Output{}
 	output.Items = []*begin_settle.Data{}
-	for _, item := range s.settleQueue.Data() {
+	for _, item := range settleQueueItem.Data() {
 		settleInfo := &kafka.SettleInfo{}
 		_ = json.Unmarshal(item, settleInfo)
 		data := &begin_settle.Data{}
@@ -333,6 +330,18 @@ func (s *service) BeginSettle(tx *gorm.DB, input *begin_settle.Input) (output *b
 		item.Balance = int(util.OnNilJustReturnInt64(user.Score, 0))
 	}
 	// 清除資料
-	s.settleQueue.CleanData()
+	settleQueueItem.CleanData()
 	return output, err
+}
+
+func (s *service) SyncAreaBetInfo() {
+	//param := &gameStatusModel.FindInput{}
+	//param.GameID = nil
+	//table, err := s.gameStatusCache.Find(param)
+	//if err != nil {
+	//	return
+	//}
+	//
+	////TODO implement me
+	//panic("implement me")
 }

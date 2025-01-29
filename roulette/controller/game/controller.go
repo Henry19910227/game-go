@@ -43,3 +43,13 @@ func (g *controller) Settle(ctx *game.Context) {
 	data, _ := crypto.New().Marshal(500, 9005, pb)
 	ctx.WriteData(data)
 }
+
+func (g *controller) SyncAreaBetInfo(ctx *game.Context) {
+	syncAreaBetInfo := g.gameAdapter.SyncAreaBetInfo()
+	if syncAreaBetInfo == nil {
+		return
+	}
+	pb, _ := proto.Marshal(syncAreaBetInfo)
+	data, _ := crypto.New().Marshal(500, 9007, pb)
+	ctx.WriteData(data)
+}

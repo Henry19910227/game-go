@@ -44,6 +44,8 @@ func (c *controller) Unmarshal(ctx *game.Context) {
 		pb = &res.BeginDeal{}
 	case mid == 500 && sid == 9005: // 開始結算 (game 傳入指令)
 		pb = &res.BeginSettle{}
+	case mid == 500 && sid == 9007: // 同步投注人數與金額 (game 傳入指令)
+		pb = &res.SyncAreaBetInfo{}
 	default:
 		fmt.Println("No matching case for the given mid and sid")
 		ctx.Abort()
@@ -233,4 +235,11 @@ func (c *controller) BeginSettle(ctx *game.Context) {
 		data, _ = ctx.MarshalData(500, 1050, userScore)
 		_ = client.Conn().WriteMessage(websocket.BinaryMessage, data)
 	}
+}
+
+func (c *controller) SyncAreaBetInfo(ctx *game.Context) {
+	syncAreaBetInfo := ctx.MustGet("pb").(*res.SyncAreaBetInfo)
+	channelId := strconv.Itoa(int(syncAreaBetInfo.MiniGameId))
+	data, _ := ctx.MarshalData(500, 1007, syncAreaBetInfo)
+	ctx.Broadcast(channelId, data)
 }

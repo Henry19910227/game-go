@@ -32,5 +32,10 @@ func main() {
 		Countdown: 5,
 		Handler:   gameVC.Settle,
 	})
+	engine.AddCronFunc("* * * * * *", func(ctx *gameEngine.Context) func() {
+		return func() {
+			gameVC.SyncAreaBetInfo(ctx)
+		}
+	})
 	_ = engine.Run("ws", "localhost:8080", "/game")
 }
