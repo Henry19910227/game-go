@@ -39,7 +39,7 @@ func (f *factory) RacingCarSettleQueue() settleQueue.Queue {
 
 func (f *factory) RouletteAreaBetQueue() areaBetQueue.Queue {
 	return areaBetQueue.New(f.kafkaTool.CreateReader("area_bet-1009", "1"),
-		f.kafkaTool.CreateWriter("area_bet-1002"),
+		f.kafkaTool.CreateWriter("area_bet-1009"),
 		f.kafkaTool.CreateConn("area_bet-1009"))
 }
 func (f *factory) RacingCarAreaBetQueue() areaBetQueue.Queue {

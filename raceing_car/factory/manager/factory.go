@@ -1,7 +1,8 @@
 package manager
 
 import (
-	racingCarGameManager "game-go/racing_car/manager/game"
+	"game-go/racing_car/manager/game"
+	gameManagerFactory "game-go/shared/mini_game/factory/manager"
 	gameManager "game-go/shared/mini_game/manager/game"
 )
 
@@ -10,10 +11,10 @@ type factory struct {
 	maxRound int
 }
 
-func New(id int, maxRound int) Factory {
+func New(id int, maxRound int) gameManagerFactory.Factory {
 	return &factory{id, maxRound}
 }
 
 func (f *factory) GameManager() gameManager.Manager {
-	return racingCarGameManager.New(f.id, f.maxRound)
+	return game.New(f.id, f.maxRound)
 }
