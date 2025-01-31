@@ -12,13 +12,14 @@ import (
 
 type queue struct {
 	r    *kafka.Reader
+	w    *kafka.Writer
 	conn *kafka.Conn
 	data []*model.AreaBet
 	mu   sync.RWMutex
 }
 
-func New(r *kafka.Reader, conn *kafka.Conn) Queue {
-	return &queue{r: r, conn: conn, data: []*model.AreaBet{}}
+func New(r *kafka.Reader, w *kafka.Writer, conn *kafka.Conn) Queue {
+	return &queue{r: r, w: w, conn: conn, data: []*model.AreaBet{}}
 }
 
 func (q *queue) Data() []*model.AreaBet {
@@ -31,9 +32,11 @@ func (q *queue) WriteArray(models []*model.AreaBet) (err error) {
 		if err != nil {
 			return err
 		}
-		_, err = q.conn.WriteMessages(kafka.Message{Value: data})
-		if err != nil {
-			return err
+		if err := q.w.WriteMessages(context.Background(), kafka.Message{Value: data}); err != nil {
+			_, err = q.conn.WriteMessages(kafka.Message{Value: data})
+			if err != nil {
+				return err
+			}
 		}
 	}
 	return err
@@ -44,7 +47,12 @@ func (q *queue) Write(model *model.AreaBet) (err error) {
 	if err != nil {
 		return err
 	}
-	_, err = q.conn.WriteMessages(kafka.Message{Value: data})
+	if err := q.w.WriteMessages(context.Background(), kafka.Message{Value: data}); err != nil {
+		_, err = q.conn.WriteMessages(kafka.Message{Value: data})
+		if err != nil {
+			return err
+		}
+	}
 	return err
 }
 

@@ -29,6 +29,7 @@ func (t *tool) CreateWriter(topic string) *kafka.Writer {
 	return &kafka.Writer{
 		Addr:  kafka.TCP([]string{"localhost:9092"}...),
 		Topic: topic,
+		Async: true,
 	}
 }
 

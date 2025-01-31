@@ -30,7 +30,12 @@ func (q *queue) Write(model *model.SettleInfo) (err error) {
 	if err != nil {
 		return err
 	}
-	_, err = q.conn.WriteMessages(kafka.Message{Value: data})
+	if err := q.w.WriteMessages(context.Background(), kafka.Message{Value: data}); err != nil {
+		_, err = q.conn.WriteMessages(kafka.Message{Value: data})
+		if err != nil {
+			return err
+		}
+	}
 	return err
 }
 

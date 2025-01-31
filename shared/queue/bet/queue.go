@@ -45,7 +45,12 @@ func (q *queue) Write(model *model.BetInfo) (err error) {
 	if err != nil {
 		return err
 	}
-	_, err = q.conn.WriteMessages(kafka.Message{Value: data})
+	if err := q.w.WriteMessages(context.Background(), kafka.Message{Value: data}); err != nil {
+		_, err = q.conn.WriteMessages(kafka.Message{Value: data})
+		if err != nil {
+			return err
+		}
+	}
 	return err
 }
 
@@ -54,5 +59,7 @@ func (q *queue) Data() [][]byte {
 }
 
 func (q *queue) CleanData() {
+	q.mu.RLock()
 	q.data = [][]byte{}
+	q.mu.RUnlock()
 }

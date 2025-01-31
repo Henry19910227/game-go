@@ -1,8 +1,8 @@
 package game
 
 import (
-	gameAdapter "game-go/roulette/adapter/game"
 	"game-go/shared/game"
+	gameAdapter "game-go/shared/mini_game/adapter/game"
 	"game-go/shared/pkg/tool/crypto"
 	"google.golang.org/protobuf/proto"
 )
