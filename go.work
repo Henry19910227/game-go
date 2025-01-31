@@ -3,6 +3,6 @@ go 1.18
 use (
 	./core
 	./roulette
-	./raceing_car
+	./racing_car
 	./shared
 )
