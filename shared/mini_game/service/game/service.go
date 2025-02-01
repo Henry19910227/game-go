@@ -43,7 +43,7 @@ func (s *service) Deal() *gameModel.BeginDeal {
 		Elements: s.gameManager.Elements(),
 	}
 	// 計算每筆下注輸贏結果
-	s.calculate(s.betQueue.Data(), s.gameManager.Elements()[0])
+	s.calculate(s.betQueue.Data(), s.gameManager.Elements())
 	// 清空數據
 	s.betQueue.CleanData()
 	s.areaBetQueue.CleanData()
@@ -55,7 +55,7 @@ func (s *service) Settle() *gameModel.BeginSettle {
 	settle := &gameModel.BeginSettle{}
 	settle.MiniGameId = s.gameManager.ID()
 	settle.RoundId = s.gameManager.RoundId()
-	settle.WinAreaCode = s.gameManager.WinBetAreaCodes(s.gameManager.Elements()[0])
+	settle.WinAreaCode = s.gameManager.WinBetAreaCodes(s.gameManager.Elements())
 	return settle
 }
 
@@ -86,7 +86,7 @@ func (s *service) SyncAreaBetInfo() *gameModel.SyncAreaBetInfo {
 	return betInfo
 }
 
-func (s *service) calculate(betData [][]byte, element int) {
+func (s *service) calculate(betData [][]byte, elements []int) {
 	for _, item := range betData {
 		betInfo := &kafka.BetInfo{}
 		_ = json.Unmarshal(item, betInfo)
@@ -95,11 +95,11 @@ func (s *service) calculate(betData [][]byte, element int) {
 		settleInfo.UserId = betInfo.UserId
 		settleInfo.GameID = betInfo.GameID
 		settleInfo.RoundInfoId = betInfo.RoundInfoId
-		settleInfo.WinAreaCode = s.gameManager.WinBetAreaCodes(element)
 		settleInfo.Settles = []*kafka.Settle{}
 		for _, bet := range betInfo.Bets {
 			// 計算中獎金額
-			winScore := float32(*bet.Score) * *bet.Odd * float32(s.gameManager.CheckBetResult(*bet.BetAreaID, element))
+			rate := float32(s.gameManager.CheckBetResult(*bet.BetAreaID, elements))
+			winScore := float32(*bet.Score) * *bet.Odd * rate
 			// parse
 			settle := &kafka.Settle{}
 			settle.BetAreaID = bet.BetAreaID

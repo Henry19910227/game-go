@@ -43,6 +43,7 @@ func (a *adapter) Settle() (beginSettle *res.BeginSettle) {
 	data := a.service.Settle()
 	beginSettle = &res.BeginSettle{}
 	beginSettle.MiniGameId = int32(data.MiniGameId)
+	beginSettle.WinAreaCodes = IntToInt32Slice(data.WinAreaCode)
 	return beginSettle
 }
 

@@ -1,7 +1,6 @@
 package game
 
 import (
-	"math/rand"
 	"time"
 )
 
@@ -11,19 +10,17 @@ type BaseManager struct {
 	roundId   string
 	deckRound int
 	elements  []int
-	betMap    map[int]map[int]int // 注區id : 對應中獎數字
 }
 
 func New(id int, maxRound int) Manager {
 	m := &BaseManager{}
-	m.InitManager(m, id, maxRound)
+	m.InitManager(id, maxRound)
 	return m
 }
 
-func (b *BaseManager) InitManager(m Manager, id int, maxRound int) {
+func (b *BaseManager) InitManager(id int, maxRound int) {
 	b.id = id
 	b.maxRound = maxRound
-	m.InitBetMap()
 }
 
 func (b *BaseManager) SetID(id int) {
@@ -44,10 +41,6 @@ func (b *BaseManager) SetMaxRound(maxRound int) {
 
 func (b *BaseManager) SetElements(elements []int) {
 	b.elements = elements
-}
-
-func (b *BaseManager) SetBetMap(betMap map[int]map[int]int) {
-	b.betMap = betMap
 }
 
 func (b *BaseManager) ID() int {
@@ -80,33 +73,14 @@ func (b *BaseManager) Elements() []int {
 	return b.elements
 }
 
-func (b *BaseManager) BetMap() map[int]map[int]int {
-	return b.betMap
+func (b *BaseManager) CheckBetResult(betAreaId int, elements []int) int {
+	return 0
 }
 
-func (b *BaseManager) CheckBetResult(betAreaId int, element int) int {
-	if _, ok := b.betMap[betAreaId][element]; !ok {
-		return 0
-	}
-	return 1
-}
-
-func (b *BaseManager) WinBetAreaCodes(element int) []int {
-	areaCodes := make([]int, 0)
-	for index, areaMap := range b.betMap {
-		if _, ok := areaMap[element]; !ok {
-			continue
-		}
-		areaCodes = append(areaCodes, index)
-	}
-	return areaCodes
+func (b *BaseManager) WinBetAreaCodes(elements []int) []int {
+	return []int{}
 }
 
 func (b *BaseManager) GenerateElements() {
-	// 設定亂數種子，確保每次執行結果不同
-	rand.Seed(time.Now().UnixNano())
-}
 
-func (b *BaseManager) InitBetMap() {
-	b.betMap = make(map[int]map[int]int)
 }

@@ -291,7 +291,6 @@ func (s *service) BeginSettle(tx *gorm.DB, input *begin_settle.Input) (output *b
 		data.RoundInfoID = *settleInfo.RoundInfoId
 		data.WinScore = 0
 		data.Balance = 0
-		data.WinAreaCode = settleInfo.WinAreaCode
 		data.Results = []*begin_settle.SettleResult{}
 		for _, settle := range settleInfo.Settles {
 			result := &begin_settle.SettleResult{}
