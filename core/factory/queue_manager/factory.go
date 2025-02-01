@@ -32,6 +32,16 @@ func New(queueFactory queueFactory.Factory) Factory {
 	betQueueManager.AddAreaBetQueue(1002, racingCarAreaBetQueue)
 	betQueueManager.AddSettleQueue(1002, racingCarSettleQueue)
 
+	fastThreeBetQueue := queueFactory.FastThreeBetQueue()
+	go fastThreeBetQueue.Read()
+	fastThreeAreaBetQueue := queueFactory.FastThreeSettleAreaBetQueue()
+	go fastThreeAreaBetQueue.Read()
+	fastThreeSettleQueue := queueFactory.FastThreeSettleQueue()
+	go fastThreeSettleQueue.Read()
+	betQueueManager.AddBetQueue(1001, fastThreeBetQueue)
+	betQueueManager.AddAreaBetQueue(1001, fastThreeAreaBetQueue)
+	betQueueManager.AddSettleQueue(1001, fastThreeSettleQueue)
+
 	return &factory{betQueueManager: betQueueManager}
 }
 

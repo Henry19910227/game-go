@@ -2,7 +2,8 @@ go 1.18
 
 use (
 	./core
-	./roulette
-	./racing_car
+	./mini_game/roulette
+	./mini_game/racing_car
+	./mini_game/fast_three
 	./shared
 )
