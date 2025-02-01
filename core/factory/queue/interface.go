@@ -9,10 +9,13 @@ import (
 type Factory interface {
 	RouletteBetQueue() betQueue.Queue
 	RacingCarBetQueue() betQueue.Queue
+	FastThreeBetQueue() betQueue.Queue
 
 	RouletteSettleQueue() settleQueue.Queue
 	RacingCarSettleQueue() settleQueue.Queue
+	FastThreeSettleQueue() settleQueue.Queue
 
 	RouletteAreaBetQueue() areaBetQueue.Queue
 	RacingCarAreaBetQueue() areaBetQueue.Queue
+	FastThreeSettleAreaBetQueue() areaBetQueue.Queue
 }
