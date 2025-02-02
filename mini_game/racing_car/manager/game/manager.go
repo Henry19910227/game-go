@@ -35,21 +35,17 @@ func (m *manager) CheckBetResult(betAreaId int, elements []int) int {
 }
 
 func (m *manager) WinBetAreaCodes(elements []int) []int {
-	areaCodes := make([]int, 0)
-	for betAreaId, areaMap := range m.betMap {
-		element := elements[0] // 冠軍號碼
-		if betAreaId >= 1 && betAreaId <= 21 {
-			element = elements[0] + elements[1] // 冠亞和
-			if betAreaId == 3 || betAreaId == 4 {
-				element = element % 10 // 冠亞和個位數
-			}
-		}
-		if _, ok := areaMap[element]; !ok {
+	if len(m.betMap) < 35 {
+		return []int{}
+	}
+	winAreaCodes := make([]int, 0)
+	for areaCode := 1; areaCode <= 35; areaCode++ {
+		if m.CheckBetResult(areaCode, elements) == 0 {
 			continue
 		}
-		areaCodes = append(areaCodes, betAreaId)
+		winAreaCodes = append(winAreaCodes, areaCode)
 	}
-	return areaCodes
+	return winAreaCodes
 }
 
 func (m *manager) GenerateElements() {
