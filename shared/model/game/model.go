@@ -11,7 +11,7 @@ type BeginDeal struct {
 	MiniGameId int
 	RoundId    string
 	CountDown  int
-	Perform    *ActorPerform
+	Performs   []*ActorPerform
 }
 
 type ActorPerform struct {

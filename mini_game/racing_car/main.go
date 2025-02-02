@@ -3,10 +3,10 @@ package main
 import (
 	managerFactory "game-go/racing_car/factory/manager"
 	queueFactory "game-go/racing_car/factory/queue"
+	serviceFactory "game-go/racing_car/factory/service"
 	"game-go/shared/game"
 	adapterFactory "game-go/shared/mini_game/factory/adapter"
 	controllerFactory "game-go/shared/mini_game/factory/controller"
-	serviceFactory "game-go/shared/mini_game/factory/service"
 	kafkaTool "game-go/shared/pkg/tool/kafka"
 )
 

@@ -5,5 +5,6 @@ use (
 	./mini_game/roulette
 	./mini_game/racing_car
 	./mini_game/fast_three
+	./mini_game/baccarat
 	./shared
 )

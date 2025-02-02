@@ -28,13 +28,22 @@ func (a *adapter) Betting() (beginNewRound *res.BeginNewRound, clearTrends *res.
 
 func (a *adapter) Deal() (beginDeal *res.BeginDeal) {
 	data := a.service.Deal()
+	performs := make([]*res.ActorPerform, 0)
+	for _, perform := range data.Performs {
+		ap := &res.ActorPerform{}
+		ap.Elements = IntToInt32Slice(perform.Elements)
+		ap.Patterns = IntToInt32Slice(perform.Patterns)
+		ap.PerformResult = IntToInt32Slice(perform.PerformResult)
+		performs = append(performs, ap)
+	}
+
 	beginDeal = &res.BeginDeal{}
 	beginDeal.MiniGameId = int32(data.MiniGameId)
 	beginDeal.RoundId = data.RoundId
 	beginDeal.RoundInfo = &res.RoundInfo{
 		RoundId:     data.RoundId,
 		ElementType: 7,
-		Performs:    []*res.ActorPerform{{Elements: IntToInt32Slice(data.Perform.Elements)}},
+		Performs:    performs,
 	}
 	return beginDeal
 }

@@ -1,9 +1,9 @@
 package main
 
 import (
-	managerFactory "game-go/fast_three/factory/manager"
-	queueFactory "game-go/fast_three/factory/queue"
-	serviceFactory "game-go/fast_three/factory/service"
+	managerFactory "game-go/baccarat/factory/manager"
+	queueFactory "game-go/baccarat/factory/queue"
+	serviceFactory "game-go/baccarat/factory/service"
 	"game-go/shared/game"
 	adapterFactory "game-go/shared/mini_game/factory/adapter"
 	controllerFactory "game-go/shared/mini_game/factory/controller"
@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	managerMaker := managerFactory.New(1001, 10)
+	managerMaker := managerFactory.New(1006, 10)
 	queueMaker := queueFactory.New(kafkaTool.New())
 	serviceMaker := serviceFactory.New(managerMaker, queueMaker)
 	adapterMaker := adapterFactory.New(serviceMaker)
@@ -21,7 +21,7 @@ func main() {
 
 	engine := game.New()
 	engine.AddStage(&game.Stage{
-		Countdown: 20,
+		Countdown: 15,
 		Handler:   gameVC.Betting,
 	})
 	engine.AddStage(&game.Stage{
