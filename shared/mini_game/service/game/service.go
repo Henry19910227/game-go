@@ -6,7 +6,6 @@ import (
 	gameManager "game-go/shared/mini_game/manager/game"
 	gameModel "game-go/shared/model/game"
 	"game-go/shared/model/kafka"
-	"game-go/shared/pkg/util"
 	areaBetQueue "game-go/shared/queue/area_bet"
 	betQueue "game-go/shared/queue/bet"
 	settleQueue "game-go/shared/queue/settle"
@@ -115,13 +114,13 @@ func (s *BaseService) calculate(betData [][]byte, elements []int) {
 		settleInfo.Settles = []*kafka.Settle{}
 		for _, bet := range betInfo.Bets {
 			// 計算中獎金額
-			rate := float32(s.GameManager.CheckBetResult(*bet.BetAreaID, elements))
-			winScore := float32(*bet.Score) * *bet.Odd * rate
+			rate := float32(s.GameManager.CheckBetResult(int(bet.BetAreaID), elements))
+			winScore := float32(bet.Score) * bet.Odd * rate
 			// parse
 			settle := &kafka.Settle{}
 			settle.BetAreaID = bet.BetAreaID
 			settle.Score = bet.Score
-			settle.WinScore = util.PointerInt(int(winScore))
+			settle.WinScore = int(winScore)
 			settleInfo.Settles = append(settleInfo.Settles, settle)
 		}
 

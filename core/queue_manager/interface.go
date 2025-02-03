@@ -7,11 +7,11 @@ import (
 )
 
 type QueueManager interface {
-	AddBetQueue(gameId int32, queue betQueue.Queue)
-	AddAreaBetQueue(gameId int32, queue areaBetQueue.Queue)
-	AddSettleQueue(gameId int32, queue settleQueue.Queue)
+	AddBetQueue(gameId int, queue betQueue.Queue)
+	AddAreaBetQueue(gameId int, queue areaBetQueue.Queue)
+	AddSettleQueue(gameId int, queue settleQueue.Queue)
 
-	BetQueue(gameId int32) betQueue.Queue
-	AreaBetQueue(gameId int32) areaBetQueue.Queue
-	SettleQueue(gameId int32) settleQueue.Queue
+	BetQueue(gameId int) betQueue.Queue
+	AreaBetQueue(gameId int) areaBetQueue.Queue
+	SettleQueue(gameId int) settleQueue.Queue
 }

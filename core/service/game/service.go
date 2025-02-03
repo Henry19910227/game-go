@@ -16,7 +16,8 @@ import (
 	"game-go/core/model/game/enter_game"
 	"game-go/core/model/game/enter_group"
 	gameStatusModel "game-go/core/model/game_status"
-	roundInfoModel "game-go/core/model/round_info"
+	gameStatusCacheModel "game-go/core/model/game_status/cache"
+	roundInfoModel "game-go/core/model/round_info/cache"
 	userModel "game-go/core/model/user"
 	"game-go/core/queue_manager"
 	userRepo "game-go/core/repository/user"
@@ -50,7 +51,7 @@ func New(
 }
 
 func (s *service) EnterGroup(input *enter_group.Input) (output *enter_group.Output, err error) {
-	param := &gameStatusModel.FindInput{}
+	param := &gameStatusCacheModel.FindInput{}
 	param.GameID = input.ID
 	table, err := s.gameStatusCache.Find(param)
 	if err != nil {
@@ -58,7 +59,7 @@ func (s *service) EnterGroup(input *enter_group.Input) (output *enter_group.Outp
 	}
 	roundInfoParam := &roundInfoModel.ListInput{}
 	roundInfoParam.GameId = input.ID
-	roundInfoTable, err := s.roundInfoCache.FindLast(roundInfoParam)
+	roundInfoItem, err := s.roundInfoCache.FindLast(roundInfoParam)
 	if err != nil {
 		return nil, err
 	}
@@ -66,13 +67,17 @@ func (s *service) EnterGroup(input *enter_group.Input) (output *enter_group.Outp
 	output.GameID = table.GameID
 	output.Stage = table.Stage
 	output.CountDown = table.CountDown
-	if roundInfoTable != nil {
+	if roundInfoItem != nil {
 		output.LastRoundInfo = &enter_group.LastRoundInfo{}
-		output.LastRoundInfo.RoundInfoID = roundInfoTable.ID
-		output.LastRoundInfo.Type = roundInfoTable.Type
-		output.LastRoundInfo.Elements = roundInfoTable.Elements
-		output.LastRoundInfo.Patterns = roundInfoTable.Patterns
-		output.LastRoundInfo.Results = roundInfoTable.Results
+		output.LastRoundInfo.RoundInfoID = roundInfoItem.ID
+		output.LastRoundInfo.Type = roundInfoItem.Type
+		for _, item := range roundInfoItem.Performs {
+			perform := &enter_group.Perform{}
+			perform.Elements = item.Elements
+			perform.Patterns = item.Patterns
+			perform.Results = item.Results
+			output.LastRoundInfo.Performs = append(output.LastRoundInfo.Performs, perform)
+		}
 	}
 	return output, nil
 }
@@ -83,9 +88,9 @@ func (s *service) EnterGame(input *enter_game.Input) (output *enter_game.Output,
 		return nil, err
 	}
 
-	param := &gameStatusModel.FindInput{}
+	param := &gameStatusCacheModel.FindInput{}
 	param.GameID = input.ID
-	gameStatusTable, err := s.gameStatusCache.Find(param)
+	gameStatusItem, err := s.gameStatusCache.Find(param)
 	if err != nil {
 		return nil, err
 	}
@@ -97,20 +102,20 @@ func (s *service) EnterGame(input *enter_game.Input) (output *enter_game.Output,
 		return nil, err
 	}
 	// 計算剩餘時間
-	updateTime, err := time.ParseInLocation("2006-01-02 15:04:05", util.OnNilJustReturnString(gameStatusTable.UpdateAt, ""), location)
+	updateTime, err := time.ParseInLocation("2006-01-02 15:04:05", gameStatusItem.UpdateAt, location)
 	if err != nil {
 		return nil, err
 	}
-	countDown := util.OnNilJustReturnInt32(gameStatusTable.CountDown, 0) / 1000
-	originTime := int32(time.Now().In(location).Sub(updateTime).Seconds())
+	countDown := gameStatusItem.CountDown / 1000
+	originTime := int(time.Now().In(location).Sub(updateTime).Seconds())
 	leftSeconds := util.SubtractWithFloor(countDown, originTime)
 
 	output = &enter_game.Output{}
-	output.GameID = gameStatusTable.GameID
-	output.Stage = gameStatusTable.Stage
-	output.CountDown = util.PointerInt32(leftSeconds * 1000)
-	output.DeckRound = gameStatusTable.DeckRound
-	output.RoundInfoID = gameStatusTable.RoundInfoID
+	output.GameID = gameStatusItem.GameID
+	output.Stage = gameStatusItem.Stage
+	output.CountDown = leftSeconds * 1000
+	output.DeckRound = gameStatusItem.DeckRound
+	output.RoundInfoID = gameStatusItem.RoundInfoID
 	output.RoundInfos = roundInfoTables
 	output.Bets = []*betModel.Table{}
 
@@ -118,7 +123,7 @@ func (s *service) EnterGame(input *enter_game.Input) (output *enter_game.Output,
 }
 
 func (s *service) ClearTrends(input *clear_trends.Input) (err error) {
-	err = s.roundInfoCache.DelAll(util.OnNilJustReturnInt64(input.ID, 0))
+	err = s.roundInfoCache.DelAll(input.ID)
 	if err != nil {
 		return err
 	}
@@ -126,68 +131,68 @@ func (s *service) ClearTrends(input *clear_trends.Input) (err error) {
 }
 
 func (s *service) Bet(tx *gorm.DB, input *bet.Input) (output *bet.Output, err error) {
-	betQueueItem := s.queueManager.BetQueue(int32(util.OnNilJustReturnInt64(input.GameID, 0)))
-	areaBetQueueItem := s.queueManager.AreaBetQueue(int32(util.OnNilJustReturnInt64(input.GameID, 0)))
+	betQueueItem := s.queueManager.BetQueue(input.GameID)
+	areaBetQueueItem := s.queueManager.AreaBetQueue(input.GameID)
 
 	defer tx.Rollback()
 	// 獲取當前遊戲狀態
-	param := &gameStatusModel.FindInput{}
+	param := &gameStatusCacheModel.FindInput{}
 	param.GameID = input.GameID
-	gameStatusTable, err := s.gameStatusCache.Find(param)
+	gameStatusItem, err := s.gameStatusCache.Find(param)
 	if err != nil {
 		return nil, err
 	}
 	// 判斷遊戲狀態
-	if util.OnNilJustReturnInt32(gameStatusTable.Stage, 0) != gameStatusModel.Betting {
+	if gameStatusItem.Stage != gameStatusModel.Betting {
 		return nil, errors.New("目前不是投注階段")
 	}
 	// 整合投注資訊
 	betInfo := &kafka.BetInfo{}
 	areaBets := make([]*kafka.AreaBet, 0)
-	betInfo.RoundInfoId = gameStatusTable.RoundInfoID
+	betInfo.RoundInfoId = gameStatusItem.RoundInfoID
 	err = util.Parser(input, betInfo)
 	if err != nil {
 		return nil, err
 	}
-	totalBetScore := 0
+	var totalBetScore int
 	for _, b := range betInfo.Bets {
 		// 查找賠率
 		cacheParam := &betAreaCacheModel.FindInput{}
-		cacheParam.ID = int64(util.OnNilJustReturnInt(b.BetAreaID, 0))
-		cacheParam.GameId = util.OnNilJustReturnInt64(betInfo.GameID, 0)
+		cacheParam.ID = b.BetAreaID
+		cacheParam.GameId = betInfo.GameID
 		item, err := s.betAreaCache.Find(cacheParam)
 		if err != nil {
 			continue
 		}
-		b.Odd = util.PointerFloat32(item.Odds[0].Odd)
+		b.Odd = item.Odds[0].Odd
 		// 判斷限額
-		if util.OnNilJustReturnInt(b.Score, 0) > int(item.MaxLimit) {
+		if b.Score > item.MaxLimit {
 			return nil, errors.New("超出限額")
 		}
-		if util.OnNilJustReturnInt(b.Score, 0) < int(item.MinLimit) {
+		if b.Score < item.MinLimit {
 			return nil, errors.New("低於限額")
 		}
 		// 計算總投注額
-		totalBetScore += util.OnNilJustReturnInt(b.Score, 0)
+		totalBetScore += b.Score
 		// 計算投注區總額
 		areaBet := &kafka.AreaBet{}
-		areaBet.UserId = util.OnNilJustReturnInt64(input.UserId, 0)
-		areaBet.BetAreaID = util.OnNilJustReturnInt(b.BetAreaID, 0)
-		areaBet.Score = util.OnNilJustReturnInt(b.Score, 0)
+		areaBet.UserId = input.UserId
+		areaBet.BetAreaID = b.BetAreaID
+		areaBet.Score = b.Score
 		areaBets = append(areaBets, areaBet)
 	}
 	// 判斷餘額是否足夠
 	userParam := userModel.FindInput{}
-	userParam.ID = input.UserId
+	userParam.ID = util.PointerInt64(input.UserId)
 	userData, err := s.userRepo.Tx(tx).Find(&userParam)
 	if err != nil {
 		return nil, err
 	}
-	if util.OnNilJustReturnInt64(userData.Score, 0) < int64(totalBetScore) {
+	if util.OnNilJustReturnInt(userData.Score, 0) < totalBetScore {
 		return nil, errors.New("餘額不足")
 	}
 	// 扣款
-	if err := s.userRepo.Tx(tx).Debit(util.OnNilJustReturnInt64(input.UserId, 0), totalBetScore); err != nil {
+	if err := s.userRepo.Tx(tx).Debit(input.UserId, int(totalBetScore)); err != nil {
 		return nil, err
 	}
 	// 寫入 betQueue
@@ -204,7 +209,7 @@ func (s *service) Bet(tx *gorm.DB, input *bet.Input) (output *bet.Output, err er
 	output = &bet.Output{}
 	output.GameID = input.GameID
 	output.Bets = input.Bets
-	output.Balance = int(util.OnNilJustReturnInt64(userData.Score, 0)) - totalBetScore
+	output.Balance = util.OnNilJustReturnInt(userData.Score, 0) - totalBetScore
 	return output, nil
 }
 
@@ -215,13 +220,13 @@ func (s *service) BeginNewRound(input *begin_new_round.Input) (err error) {
 		return err
 	}
 	// 儲存 game status
-	param := &gameStatusModel.Table{}
+	param := &gameStatusCacheModel.Item{}
 	param.GameID = input.ID
 	param.RoundInfoID = input.RoundInfoID
-	param.Stage = util.PointerInt32(1)
+	param.Stage = gameStatusModel.Betting
 	param.CountDown = input.CountDown
 	param.DeckRound = input.DeckRound
-	param.UpdateAt = util.PointerString(time.Now().In(location).Format("2006-01-02 15:04:05"))
+	param.UpdateAt = time.Now().In(location).Format("2006-01-02 15:04:05")
 	err = s.gameStatusCache.Save(param)
 	if err != nil {
 		return err
@@ -235,24 +240,29 @@ func (s *service) BeginDeal(input *begin_deal.Input) (err error) {
 	if err != nil {
 		return err
 	}
-	param := &gameStatusModel.Table{}
+	param := &gameStatusCacheModel.Item{}
 	param.GameID = input.ID
 	param.RoundInfoID = input.RoundInfoID
-	param.Stage = util.PointerInt32(3)
+	param.Stage = gameStatusModel.Deal
 	param.CountDown = input.CountDown
-	param.UpdateAt = util.PointerString(time.Now().In(location).Format("2006-01-02 15:04:05"))
+	param.UpdateAt = time.Now().In(location).Format("2006-01-02 15:04:05")
 	err = s.gameStatusCache.Save(param)
 	if err != nil {
 		return err
 	}
 	// 儲存開獎歷史
-	table := &roundInfoModel.Table{}
+	table := &roundInfoModel.Item{Performs: []*roundInfoModel.Perform{}}
 	table.ID = input.RoundInfoID
 	table.GameId = input.ID
 	table.Type = input.Type
-	table.Elements = input.Elements
-	table.Patterns = input.Patterns
-	table.Results = input.Results
+	for _, item := range input.Performs {
+		perform := &roundInfoModel.Perform{}
+		perform.Elements = item.Elements
+		perform.Patterns = item.Patterns
+		perform.Results = item.Results
+		table.Performs = append(table.Performs, perform)
+	}
+
 	err = s.roundInfoCache.Save(table)
 	if err != nil {
 		return err
@@ -261,7 +271,7 @@ func (s *service) BeginDeal(input *begin_deal.Input) (err error) {
 }
 
 func (s *service) BeginSettle(tx *gorm.DB, input *begin_settle.Input) (output *begin_settle.Output, err error) {
-	settleQueueItem := s.queueManager.SettleQueue(int32(util.OnNilJustReturnInt64(input.ID, 0)))
+	settleQueueItem := s.queueManager.SettleQueue(input.ID)
 
 	defer tx.Rollback()
 	// 儲存當前遊戲狀態
@@ -269,11 +279,11 @@ func (s *service) BeginSettle(tx *gorm.DB, input *begin_settle.Input) (output *b
 	if err != nil {
 		return output, err
 	}
-	param := &gameStatusModel.Table{}
+	param := &gameStatusCacheModel.Item{}
 	param.GameID = input.ID
-	param.Stage = util.PointerInt32(2)
+	param.Stage = gameStatusModel.Settle
 	param.CountDown = input.CountDown
-	param.UpdateAt = util.PointerString(time.Now().In(location).Format("2006-01-02 15:04:05"))
+	param.UpdateAt = time.Now().In(location).Format("2006-01-02 15:04:05")
 	err = s.gameStatusCache.Save(param)
 	if err != nil {
 		return output, err
@@ -286,25 +296,25 @@ func (s *service) BeginSettle(tx *gorm.DB, input *begin_settle.Input) (output *b
 		settleInfo := &kafka.SettleInfo{}
 		_ = json.Unmarshal(item, settleInfo)
 		data := &begin_settle.Data{}
-		data.GameID = *settleInfo.GameID
-		data.ID = *settleInfo.UserId
-		data.RoundInfoID = *settleInfo.RoundInfoId
+		data.GameID = settleInfo.GameID
+		data.ID = settleInfo.UserId
+		data.RoundInfoID = settleInfo.RoundInfoId
 		data.WinScore = 0
 		data.Balance = 0
 		data.Results = []*begin_settle.SettleResult{}
 		for _, settle := range settleInfo.Settles {
 			result := &begin_settle.SettleResult{}
-			result.AreaCode = *settle.BetAreaID
-			result.BetScore = *settle.Score
-			result.WinScore = *settle.WinScore
-			data.WinScore += *settle.WinScore
+			result.AreaCode = settle.BetAreaID
+			result.BetScore = settle.Score
+			result.WinScore = settle.WinScore
+			data.WinScore += settle.WinScore
 			data.Results = append(data.Results, result)
 		}
 		// 統計投注者 id
-		userIds = append(userIds, *settleInfo.UserId)
+		userIds = append(userIds, settleInfo.UserId)
 		// 彩金入帳
 		if data.WinScore > 0 {
-			if err := s.userRepo.Tx(tx).Deposit(util.OnNilJustReturnInt64(settleInfo.UserId, 0), data.WinScore); err != nil {
+			if err := s.userRepo.Tx(tx).Deposit(settleInfo.UserId, data.WinScore); err != nil {
 				return nil, err
 			}
 		}
@@ -326,21 +336,9 @@ func (s *service) BeginSettle(tx *gorm.DB, input *begin_settle.Input) (output *b
 		if !ok {
 			continue
 		}
-		item.Balance = int(util.OnNilJustReturnInt64(user.Score, 0))
+		item.Balance = util.OnNilJustReturnInt(user.Score, 0)
 	}
 	// 清除資料
 	settleQueueItem.CleanData()
 	return output, err
-}
-
-func (s *service) SyncAreaBetInfo() {
-	//param := &gameStatusModel.FindInput{}
-	//param.GameID = nil
-	//table, err := s.gameStatusCache.Find(param)
-	//if err != nil {
-	//	return
-	//}
-	//
-	////TODO implement me
-	//panic("implement me")
 }

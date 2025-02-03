@@ -11,15 +11,3 @@ type GameIdField struct {
 type TypeField struct {
 	Type *int `json:"type,omitempty" gorm:"column:type"` // 牌面種類
 }
-
-type ElementsField struct {
-	Elements *string `json:"elements,omitempty" gorm:"column:elements"` // 牌面
-}
-
-type PatternsField struct {
-	Patterns *string `json:"patterns,omitempty" gorm:"column:patterns"` // 牌型
-}
-
-type ResultsField struct {
-	Results *string `json:"results,omitempty" gorm:"column:results"` // 結果
-}

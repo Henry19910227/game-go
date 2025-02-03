@@ -13,5 +13,5 @@ type NicknameField struct {
 	Nickname *string `json:"nickname,omitempty" gorm:"column:nickname"` // 暱稱
 }
 type ScoreField struct {
-	Score *int64 `json:"score,omitempty" gorm:"column:score"` // 餘額(分)
+	Score *int `json:"score,omitempty" gorm:"column:score"` // 餘額(分)
 }

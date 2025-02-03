@@ -64,12 +64,12 @@ func (a *adapter) EnterRoom(token string) (*res.EnterInfo, *res.ErrorMessage) {
 	// output parser
 	userData := &res.UserData{}
 	userData.UserId = util.OnNilJustReturnInt64(output.User.UserId, 0)
-	userData.Score = util.OnNilJustReturnInt64(output.User.Score, 0)
+	userData.Score = int64(util.OnNilJustReturnInt(output.User.Score, 0))
 	enterInfo := &res.EnterInfo{}
 	enterInfo.Self = userData
 	for _, game := range output.Games {
 		gameConfig := &res.GameConfig{}
-		gameConfig.MiniGameId = int32(util.OnNilJustReturnInt64(game.ID, 0))
+		gameConfig.MiniGameId = int32(util.OnNilJustReturnInt(game.ID, 0))
 		for _, betArea := range game.BetAreas {
 			betAreaConfig := &res.BetAreaConfig{}
 			betAreaConfig.AreaCode = int32(util.OnNilJustReturnInt64(betArea.ID, 0))

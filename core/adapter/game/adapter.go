@@ -33,7 +33,7 @@ func (a *adapter) EnterGroup(input *req.EnterGroup) (output *res.GroupInfo, errM
 		return output, errMsg
 	}
 	param := &enter_group.Input{}
-	param.ID = util.PointerInt64(int64(input.MiniGameIdsArray[0]))
+	param.ID = int(input.MiniGameIdsArray[0])
 	result, err := a.gameService.EnterGroup(param)
 	if err != nil {
 		errMsg = &res.ErrorMessage{}
@@ -42,25 +42,24 @@ func (a *adapter) EnterGroup(input *req.EnterGroup) (output *res.GroupInfo, errM
 		return output, errMsg
 	}
 	basicInfo := &res.MiniGameBasicInfo{}
-	basicInfo.MiniGameId = int32(util.OnNilJustReturnInt64(result.GameID, 0))
-	basicInfo.Stage = util.OnNilJustReturnInt32(result.Stage, 0)
-	basicInfo.CountDown = util.OnNilJustReturnInt32(result.CountDown, 0)
+	basicInfo.MiniGameId = int32(result.GameID)
+	basicInfo.Stage = int32(result.Stage)
+	basicInfo.CountDown = int32(result.CountDown)
 
 	if result.LastRoundInfo != nil {
-		// 轉換 ActorPerform
-		perform := &res.ActorPerform{}
-		elementStr := util.OnNilJustReturnString(result.LastRoundInfo.Elements, "")
-		patternStr := util.OnNilJustReturnString(result.LastRoundInfo.Patterns, "")
-		resultStr := util.OnNilJustReturnString(result.LastRoundInfo.Results, "")
-		perform.Elements = util.StringToInt32Array(elementStr, ",")
-		perform.Patterns = util.StringToInt32Array(patternStr, ",")
-		perform.PerformResult = util.StringToInt32Array(resultStr, ",")
-
 		// 轉換 RoundInfo
-		basicInfo.LastRoundInfo = &res.RoundInfo{}
-		basicInfo.LastRoundInfo.RoundId = util.OnNilJustReturnString(result.LastRoundInfo.RoundInfoID, "")
-		basicInfo.LastRoundInfo.ElementType = int32(util.OnNilJustReturnInt(result.LastRoundInfo.Type, 0))
-		basicInfo.LastRoundInfo.Performs = []*res.ActorPerform{perform}
+		roundInfo := &res.RoundInfo{Performs: []*res.ActorPerform{}}
+		roundInfo.RoundId = result.LastRoundInfo.RoundInfoID
+		roundInfo.ElementType = int32(result.LastRoundInfo.Type)
+		// 轉換 ActorPerform
+		for _, item := range result.LastRoundInfo.Performs {
+			perform := &res.ActorPerform{}
+			perform.Elements = util.StringToInt32Array(item.Elements, ",")
+			perform.Patterns = util.StringToInt32Array(item.Patterns, ",")
+			perform.PerformResult = util.StringToInt32Array(item.Results, ",")
+			roundInfo.Performs = append(roundInfo.Performs, perform)
+		}
+		basicInfo.LastRoundInfo = roundInfo
 	}
 	output = &res.GroupInfo{}
 	output.MiniGameBasicInfoList = []*res.MiniGameBasicInfo{basicInfo}
@@ -69,7 +68,7 @@ func (a *adapter) EnterGroup(input *req.EnterGroup) (output *res.GroupInfo, errM
 
 func (a *adapter) EnterGame(input *req.EnterMiniGame) (output *res.EnterMiniGameInfo, errMsg *res.ErrorMessage) {
 	param := &enter_game.Input{}
-	param.ID = util.PointerInt64(int64(input.MiniGameId))
+	param.ID = int(input.MiniGameId)
 	result, err := a.gameService.EnterGame(param)
 	if err != nil {
 		errMsg = &res.ErrorMessage{}
@@ -79,28 +78,25 @@ func (a *adapter) EnterGame(input *req.EnterMiniGame) (output *res.EnterMiniGame
 	}
 
 	output = &res.EnterMiniGameInfo{}
-	output.MiniGameId = int32(util.OnNilJustReturnInt64(result.GameID, 0))
-	output.Stage = util.OnNilJustReturnInt32(result.Stage, 0)
-	output.CountDown = util.OnNilJustReturnInt32(result.CountDown, 0)
-	output.DeckRound = util.OnNilJustReturnInt32(result.DeckRound, 0)
-	output.RoundId = util.OnNilJustReturnString(result.RoundInfoID, "")
+	output.MiniGameId = int32(result.GameID)
+	output.Stage = int32(result.Stage)
+	output.CountDown = int32(result.CountDown)
+	output.DeckRound = int32(result.DeckRound)
+	output.RoundId = result.RoundInfoID
 	output.Trend = &res.Trend{RoundInfoList: []*res.RoundInfo{}}
 	roundInfos := make([]*res.RoundInfo, 0)
-	for _, roundInfoTable := range result.RoundInfos {
-		roundInfo := &res.RoundInfo{}
-		roundInfo.RoundId = util.OnNilJustReturnString(roundInfoTable.ID, "")
-		roundInfo.ElementType = int32(util.OnNilJustReturnInt(roundInfoTable.Type, 0))
-
+	for _, roundInfoItem := range result.RoundInfos {
+		roundInfo := &res.RoundInfo{Performs: []*res.ActorPerform{}}
+		roundInfo.RoundId = roundInfoItem.ID
+		roundInfo.ElementType = int32(roundInfoItem.Type)
 		// 轉換 ActorPerform
-		perform := &res.ActorPerform{}
-		elementStr := util.OnNilJustReturnString(roundInfoTable.Elements, "")
-		patternStr := util.OnNilJustReturnString(roundInfoTable.Patterns, "")
-		resultStr := util.OnNilJustReturnString(roundInfoTable.Results, "")
-		perform.Elements = util.StringToInt32Array(elementStr, ",")
-		perform.Patterns = util.StringToInt32Array(patternStr, ",")
-		perform.PerformResult = util.StringToInt32Array(resultStr, ",")
-		roundInfo.Performs = []*res.ActorPerform{perform}
-
+		for _, item := range roundInfoItem.Performs {
+			perform := &res.ActorPerform{}
+			perform.Elements = util.StringToInt32Array(item.Elements, ",")
+			perform.Patterns = util.StringToInt32Array(item.Patterns, ",")
+			perform.PerformResult = util.StringToInt32Array(item.Results, ",")
+			roundInfo.Performs = append(roundInfo.Performs, perform)
+		}
 		roundInfos = append(roundInfos, roundInfo)
 	}
 	output.Trend.RoundInfoList = roundInfos
@@ -115,7 +111,7 @@ func (a *adapter) ClearTrends(input *res.ClearTrends) (output *res.ClearTrends, 
 		return output, errMsg
 	}
 	param := &clear_trends.Input{}
-	param.ID = util.PointerInt64(int64(input.MiniGameIds[0]))
+	param.ID = int(input.MiniGameIds[0])
 	if err := a.gameService.ClearTrends(param); err != nil {
 		errMsg = &res.ErrorMessage{}
 		errMsg.Code = 800
@@ -130,13 +126,13 @@ func (a *adapter) Bet(tx *gorm.DB, uid int, input *req.BetReq) (output *req.MyMi
 	bets := make([]*bet.Bet, 0)
 	for _, areaBet := range input.AreaBetArray {
 		item := &bet.Bet{}
-		item.BetAreaID = util.PointerInt(int(areaBet.AreaCode))
-		item.Score = util.PointerInt(int(areaBet.BetScore))
+		item.BetAreaID = int(areaBet.AreaCode)
+		item.Score = int(areaBet.BetScore)
 		bets = append(bets, item)
 	}
 	param := &bet.Input{}
-	param.UserId = util.PointerInt64(int64(uid))
-	param.GameID = util.PointerInt64(int64(input.MiniGameId))
+	param.UserId = int64(uid)
+	param.GameID = int(input.MiniGameId)
 	param.Bets = bets
 	result, err := a.gameService.Bet(tx, param)
 	if err != nil {
@@ -149,14 +145,14 @@ func (a *adapter) Bet(tx *gorm.DB, uid int, input *req.BetReq) (output *req.MyMi
 	betResults := make([]*req.BetResultInfo, 0)
 	for _, item := range result.Bets {
 		areaBet := &req.AreaBet{}
-		areaBet.AreaCode = int32(util.OnNilJustReturnInt(item.BetAreaID, 0))
-		areaBet.BetScore = int32(util.OnNilJustReturnInt(item.Score, 0))
+		areaBet.AreaCode = int32(item.BetAreaID)
+		areaBet.BetScore = int32(item.Score)
 		info := &req.BetResultInfo{}
 		info.AreaBet = areaBet
 		betResults = append(betResults, info)
 	}
 	output = &req.MyMiniGameBetResult{}
-	output.MiniGameId = int32(util.OnNilJustReturnInt64(result.GameID, 0))
+	output.MiniGameId = int32(result.GameID)
 	output.BetResultInfoListArray = betResults
 
 	userScore = &res.RefreshUserScore{}
@@ -166,10 +162,10 @@ func (a *adapter) Bet(tx *gorm.DB, uid int, input *req.BetReq) (output *req.MyMi
 
 func (a *adapter) BeginNewRound(input *res.BeginNewRound) (output *res.BeginNewRound, errMsg *res.ErrorMessage) {
 	param := &begin_new_round.Input{}
-	param.ID = util.PointerInt64(int64(input.MiniGameId))
-	param.RoundInfoID = util.PointerString(input.RoundId)
-	param.CountDown = util.PointerInt32(input.CountDown)
-	param.DeckRound = util.PointerInt32(input.DeckRound)
+	param.ID = int(input.MiniGameId)
+	param.RoundInfoID = input.RoundId
+	param.CountDown = int(input.CountDown)
+	param.DeckRound = int(input.DeckRound)
 	err := a.gameService.BeginNewRound(param)
 	if err != nil {
 		errMsg = &res.ErrorMessage{}
@@ -186,33 +182,36 @@ func (a *adapter) BeginNewRound(input *res.BeginNewRound) (output *res.BeginNewR
 }
 
 func (a *adapter) BeginDeal(input *res.BeginDeal) (output *res.BeginDeal, errMsg *res.ErrorMessage) {
-	param := &begin_deal.Input{}
-	param.ID = util.PointerInt64(int64(input.MiniGameId))
-	param.RoundInfoID = util.PointerString(input.RoundId)
-	param.CountDown = util.PointerInt32(input.CountDown)
-	param.RoundInfoID = util.PointerString(input.RoundInfo.RoundId)
-	param.Type = util.PointerInt(int(input.RoundInfo.ElementType))
-	param.Elements = util.PointerString(strings.Join(func() []string {
-		strs := make([]string, 0)
-		for _, num := range input.RoundInfo.Performs[0].Elements {
-			strs = append(strs, strconv.Itoa(int(num)))
-		}
-		return strs
-	}(), ","))
-	param.Patterns = util.PointerString(strings.Join(func() []string {
-		strs := make([]string, 0)
-		for _, num := range input.RoundInfo.Performs[0].Patterns {
-			strs = append(strs, strconv.Itoa(int(num)))
-		}
-		return strs
-	}(), ","))
-	param.Results = util.PointerString(strings.Join(func() []string {
-		strs := make([]string, 0)
-		for _, num := range input.RoundInfo.Performs[0].PerformResult {
-			strs = append(strs, strconv.Itoa(int(num)))
-		}
-		return strs
-	}(), ","))
+	param := &begin_deal.Input{Performs: []*begin_deal.ActorPerform{}}
+	param.ID = int(input.MiniGameId)
+	param.RoundInfoID = input.RoundId
+	param.CountDown = int(input.CountDown)
+	param.Type = int(input.RoundInfo.ElementType)
+	for _, perform := range input.RoundInfo.Performs {
+		item := &begin_deal.ActorPerform{}
+		item.Elements = strings.Join(func() []string {
+			strs := make([]string, 0)
+			for _, num := range perform.Elements {
+				strs = append(strs, strconv.Itoa(int(num)))
+			}
+			return strs
+		}(), ",")
+		item.Patterns = strings.Join(func() []string {
+			strs := make([]string, 0)
+			for _, num := range perform.Patterns {
+				strs = append(strs, strconv.Itoa(int(num)))
+			}
+			return strs
+		}(), ",")
+		item.Results = strings.Join(func() []string {
+			strs := make([]string, 0)
+			for _, num := range perform.PerformResult {
+				strs = append(strs, strconv.Itoa(int(num)))
+			}
+			return strs
+		}(), ",")
+		param.Performs = append(param.Performs, item)
+	}
 	err := a.gameService.BeginDeal(param)
 	if err != nil {
 		errMsg = &res.ErrorMessage{}
@@ -233,8 +232,8 @@ func (a *adapter) BeginSettle(tx *gorm.DB, input *res.BeginSettle, userIds []int
 	userScores = make(map[int]*res.RefreshUserScore)
 
 	param := &begin_settle.Input{}
-	param.ID = util.PointerInt64(int64(input.MiniGameId))
-	param.CountDown = util.PointerInt32(input.CountDown)
+	param.ID = int(input.MiniGameId)
+	param.CountDown = int(input.CountDown)
 	outputItem, err := a.gameService.BeginSettle(tx, param)
 	if err != nil {
 		errMsg = &res.ErrorMessage{}

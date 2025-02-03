@@ -1,14 +1,15 @@
 package round_info
 
-import "game-go/core/model/field/round_info/optional"
+import (
+	baseTable "game-go/core/model/base"
+	"game-go/core/model/field/round_info/optional"
+)
 
 type Table struct {
 	optional.IDField
 	optional.GameIdField
 	optional.TypeField
-	optional.ElementsField
-	optional.PatternsField
-	optional.ResultsField
+	baseTable.Table
 }
 
 func (Table) TableName() string {

@@ -1,7 +1,7 @@
 package optional
 
 type IDField struct {
-	ID *int64 `json:"id,omitempty" gorm:"column:id"` // 遊戲id
+	ID *int `json:"id,omitempty" gorm:"column:id"` // 遊戲id
 }
 type NameField struct {
 	Name *string `json:"name,omitempty" gorm:"column:name"` // 遊戲名稱

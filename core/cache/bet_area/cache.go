@@ -55,11 +55,11 @@ func (c *cache) Find(input *model.FindInput) (output *model.Item, err error) {
 	minLimit, _ := strconv.Atoi(s.MinLimit)
 
 	output = &model.Item{}
-	output.ID = int64(ID)
-	output.GameId = int64(gameId)
+	output.ID = ID
+	output.GameId = gameId
 	output.Name = s.Name
-	output.MaxLimit = int64(maxLimit)
-	output.MinLimit = int64(minLimit)
+	output.MaxLimit = maxLimit
+	output.MinLimit = minLimit
 	output.Odds = make([]*model.Odd, 0)
 
 	oddsList := strings.Split(s.Odds, ",")

@@ -1,7 +1,7 @@
 package enter_group
 
-import game "game-go/core/model/field/game/optional"
+import gameReq "game-go/core/model/field/game/required"
 
 type Input struct {
-	game.IDField
+	gameReq.IDField
 }

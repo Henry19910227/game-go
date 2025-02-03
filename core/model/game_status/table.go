@@ -1,15 +1,15 @@
 package game_status
 
 import (
-	base "game-go/core/model/field/base/optional"
-	gameStatus "game-go/core/model/field/game_status/optional"
+	baseOpt "game-go/core/model/field/base/optional"
+	gameStatusOpt "game-go/core/model/field/game_status/optional"
 )
 
 type Table struct {
-	gameStatus.GameIDField
-	gameStatus.RoundInfoIDField
-	gameStatus.StageField
-	gameStatus.CountDownField
-	gameStatus.DeckRoundField
-	base.UpdateAtField
+	gameStatusOpt.GameIDField
+	gameStatusOpt.RoundInfoIDField
+	gameStatusOpt.StageField
+	gameStatusOpt.CountDownField
+	gameStatusOpt.DeckRoundField
+	baseOpt.UpdateAtField
 }

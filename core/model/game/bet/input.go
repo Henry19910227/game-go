@@ -1,18 +1,18 @@
 package bet
 
 import (
-	bet "game-go/core/model/field/bet/optional"
-	game "game-go/core/model/field/game/optional"
-	"game-go/core/model/field/user/optional"
+	betReq "game-go/core/model/field/bet/required"
+	gameReq "game-go/core/model/field/game/required"
+	userReq "game-go/core/model/field/user/required"
 )
 
 type Input struct {
-	optional.UserIdField
-	game.GameIDField
+	userReq.UserIdField
+	gameReq.GameIDField
 	Bets []*Bet `json:"bets,omitempty"`
 }
 
 type Bet struct {
-	bet.BetAreaIDField
-	bet.ScoreField
+	betReq.BetAreaIDField
+	betReq.ScoreField
 }

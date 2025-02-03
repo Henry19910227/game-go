@@ -13,7 +13,3 @@ type Input struct {
 	gameStatus.DeckRoundField
 	base.UpdateAtField
 }
-
-type FindInput struct {
-	gameStatus.GameIDField
-}

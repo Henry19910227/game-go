@@ -1,8 +1,9 @@
 package enter_group
 
 import (
-	game_status "game-go/core/model/field/game_status/optional"
-	round_info "game-go/core/model/field/round_info/optional"
+	game_status "game-go/core/model/field/game_status/required"
+	PerformReq "game-go/core/model/field/perform/required"
+	round_info "game-go/core/model/field/round_info/required"
 )
 
 type Output struct {
@@ -15,7 +16,11 @@ type Output struct {
 type LastRoundInfo struct {
 	round_info.RoundInfoIDField
 	round_info.TypeField
-	round_info.ElementsField
-	round_info.PatternsField
-	round_info.ResultsField
+	Performs []*Perform
+}
+
+type Perform struct {
+	PerformReq.ElementsField
+	PerformReq.PatternsField
+	PerformReq.ResultsField
 }
