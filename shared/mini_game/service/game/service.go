@@ -114,8 +114,11 @@ func (s *BaseService) calculate(betData [][]byte, elements []int) {
 		settleInfo.Settles = []*kafka.Settle{}
 		for _, bet := range betInfo.Bets {
 			// 計算中獎金額
-			rate := float32(s.GameManager.CheckBetResult(int(bet.BetAreaID), elements))
-			winScore := float32(bet.Score) * bet.Odd * rate
+			rate := s.GameManager.BetRate(bet.BetAreaID, elements)
+			var winScore float32
+			if rate > 0 {
+				winScore = float32(bet.Score) * bet.Odds[rate-1]
+			}
 			// parse
 			settle := &kafka.Settle{}
 			settle.BetAreaID = bet.BetAreaID

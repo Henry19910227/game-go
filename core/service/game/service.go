@@ -164,7 +164,12 @@ func (s *service) Bet(tx *gorm.DB, input *bet.Input) (output *bet.Output, err er
 		if err != nil {
 			continue
 		}
-		b.Odd = item.Odds[0].Odd
+		// 賠率配置
+		odds := make([]float32, 0)
+		for _, odd := range item.Odds {
+			odds = append(odds, odd.Odd)
+		}
+		b.Odds = odds
 		// 判斷限額
 		if b.Score > item.MaxLimit {
 			return nil, errors.New("超出限額")

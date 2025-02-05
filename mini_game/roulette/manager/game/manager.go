@@ -22,7 +22,7 @@ func (m *manager) InitManager(id int, maxRound int) {
 	m.InitBetMap()
 }
 
-func (m *manager) CheckBetResult(betAreaId int, elements []int) int {
+func (m *manager) BetRate(betAreaId int, elements []int) int {
 	if len(elements) == 0 {
 		return 0
 	}

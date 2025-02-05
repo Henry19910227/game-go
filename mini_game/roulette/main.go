@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	managerMaker := managerFactory.New(1009, 10)
+	managerMaker := managerFactory.New(1009, 50)
 	queueMaker := queueFactory.New(kafkaTool.New())
 	serviceMaker := serviceFactory.New(managerMaker, queueMaker)
 	adapterMaker := adapterFactory.New(serviceMaker)

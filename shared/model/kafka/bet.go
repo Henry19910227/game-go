@@ -8,9 +8,9 @@ type BetInfo struct {
 }
 
 type Bet struct {
-	BetAreaID int     `json:"bet_area_id"` // 注區 id
-	Odd       float32 `json:"odd"`         // 賠率
-	Score     int     `json:"score"`       // 投注金額
+	BetAreaID int       `json:"bet_area_id"` // 注區 id
+	Odds      []float32 `json:"odds"`        // 賠率
+	Score     int       `json:"score"`       // 投注金額
 }
 
 type AreaBet struct {

@@ -16,7 +16,7 @@ type Manager interface {
 	NextRound(m Manager) (deckRound int, roundId string)
 	Elements() []int
 
-	CheckBetResult(betAreaId int, elements []int) int // 需要覆寫
-	WinBetAreaCodes(elements []int) []int             // 需要複寫
-	GenerateElements()                                // 需要覆寫
+	BetRate(betAreaId int, elements []int) int // 需要覆寫
+	WinBetAreaCodes(elements []int) []int      // 需要複寫
+	GenerateElements()                         // 需要覆寫
 }

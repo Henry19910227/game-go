@@ -20,7 +20,7 @@ func (m *manager) InitManager(id int, maxRound int) {
 	m.InitBetMap()
 }
 
-func (m *manager) CheckBetResult(betAreaId int, elements []int) int {
+func (m *manager) BetRate(betAreaId int, elements []int) int {
 	if len(elements) < 10 {
 		return 0
 	}
@@ -40,7 +40,7 @@ func (m *manager) WinBetAreaCodes(elements []int) []int {
 	}
 	winAreaCodes := make([]int, 0)
 	for areaCode := 1; areaCode <= 35; areaCode++ {
-		if m.CheckBetResult(areaCode, elements) == 0 {
+		if m.BetRate(areaCode, elements) == 0 {
 			continue
 		}
 		winAreaCodes = append(winAreaCodes, areaCode)

@@ -21,11 +21,10 @@ func New(gameManager gameManager.Manager, betQueue betQueue.Queue, settleQueue s
 
 func (s *service) Deal() *gameModel.BeginDeal {
 	deal := s.BaseService.Deal()
-	deal.Performs = []*gameModel.ActorPerform{{
-		Elements: []int{s.GameManager.Elements()[0], s.GameManager.Elements()[1]},
-	},
-		{
-			Elements: []int{s.GameManager.Elements()[2], s.GameManager.Elements()[3]},
-		}}
+	// 莊
+	banker := &gameModel.ActorPerform{Elements: []int{s.GameManager.Elements()[0], s.GameManager.Elements()[1]}}
+	// 閒
+	tie := &gameModel.ActorPerform{Elements: []int{s.GameManager.Elements()[2], s.GameManager.Elements()[3]}}
+	deal.Performs = []*gameModel.ActorPerform{banker, tie}
 	return deal
 }

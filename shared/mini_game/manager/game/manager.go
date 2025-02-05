@@ -73,7 +73,7 @@ func (b *BaseManager) Elements() []int {
 	return b.elements
 }
 
-func (b *BaseManager) CheckBetResult(betAreaId int, elements []int) int {
+func (b *BaseManager) BetRate(betAreaId int, elements []int) int {
 	return 0
 }
 
