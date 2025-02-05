@@ -34,13 +34,14 @@ func (m *manager) BetRate(betAreaId int, elements []int) int {
 	}
 	// 單骰
 	if betAreaId >= 19 && betAreaId <= 24 {
+		var count int
 		for _, element := range elements {
 			if _, ok := m.betMap[betAreaId][element]; !ok {
 				continue
 			}
-			return 1
+			count++
 		}
-		return 0
+		return count
 	}
 	// 對子
 	if betAreaId >= 25 && betAreaId <= 30 {
@@ -87,7 +88,7 @@ func (m *manager) WinBetAreaCodes(elements []int) []int {
 }
 
 func (m *manager) GenerateElements() {
-	m.SetElements([]int{6, 6, 6})
+	m.SetElements([]int{6, 6, 5})
 }
 
 func (m *manager) InitBetMap() {
