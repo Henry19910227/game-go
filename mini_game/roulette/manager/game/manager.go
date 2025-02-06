@@ -22,7 +22,8 @@ func (m *manager) InitManager(id int, maxRound int) {
 	m.InitBetMap()
 }
 
-func (m *manager) BetRate(betAreaId int, elements []int) int {
+func (m *manager) BetRate(betAreaId int, elementsArray [][]int) int {
+	elements := elementsArray[0]
 	if len(elements) == 0 {
 		return 0
 	}
@@ -32,22 +33,22 @@ func (m *manager) BetRate(betAreaId int, elements []int) int {
 	return 1
 }
 
-func (m *manager) WinBetAreaCodes(elements []int) []int {
-	areaCodes := make([]int, 0)
-	for betAreaId, areaMap := range m.betMap {
-		if _, ok := areaMap[elements[0]]; !ok {
+func (m *manager) WinBetAreaCodes(elementsArray [][]int) []int {
+	winAreaCodes := make([]int, 0)
+	for areaCode := 1; areaCode <= 46; areaCode++ {
+		if m.BetRate(areaCode, elementsArray) == 0 {
 			continue
 		}
-		areaCodes = append(areaCodes, betAreaId)
+		winAreaCodes = append(winAreaCodes, areaCode)
 	}
-	return areaCodes
+	return winAreaCodes
 }
 
 func (m *manager) GenerateElements() {
 	// 設定亂數種子，確保每次執行結果不同
 	rand.Seed(time.Now().UnixNano())
 	// 生成 0 到 36 之間的隨機數字 (包含 0 和 36)
-	m.SetElements([]int{rand.Intn(37)})
+	m.SetElements([][]int{{rand.Intn(37)}})
 	//m.elements = []int{10}
 }
 

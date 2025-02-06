@@ -9,7 +9,7 @@ type BaseManager struct {
 	maxRound  int
 	roundId   string
 	deckRound int
-	elements  []int
+	elements  [][]int
 }
 
 func New(id int, maxRound int) Manager {
@@ -39,7 +39,7 @@ func (b *BaseManager) SetMaxRound(maxRound int) {
 	b.maxRound = maxRound
 }
 
-func (b *BaseManager) SetElements(elements []int) {
+func (b *BaseManager) SetElements(elements [][]int) {
 	b.elements = elements
 }
 
@@ -69,15 +69,15 @@ func (b *BaseManager) NextRound(m Manager) (deckRound int, roundId string) {
 	return b.deckRound, b.roundId
 }
 
-func (b *BaseManager) Elements() []int {
+func (b *BaseManager) Elements() [][]int {
 	return b.elements
 }
 
-func (b *BaseManager) BetRate(betAreaId int, elements []int) int {
+func (b *BaseManager) BetRate(betAreaId int, elements [][]int) int {
 	return 0
 }
 
-func (b *BaseManager) WinBetAreaCodes(elements []int) []int {
+func (b *BaseManager) WinBetAreaCodes(elements [][]int) []int {
 	return []int{}
 }
 

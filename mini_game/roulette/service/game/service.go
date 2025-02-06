@@ -23,7 +23,7 @@ func (s *service) Deal() *gameModel.BeginDeal {
 	deal := s.BaseService.Deal()
 	deal.ElementType = gameModel.Roulette
 	deal.Performs = []*gameModel.ActorPerform{{
-		Elements: s.GameManager.Elements(),
+		Elements: s.GameManager.Elements()[0],
 	}}
 	return deal
 }

@@ -20,36 +20,25 @@ func (m *manager) InitManager(id int, maxRound int) {
 	m.InitPokerMap()
 }
 
-func (m *manager) BetRate(betAreaId int, elements []int) int {
-	if len(elements) < 5 {
+func (m *manager) BetRate(betAreaId int, elements [][]int) int {
+	if len(elements) < 2 {
 		return 0
 	}
-	bankerElements := make([]int, 0)
-	tieElements := make([]int, 0)
 	var banker int
 	var tie int
-	index := 0
-	// 莊點數計算
+	// 莊閒點數計算
 	for i, element := range elements {
-		if element == -1 {
-			index = i // -1 為莊與閒的分界
-			break
+		for _, number := range element {
+			point, ok := m.pokerMap[number]
+			if !ok {
+				return 0
+			}
+			if i == 0 {
+				banker = (banker + point) % 10
+				continue
+			}
+			tie = (tie + point) % 10
 		}
-		point, ok := m.pokerMap[element]
-		if !ok {
-			return 0
-		}
-		bankerElements = append(bankerElements, point)
-		banker = (banker + point) % 10
-	}
-	// 閒點數計算
-	for i := index + 1; i < len(elements); i++ {
-		point, ok := m.pokerMap[elements[i]]
-		if !ok {
-			return 0
-		}
-		tieElements = append(tieElements, point)
-		tie = (tie + point) % 10
 	}
 	// 莊
 	if betAreaId == 1 {
@@ -80,28 +69,28 @@ func (m *manager) BetRate(betAreaId int, elements []int) int {
 	}
 	// 莊對
 	if betAreaId == 4 {
-		if bankerElements[0] == bankerElements[1] {
+		if elements[0][0] == elements[0][1] {
 			return 1
 		}
 		return 0
 	}
 	// 閒對
 	if betAreaId == 5 {
-		if tieElements[0] == tieElements[1] {
+		if elements[1][0] == elements[1][1] {
 			return 1
 		}
 		return 0
 	}
 	// 大
 	if betAreaId == 6 {
-		if len(bankerElements)+len(bankerElements) > 4 {
+		if len(elements[0])+len(elements[1]) > 4 {
 			return 1
 		}
 		return 0
 	}
 	// 小
 	if betAreaId == 7 {
-		if len(bankerElements)+len(bankerElements) == 4 {
+		if len(elements[0])+len(elements[1]) == 4 {
 			return 1
 		}
 		return 0
@@ -109,11 +98,11 @@ func (m *manager) BetRate(betAreaId int, elements []int) int {
 	// 幸運六
 	if betAreaId == 8 {
 		// 莊家以 6 點獲勝，且只用兩張牌 → 賠率 12:1
-		if banker > tie && banker == 6 && len(bankerElements) == 2 {
+		if banker > tie && banker == 6 && len(elements[0]) == 2 {
 			return 1
 		}
 		// 莊家以 6 點獲勝，但用了三張牌 → 賠率 20:1
-		if banker > tie && banker == 6 && len(bankerElements) == 3 {
+		if banker > tie && banker == 6 && len(elements[0]) == 3 {
 			return 2
 		}
 		return 0
@@ -121,7 +110,7 @@ func (m *manager) BetRate(betAreaId int, elements []int) int {
 	return 0
 }
 
-func (m *manager) WinBetAreaCodes(elements []int) []int {
+func (m *manager) WinBetAreaCodes(elements [][]int) []int {
 	winAreaCodes := make([]int, 0)
 	for areaCode := 1; areaCode <= 8; areaCode++ {
 		if m.BetRate(areaCode, elements) == 0 {
@@ -133,8 +122,7 @@ func (m *manager) WinBetAreaCodes(elements []int) []int {
 }
 
 func (m *manager) GenerateElements() {
-	// 以-1為分界的左半部是莊牌，右半部是閒牌
-	m.SetElements([]int{101, 105, 113, -1, 213, 205, 206})
+	m.SetElements([][]int{{101, 105, 113}, {213, 205, 206}})
 }
 
 func (m *manager) InitPokerMap() {

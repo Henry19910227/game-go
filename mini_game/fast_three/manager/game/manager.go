@@ -20,7 +20,8 @@ func (m *manager) InitManager(id int, maxRound int) {
 	m.InitBetMap()
 }
 
-func (m *manager) BetRate(betAreaId int, elements []int) int {
+func (m *manager) BetRate(betAreaId int, elementsArray [][]int) int {
+	elements := elementsArray[0]
 	if len(elements) < 3 {
 		return 0
 	}
@@ -73,13 +74,13 @@ func (m *manager) BetRate(betAreaId int, elements []int) int {
 	return 0
 }
 
-func (m *manager) WinBetAreaCodes(elements []int) []int {
+func (m *manager) WinBetAreaCodes(elementsArray [][]int) []int {
 	if len(m.betMap) < 37 {
 		return []int{}
 	}
 	winAreaCodes := make([]int, 0)
 	for areaCode := 1; areaCode <= 37; areaCode++ {
-		if m.BetRate(areaCode, elements) == 0 {
+		if m.BetRate(areaCode, elementsArray) == 0 {
 			continue
 		}
 		winAreaCodes = append(winAreaCodes, areaCode)
@@ -88,7 +89,7 @@ func (m *manager) WinBetAreaCodes(elements []int) []int {
 }
 
 func (m *manager) GenerateElements() {
-	m.SetElements([]int{6, 6, 5})
+	m.SetElements([][]int{{6, 6, 5}})
 }
 
 func (m *manager) InitBetMap() {

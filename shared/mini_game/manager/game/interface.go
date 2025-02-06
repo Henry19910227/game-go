@@ -7,16 +7,16 @@ type Manager interface {
 	SetRoundId(roundId string)
 	SetDeckRound(deckRoundId int)
 	SetMaxRound(maxRound int)
-	SetElements(elements []int)
+	SetElements(elementsArray [][]int)
 
 	ID() int
 	RoundId() string
 	DeckRound() int
 	MaxRound() int
 	NextRound(m Manager) (deckRound int, roundId string)
-	Elements() []int
+	Elements() [][]int
 
-	BetRate(betAreaId int, elements []int) int // 需要覆寫
-	WinBetAreaCodes(elements []int) []int      // 需要複寫
-	GenerateElements()                         // 需要覆寫
+	BetRate(betAreaId int, elementsArray [][]int) int // 需要覆寫
+	WinBetAreaCodes(elementsArray [][]int) []int      // 需要複寫
+	GenerateElements()                                // 需要覆寫
 }

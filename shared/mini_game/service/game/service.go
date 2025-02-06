@@ -102,7 +102,7 @@ func (s *BaseService) SyncAreaBetInfo() *gameModel.SyncAreaBetInfo {
 	return betInfo
 }
 
-func (s *BaseService) calculate(betData [][]byte, elements []int) {
+func (s *BaseService) calculate(betData [][]byte, elementsArray [][]int) {
 	for _, item := range betData {
 		betInfo := &kafka.BetInfo{}
 		_ = json.Unmarshal(item, betInfo)
@@ -114,7 +114,7 @@ func (s *BaseService) calculate(betData [][]byte, elements []int) {
 		settleInfo.Settles = []*kafka.Settle{}
 		for _, bet := range betInfo.Bets {
 			// 計算中獎金額
-			rate := s.GameManager.BetRate(bet.BetAreaID, elements)
+			rate := s.GameManager.BetRate(bet.BetAreaID, elementsArray)
 			var winScore float32
 			if rate > 0 {
 				winScore = float32(bet.Score) * bet.Odds[rate-1]

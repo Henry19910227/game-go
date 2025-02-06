@@ -20,17 +20,17 @@ func (m *manager) InitManager(id int, maxRound int) {
 	m.InitBetMap()
 }
 
-func (m *manager) BetRate(betAreaId int, elements []int) int {
+func (m *manager) BetRate(betAreaId int, elementsArray [][]int) int {
 	return 0
 }
 
-func (m *manager) WinBetAreaCodes(elements []int) []int {
+func (m *manager) WinBetAreaCodes(elementsArray [][]int) []int {
 	winAreaCodes := make([]int, 0)
 	return winAreaCodes
 }
 
 func (m *manager) GenerateElements() {
-	m.SetElements([]int{101, 102, 103, 104, 105, -1, 201, 202, 203, 204, 205})
+	m.SetElements([][]int{{101, 102, 103, 104, 105}, {201, 202, 203, 204, 205}})
 }
 
 func (m *manager) InitBetMap() {
