@@ -52,6 +52,16 @@ func New(queueFactory queueFactory.Factory) Factory {
 	betQueueManager.AddAreaBetQueue(1006, baccaratAreaBetQueue)
 	betQueueManager.AddSettleQueue(1006, baccaratSettleQueue)
 
+	niuNiuBetQueue := queueFactory.NiuNiuBetQueue()
+	go niuNiuBetQueue.Read()
+	niuNiuAreaBetQueue := queueFactory.NiuNiuSettleAreaBetQueue()
+	go niuNiuAreaBetQueue.Read()
+	niuNiuSettleQueue := queueFactory.NiuNiuSettleQueue()
+	go niuNiuSettleQueue.Read()
+	betQueueManager.AddBetQueue(1008, niuNiuBetQueue)
+	betQueueManager.AddAreaBetQueue(1008, niuNiuAreaBetQueue)
+	betQueueManager.AddSettleQueue(1008, niuNiuSettleQueue)
+
 	return &factory{betQueueManager: betQueueManager}
 }
 
