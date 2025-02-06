@@ -42,7 +42,7 @@ func (a *adapter) Deal() (beginDeal *res.BeginDeal) {
 	beginDeal.RoundId = data.RoundId
 	beginDeal.RoundInfo = &res.RoundInfo{
 		RoundId:     data.RoundId,
-		ElementType: 7,
+		ElementType: int32(data.ElementType),
 		Performs:    performs,
 	}
 	return beginDeal

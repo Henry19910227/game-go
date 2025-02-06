@@ -21,6 +21,7 @@ func New(gameManager gameManager.Manager, betQueue betQueue.Queue, settleQueue s
 
 func (s *service) Deal() *gameModel.BeginDeal {
 	deal := s.BaseService.Deal()
+	deal.ElementType = gameModel.Number
 	deal.Performs = []*gameModel.ActorPerform{{
 		Elements: s.GameManager.Elements()},
 	}

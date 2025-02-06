@@ -1,5 +1,12 @@
 package game
 
+const (
+	Number   int = 1 // 數字
+	Poker    int = 2 // 撲克
+	Dice     int = 5 // 骰子
+	Roulette int = 7 // 輪盤
+)
+
 type BeginNewRound struct {
 	MiniGameId int
 	RoundId    string
@@ -8,10 +15,11 @@ type BeginNewRound struct {
 }
 
 type BeginDeal struct {
-	MiniGameId int
-	RoundId    string
-	CountDown  int
-	Performs   []*ActorPerform
+	MiniGameId  int
+	RoundId     string
+	CountDown   int
+	ElementType int
+	Performs    []*ActorPerform
 }
 
 type ActorPerform struct {

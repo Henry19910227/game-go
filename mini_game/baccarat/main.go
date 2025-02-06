@@ -25,7 +25,7 @@ func main() {
 		Handler:   gameVC.Betting,
 	})
 	engine.AddStage(&game.Stage{
-		Countdown: 5,
+		Countdown: 7,
 		Handler:   gameVC.Deal,
 	})
 	engine.AddStage(&game.Stage{
