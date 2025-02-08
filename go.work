@@ -7,5 +7,6 @@ use (
 	./mini_game/fast_three
 	./mini_game/baccarat
 	./mini_game/niu_niu
+	./mini_game/pc28
 	./shared
 )

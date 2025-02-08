@@ -12,16 +12,19 @@ type Factory interface {
 	FastThreeBetQueue() betQueue.Queue
 	BaccaratBetQueue() betQueue.Queue
 	NiuNiuBetQueue() betQueue.Queue
+	PC28BetQueue() betQueue.Queue
 
 	RouletteSettleQueue() settleQueue.Queue
 	RacingCarSettleQueue() settleQueue.Queue
 	FastThreeSettleQueue() settleQueue.Queue
 	BaccaratSettleQueue() settleQueue.Queue
 	NiuNiuSettleQueue() settleQueue.Queue
+	PC28SettleQueue() settleQueue.Queue
 
 	RouletteAreaBetQueue() areaBetQueue.Queue
 	RacingCarAreaBetQueue() areaBetQueue.Queue
-	FastThreeSettleAreaBetQueue() areaBetQueue.Queue
-	BaccaratSettleAreaBetQueue() areaBetQueue.Queue
-	NiuNiuSettleAreaBetQueue() areaBetQueue.Queue
+	FastThreeAreaBetQueue() areaBetQueue.Queue
+	BaccaratAreaBetQueue() areaBetQueue.Queue
+	NiuNiuAreaBetQueue() areaBetQueue.Queue
+	PC28AreaBetQueue() areaBetQueue.Queue
 }

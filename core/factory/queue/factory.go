@@ -40,6 +40,11 @@ func (f *factory) NiuNiuBetQueue() betQueue.Queue {
 		f.kafkaTool.CreateWriter("bet-1008"),
 		f.kafkaTool.CreateConn("bet-1008"))
 }
+func (f *factory) PC28BetQueue() betQueue.Queue {
+	return betQueue.New(f.kafkaTool.CreateReader("bet-1005", "1"),
+		f.kafkaTool.CreateWriter("bet-1005"),
+		f.kafkaTool.CreateConn("bet-1005"))
+}
 
 // -----
 func (f *factory) RouletteSettleQueue() settleQueue.Queue {
@@ -67,6 +72,11 @@ func (f *factory) NiuNiuSettleQueue() settleQueue.Queue {
 		f.kafkaTool.CreateWriter("settle-1008"),
 		f.kafkaTool.CreateConn("settle-1008"))
 }
+func (f *factory) PC28SettleQueue() settleQueue.Queue {
+	return settleQueue.New(f.kafkaTool.CreateReader("settle-1005", "1"),
+		f.kafkaTool.CreateWriter("settle-1005"),
+		f.kafkaTool.CreateConn("settle-1005"))
+}
 
 // -----
 func (f *factory) RouletteAreaBetQueue() areaBetQueue.Queue {
@@ -79,18 +89,23 @@ func (f *factory) RacingCarAreaBetQueue() areaBetQueue.Queue {
 		f.kafkaTool.CreateWriter("area_bet-1002"),
 		f.kafkaTool.CreateConn("area_bet-1002"))
 }
-func (f *factory) FastThreeSettleAreaBetQueue() areaBetQueue.Queue {
+func (f *factory) FastThreeAreaBetQueue() areaBetQueue.Queue {
 	return areaBetQueue.New(f.kafkaTool.CreateReader("area_bet-1001", "1"),
 		f.kafkaTool.CreateWriter("area_bet-1001"),
 		f.kafkaTool.CreateConn("area_bet-1001"))
 }
-func (f *factory) BaccaratSettleAreaBetQueue() areaBetQueue.Queue {
+func (f *factory) BaccaratAreaBetQueue() areaBetQueue.Queue {
 	return areaBetQueue.New(f.kafkaTool.CreateReader("area_bet-1006", "1"),
 		f.kafkaTool.CreateWriter("area_bet-1006"),
 		f.kafkaTool.CreateConn("area_bet-1006"))
 }
-func (f *factory) NiuNiuSettleAreaBetQueue() areaBetQueue.Queue {
+func (f *factory) NiuNiuAreaBetQueue() areaBetQueue.Queue {
 	return areaBetQueue.New(f.kafkaTool.CreateReader("area_bet-1008", "1"),
 		f.kafkaTool.CreateWriter("area_bet-1008"),
 		f.kafkaTool.CreateConn("area_bet-1008"))
+}
+func (f *factory) PC28AreaBetQueue() areaBetQueue.Queue {
+	return areaBetQueue.New(f.kafkaTool.CreateReader("area_bet-1005", "1"),
+		f.kafkaTool.CreateWriter("area_bet-1005"),
+		f.kafkaTool.CreateConn("area_bet-1005"))
 }

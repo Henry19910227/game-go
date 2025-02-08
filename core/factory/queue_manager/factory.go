@@ -34,7 +34,7 @@ func New(queueFactory queueFactory.Factory) Factory {
 
 	fastThreeBetQueue := queueFactory.FastThreeBetQueue()
 	go fastThreeBetQueue.Read()
-	fastThreeAreaBetQueue := queueFactory.FastThreeSettleAreaBetQueue()
+	fastThreeAreaBetQueue := queueFactory.FastThreeAreaBetQueue()
 	go fastThreeAreaBetQueue.Read()
 	fastThreeSettleQueue := queueFactory.FastThreeSettleQueue()
 	go fastThreeSettleQueue.Read()
@@ -44,7 +44,7 @@ func New(queueFactory queueFactory.Factory) Factory {
 
 	baccaratBetQueue := queueFactory.BaccaratBetQueue()
 	go baccaratBetQueue.Read()
-	baccaratAreaBetQueue := queueFactory.BaccaratSettleAreaBetQueue()
+	baccaratAreaBetQueue := queueFactory.BaccaratAreaBetQueue()
 	go baccaratAreaBetQueue.Read()
 	baccaratSettleQueue := queueFactory.BaccaratSettleQueue()
 	go baccaratSettleQueue.Read()
@@ -54,13 +54,23 @@ func New(queueFactory queueFactory.Factory) Factory {
 
 	niuNiuBetQueue := queueFactory.NiuNiuBetQueue()
 	go niuNiuBetQueue.Read()
-	niuNiuAreaBetQueue := queueFactory.NiuNiuSettleAreaBetQueue()
+	niuNiuAreaBetQueue := queueFactory.NiuNiuAreaBetQueue()
 	go niuNiuAreaBetQueue.Read()
 	niuNiuSettleQueue := queueFactory.NiuNiuSettleQueue()
 	go niuNiuSettleQueue.Read()
 	betQueueManager.AddBetQueue(1008, niuNiuBetQueue)
 	betQueueManager.AddAreaBetQueue(1008, niuNiuAreaBetQueue)
 	betQueueManager.AddSettleQueue(1008, niuNiuSettleQueue)
+
+	pc28BetQueue := queueFactory.PC28BetQueue()
+	go pc28BetQueue.Read()
+	pc28AreaBetQueue := queueFactory.PC28AreaBetQueue()
+	go pc28AreaBetQueue.Read()
+	pc28SettleQueue := queueFactory.PC28SettleQueue()
+	go pc28SettleQueue.Read()
+	betQueueManager.AddBetQueue(1005, pc28BetQueue)
+	betQueueManager.AddAreaBetQueue(1005, pc28AreaBetQueue)
+	betQueueManager.AddSettleQueue(1005, pc28SettleQueue)
 
 	return &factory{betQueueManager: betQueueManager}
 }
