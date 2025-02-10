@@ -8,5 +8,6 @@ use (
 	./mini_game/baccarat
 	./mini_game/niu_niu
 	./mini_game/pc28
+	./mini_game/long_hu
 	./shared
 )

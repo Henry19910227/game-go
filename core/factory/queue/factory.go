@@ -45,6 +45,11 @@ func (f *factory) PC28BetQueue() betQueue.Queue {
 		f.kafkaTool.CreateWriter("bet-1005"),
 		f.kafkaTool.CreateConn("bet-1005"))
 }
+func (f *factory) LongHuBetQueue() betQueue.Queue {
+	return betQueue.New(f.kafkaTool.CreateReader("bet-1007", "1"),
+		f.kafkaTool.CreateWriter("bet-1007"),
+		f.kafkaTool.CreateConn("bet-1007"))
+}
 
 // -----
 func (f *factory) RouletteSettleQueue() settleQueue.Queue {
@@ -77,6 +82,11 @@ func (f *factory) PC28SettleQueue() settleQueue.Queue {
 		f.kafkaTool.CreateWriter("settle-1005"),
 		f.kafkaTool.CreateConn("settle-1005"))
 }
+func (f *factory) LongHuSettleQueue() settleQueue.Queue {
+	return settleQueue.New(f.kafkaTool.CreateReader("settle-1007", "1"),
+		f.kafkaTool.CreateWriter("settle-1007"),
+		f.kafkaTool.CreateConn("settle-1007"))
+}
 
 // -----
 func (f *factory) RouletteAreaBetQueue() areaBetQueue.Queue {
@@ -108,4 +118,9 @@ func (f *factory) PC28AreaBetQueue() areaBetQueue.Queue {
 	return areaBetQueue.New(f.kafkaTool.CreateReader("area_bet-1005", "1"),
 		f.kafkaTool.CreateWriter("area_bet-1005"),
 		f.kafkaTool.CreateConn("area_bet-1005"))
+}
+func (f *factory) LongHuAreaBetQueue() areaBetQueue.Queue {
+	return areaBetQueue.New(f.kafkaTool.CreateReader("area_bet-1007", "1"),
+		f.kafkaTool.CreateWriter("area_bet-1007"),
+		f.kafkaTool.CreateConn("area_bet-1007"))
 }

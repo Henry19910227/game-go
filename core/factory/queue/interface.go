@@ -13,6 +13,7 @@ type Factory interface {
 	BaccaratBetQueue() betQueue.Queue
 	NiuNiuBetQueue() betQueue.Queue
 	PC28BetQueue() betQueue.Queue
+	LongHuBetQueue() betQueue.Queue
 
 	RouletteSettleQueue() settleQueue.Queue
 	RacingCarSettleQueue() settleQueue.Queue
@@ -20,6 +21,7 @@ type Factory interface {
 	BaccaratSettleQueue() settleQueue.Queue
 	NiuNiuSettleQueue() settleQueue.Queue
 	PC28SettleQueue() settleQueue.Queue
+	LongHuSettleQueue() settleQueue.Queue
 
 	RouletteAreaBetQueue() areaBetQueue.Queue
 	RacingCarAreaBetQueue() areaBetQueue.Queue
@@ -27,4 +29,5 @@ type Factory interface {
 	BaccaratAreaBetQueue() areaBetQueue.Queue
 	NiuNiuAreaBetQueue() areaBetQueue.Queue
 	PC28AreaBetQueue() areaBetQueue.Queue
+	LongHuAreaBetQueue() areaBetQueue.Queue
 }
