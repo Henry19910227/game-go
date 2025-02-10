@@ -40,8 +40,11 @@ CREATE TABLE IF NOT EXISTS `games` (
 -- ----------------------------
 -- Records of users
 -- ----------------------------
-INSERT INTO `games` (id, name) VALUES (1001, '一分三快');
+INSERT INTO `games` (id, name) VALUES (1001, '一分快三');
 INSERT INTO `games` (id, name) VALUES (1002, '賽車');
+INSERT INTO `games` (id, name) VALUES (1003, '時時彩');
+INSERT INTO `games` (id, name) VALUES (1004, '六合彩');
+INSERT INTO `games` (id, name) VALUES (1005, 'PC28');
 INSERT INTO `games` (id, name) VALUES (1006, '百家樂');
 INSERT INTO `games` (id, name) VALUES (1007, '龍虎');
 INSERT INTO `games` (id, name) VALUES (1008, '牛牛');
