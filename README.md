@@ -8,3 +8,5 @@
 
 ## 系統架構
 ![image_1.png](doc/images/image_1.png)
+## 部署架構
+![image_2.png](doc/images/image_2.png)
