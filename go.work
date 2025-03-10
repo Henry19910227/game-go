@@ -9,5 +9,6 @@ use (
 	./mini_game/niu_niu
 	./mini_game/pc28
 	./mini_game/long_hu
+	./mini_game/shi_shi_cai
 	./shared
 )

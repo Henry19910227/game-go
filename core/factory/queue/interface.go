@@ -14,6 +14,7 @@ type Factory interface {
 	NiuNiuBetQueue() betQueue.Queue
 	PC28BetQueue() betQueue.Queue
 	LongHuBetQueue() betQueue.Queue
+	ShiShiCaiBetQueue() betQueue.Queue
 
 	RouletteSettleQueue() settleQueue.Queue
 	RacingCarSettleQueue() settleQueue.Queue
@@ -22,6 +23,7 @@ type Factory interface {
 	NiuNiuSettleQueue() settleQueue.Queue
 	PC28SettleQueue() settleQueue.Queue
 	LongHuSettleQueue() settleQueue.Queue
+	ShiShiCaiSettleQueue() settleQueue.Queue
 
 	RouletteAreaBetQueue() areaBetQueue.Queue
 	RacingCarAreaBetQueue() areaBetQueue.Queue
@@ -30,4 +32,5 @@ type Factory interface {
 	NiuNiuAreaBetQueue() areaBetQueue.Queue
 	PC28AreaBetQueue() areaBetQueue.Queue
 	LongHuAreaBetQueue() areaBetQueue.Queue
+	ShiShiCaiAreaBetQueue() areaBetQueue.Queue
 }

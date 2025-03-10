@@ -82,6 +82,16 @@ func New(queueFactory queueFactory.Factory) Factory {
 	betQueueManager.AddAreaBetQueue(1007, longHuAreaBetQueue)
 	betQueueManager.AddSettleQueue(1007, longHuSettleQueue)
 
+	shiShiCaiBetQueue := queueFactory.ShiShiCaiBetQueue()
+	go shiShiCaiBetQueue.Read()
+	shiShiCaiAreaBetQueue := queueFactory.ShiShiCaiAreaBetQueue()
+	go shiShiCaiAreaBetQueue.Read()
+	shiShiCaiSettleQueue := queueFactory.ShiShiCaiSettleQueue()
+	go shiShiCaiSettleQueue.Read()
+	betQueueManager.AddBetQueue(1003, shiShiCaiBetQueue)
+	betQueueManager.AddAreaBetQueue(1003, shiShiCaiAreaBetQueue)
+	betQueueManager.AddSettleQueue(1003, shiShiCaiSettleQueue)
+
 	return &factory{betQueueManager: betQueueManager}
 }
 
