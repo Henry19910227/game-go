@@ -598,6 +598,8 @@ INSERT INTO `odds` (game_id, bet_area_id, odd) VALUES (1002, 34, 9.60);
 INSERT INTO `odds` (game_id, bet_area_id, odd) VALUES (1002, 35, 9.60);
 
 -- 時時彩 --
+INSERT INTO `odds` (game_id, bet_area_id, odd) VALUES (1003, 1, 1.95);
+INSERT INTO `odds` (game_id, bet_area_id, odd) VALUES (1003, 2, 1.95);
 INSERT INTO `odds` (game_id, bet_area_id, odd) VALUES (1003, 3, 1.95);
 INSERT INTO `odds` (game_id, bet_area_id, odd) VALUES (1003, 4, 1.95);
 INSERT INTO `odds` (game_id, bet_area_id, odd) VALUES (1003, 5, 1.95);
