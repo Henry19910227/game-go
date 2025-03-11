@@ -58,6 +58,44 @@ services:
     depends_on:
       - zookeeper
       - kafka
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.6.2
+    container_name: game-elasticsearch
+    networks:
+      - game-network
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.6.2
+    container_name: game-kibana
+    networks:
+      - game-network
+    depends_on:
+      - elasticsearch
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    ports:
+      - "5601:5601"
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:8.6.2
+    container_name: game-logstash
+    networks:
+      - game-network
+    depends_on:
+      - elasticsearch
+    ports:
+      - "5044:5044"  # Beats 輸入
+      - "5001:5000/tcp"  # TCP 輸入
+      - "5001:5000/udp"  # UDP 輸入
+      - "9600:9600"  # Logstash API
 networks:
   game-network:
     driver: bridge
