@@ -1,10 +1,14 @@
 ## 簡要介紹
-本專案是基於 Golang (gorilla websocket + 自製 game framework) 開發的｜遊戲後端｜投注系統｜骰寶｜賽車｜時時彩｜六合彩｜PC28｜百家樂｜龍虎｜牛牛｜輪盤
+本專案是基於 Golang (gorilla websocket + 自製 game framework) 開發的｜遊戲後端｜投注系統｜骰寶｜賽車｜時時彩｜六合彩｜PC28｜百家樂｜龍虎｜牛牛｜輪盤，用於專案演示與Demo，勿作為商業用途
 - 核心系統 (投注｜結算｜注區詳情｜投注歷史)
 - 注區管理 (賠率｜限紅)
 - 遊戲大廳 (骰寶｜賽車｜時時彩｜六合彩｜PC28｜百家樂｜龍虎｜牛牛｜輪盤)
 - 遊戲房 (遊戲階段迭代｜倒數計時｜投注金與人數動態刷新｜開牌展示｜路圖｜遊戲切換)
-
+---
+![preview_1.png](doc/images/preview_1.png)
+---
+![preview_2.png](doc/images/preview_2.png)
+---
 ## 系統架構概要
 #### 整體架構
 ![image_1.png](doc/images/image_1.png)
