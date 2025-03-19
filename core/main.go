@@ -16,6 +16,7 @@ import (
 	"game-go/shared/pkg/tool/orm"
 	"game-go/shared/pkg/tool/redis"
 	"github.com/robfig/cron/v3"
+	_ "net/http/pprof"
 	"strconv"
 )
 
