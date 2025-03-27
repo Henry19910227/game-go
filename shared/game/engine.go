@@ -5,6 +5,7 @@ import (
 	"github.com/gorilla/websocket"
 	"github.com/robfig/cron/v3"
 	"net/url"
+	"sync"
 	"time"
 )
 
@@ -13,6 +14,7 @@ type Engine struct {
 	countdown int
 	stageChin *StageLinkedList
 	timer     *cron.Cron
+	mu        sync.Mutex
 }
 
 func New() *Engine {
