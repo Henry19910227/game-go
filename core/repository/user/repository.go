@@ -38,6 +38,9 @@ func (r *repository) List(input *model.ListInput) (outputs []*model.Output, err 
 }
 
 func (r *repository) RangeList(input *model.RangeInput) (outputs []*model.Output, err error) {
+	if len(input.IDList) == 0 {
+		return outputs, nil
+	}
 	output, err := r.rangeList(input)
 	if err != nil {
 		return output, err
