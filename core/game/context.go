@@ -26,7 +26,8 @@ func (c *Context) Conn() *websocket.Conn {
 }
 
 func (c *Context) WriteData(data []byte) {
-	_ = c.Conn().WriteMessage(websocket.BinaryMessage, data)
+	c.client.Send(data)
+	//_ = c.Conn().WriteMessage(websocket.BinaryMessage, data)
 }
 
 func (c *Context) MarshalData(mid uint16, sid uint16, data proto.Message) ([]byte, error) {
