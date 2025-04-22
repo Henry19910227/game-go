@@ -49,6 +49,7 @@ INSERT INTO `games` (id, name) VALUES (1006, '百家樂');
 INSERT INTO `games` (id, name) VALUES (1007, '龍虎');
 INSERT INTO `games` (id, name) VALUES (1008, '牛牛');
 INSERT INTO `games` (id, name) VALUES (1009, '輪盤');
+INSERT INTO `games` (id, name) VALUES (1010, '魚蝦蟹');
 
 -- ----------------------------
 -- Table structure for bet_areas
@@ -491,6 +492,49 @@ INSERT INTO `bet_areas` (id, game_id, name, min_limit, max_limit) VALUES (43, 10
 INSERT INTO `bet_areas` (id, game_id, name, min_limit, max_limit) VALUES (44, 1009, '直注34', 1000, 100000);
 INSERT INTO `bet_areas` (id, game_id, name, min_limit, max_limit) VALUES (45, 1009, '直注35', 1000, 100000);
 INSERT INTO `bet_areas` (id, game_id, name, min_limit, max_limit) VALUES (46, 1009, '直注36', 1000, 100000);
+
+-- 魚蝦蟹 --
+INSERT INTO `bet_areas` (id, game_id, name, min_limit, max_limit) VALUES (1, 1010, '大', 1000, 5000000);
+INSERT INTO `bet_areas` (id, game_id, name, min_limit, max_limit) VALUES (2, 1010, '小', 1000, 5000000);
+INSERT INTO `bet_areas` (id, game_id, name, min_limit, max_limit) VALUES (3, 1010, '单', 1000, 5000000);
+INSERT INTO `bet_areas` (id, game_id, name, min_limit, max_limit) VALUES (4, 1010, '双', 1000, 5000000);
+INSERT INTO `bet_areas` (id, game_id, name, min_limit, max_limit) VALUES (5, 1010, '豹子', 1000, 500000);
+INSERT INTO `bet_areas` (id, game_id, name, min_limit, max_limit) VALUES (6, 1010, '4点', 1000, 300000);
+INSERT INTO `bet_areas` (id, game_id, name, min_limit, max_limit) VALUES (7, 1010, '5点', 1000, 500000);
+INSERT INTO `bet_areas` (id, game_id, name, min_limit, max_limit) VALUES (8, 1010, '6点', 1000, 800000);
+INSERT INTO `bet_areas` (id, game_id, name, min_limit, max_limit) VALUES (9, 1010, '7点', 1000, 1000000);
+INSERT INTO `bet_areas` (id, game_id, name, min_limit, max_limit) VALUES (10, 1010, '8点', 1000, 1000000);
+INSERT INTO `bet_areas` (id, game_id, name, min_limit, max_limit) VALUES (11, 1010, '9点', 1000, 1000000);
+INSERT INTO `bet_areas` (id, game_id, name, min_limit, max_limit) VALUES (12, 1010, '10点', 1000, 1000000);
+INSERT INTO `bet_areas` (id, game_id, name, min_limit, max_limit) VALUES (13, 1010, '11点', 1000, 1000000);
+INSERT INTO `bet_areas` (id, game_id, name, min_limit, max_limit) VALUES (14, 1010, '12点', 1000, 1000000);
+INSERT INTO `bet_areas` (id, game_id, name, min_limit, max_limit) VALUES (15, 1010, '13点', 1000, 1000000);
+INSERT INTO `bet_areas` (id, game_id, name, min_limit, max_limit) VALUES (16, 1010, '14点', 1000, 1000000);
+INSERT INTO `bet_areas` (id, game_id, name, min_limit, max_limit) VALUES (17, 1010, '15点', 1000, 800000);
+INSERT INTO `bet_areas` (id, game_id, name, min_limit, max_limit) VALUES (18, 1010, '16点', 1000, 500000);
+INSERT INTO `bet_areas` (id, game_id, name, min_limit, max_limit) VALUES (19, 1010, '17点', 1000, 300000);
+INSERT INTO `bet_areas` (id, game_id, name, min_limit, max_limit) VALUES (20, 1010, '鱼', 1000, 5000000);
+INSERT INTO `bet_areas` (id, game_id, name, min_limit, max_limit) VALUES (21, 1010, '虾', 1000, 5000000);
+INSERT INTO `bet_areas` (id, game_id, name, min_limit, max_limit) VALUES (22, 1010, '葫芦', 1000, 5000000);
+INSERT INTO `bet_areas` (id, game_id, name, min_limit, max_limit) VALUES (23, 1010, '铜币', 1000, 5000000);
+INSERT INTO `bet_areas` (id, game_id, name, min_limit, max_limit) VALUES (24, 1010, '蟹', 1000, 5000000);
+INSERT INTO `bet_areas` (id, game_id, name, min_limit, max_limit) VALUES (25, 1010, '鸡', 1000, 5000000);
+INSERT INTO `bet_areas` (id, game_id, name, min_limit, max_limit) VALUES (26, 1010, '红', 1000, 5000000);
+INSERT INTO `bet_areas` (id, game_id, name, min_limit, max_limit) VALUES (27, 1010, '绿', 1000, 5000000);
+INSERT INTO `bet_areas` (id, game_id, name, min_limit, max_limit) VALUES (28, 1010, '蓝', 1000, 5000000);
+INSERT INTO `bet_areas` (id, game_id, name, min_limit, max_limit) VALUES (29, 1010, '红对', 1000, 3000000);
+INSERT INTO `bet_areas` (id, game_id, name, min_limit, max_limit) VALUES (30, 1010, '绿对', 1000, 3000000);
+INSERT INTO `bet_areas` (id, game_id, name, min_limit, max_limit) VALUES (31, 1010, '蓝对', 1000, 3000000);
+INSERT INTO `bet_areas` (id, game_id, name, min_limit, max_limit) VALUES (32, 1010, '红豹', 1000, 500000);
+INSERT INTO `bet_areas` (id, game_id, name, min_limit, max_limit) VALUES (33, 1010, '绿豹', 1000, 500000);
+INSERT INTO `bet_areas` (id, game_id, name, min_limit, max_limit) VALUES (34, 1010, '蓝豹', 1000, 500000);
+INSERT INTO `bet_areas` (id, game_id, name, min_limit, max_limit) VALUES (35, 1010, '同色全豹', 1000, 1000000);
+INSERT INTO `bet_areas` (id, game_id, name, min_limit, max_limit) VALUES (36, 1010, '豹子鱼', 1000, 100000);
+INSERT INTO `bet_areas` (id, game_id, name, min_limit, max_limit) VALUES (37, 1010, '豹子虾', 1000, 100000);
+INSERT INTO `bet_areas` (id, game_id, name, min_limit, max_limit) VALUES (38, 1010, '豹子葫芦', 1000, 100000);
+INSERT INTO `bet_areas` (id, game_id, name, min_limit, max_limit) VALUES (39, 1010, '豹子铜币', 1000, 100000);
+INSERT INTO `bet_areas` (id, game_id, name, min_limit, max_limit) VALUES (40, 1010, '豹子蟹', 1000, 100000);
+INSERT INTO `bet_areas` (id, game_id, name, min_limit, max_limit) VALUES (41, 1010, '豹子鸡', 1000, 100000);
 
 -- ----------------------------
 -- Table structure for odds
@@ -954,6 +998,61 @@ INSERT INTO `odds` (game_id, bet_area_id, odd) VALUES (1009, 43, 35.00);
 INSERT INTO `odds` (game_id, bet_area_id, odd) VALUES (1009, 44, 35.00);
 INSERT INTO `odds` (game_id, bet_area_id, odd) VALUES (1009, 45, 35.00);
 INSERT INTO `odds` (game_id, bet_area_id, odd) VALUES (1009, 46, 35.00);
+
+-- 魚蝦蟹 --
+INSERT INTO `odds` (game_id, bet_area_id, odd) VALUES (1010, 1, 1.9900);
+INSERT INTO `odds` (game_id, bet_area_id, odd) VALUES (1010, 2, 1.9900);
+INSERT INTO `odds` (game_id, bet_area_id, odd) VALUES (1010, 3, 1.9900);
+INSERT INTO `odds` (game_id, bet_area_id, odd) VALUES (1010, 4, 1.9900);
+INSERT INTO `odds` (game_id, bet_area_id, odd) VALUES (1010, 5, 32.0000);
+INSERT INTO `odds` (game_id, bet_area_id, odd) VALUES (1010, 6, 63.0000);
+INSERT INTO `odds` (game_id, bet_area_id, odd) VALUES (1010, 7, 32.0000);
+INSERT INTO `odds` (game_id, bet_area_id, odd) VALUES (1010, 8, 19.5000);
+INSERT INTO `odds` (game_id, bet_area_id, odd) VALUES (1010, 9, 13.0000);
+INSERT INTO `odds` (game_id, bet_area_id, odd) VALUES (1010, 10, 9.5000);
+INSERT INTO `odds` (game_id, bet_area_id, odd) VALUES (1010, 11, 8.0000);
+INSERT INTO `odds` (game_id, bet_area_id, odd) VALUES (1010, 12, 7.5000);
+INSERT INTO `odds` (game_id, bet_area_id, odd) VALUES (1010, 13, 7.5000);
+INSERT INTO `odds` (game_id, bet_area_id, odd) VALUES (1010, 14, 8.0000);
+INSERT INTO `odds` (game_id, bet_area_id, odd) VALUES (1010, 15, 9.5000);
+INSERT INTO `odds` (game_id, bet_area_id, odd) VALUES (1010, 16, 13.0000);
+INSERT INTO `odds` (game_id, bet_area_id, odd) VALUES (1010, 17, 19.5000);
+INSERT INTO `odds` (game_id, bet_area_id, odd) VALUES (1010, 18, 32.0000);
+INSERT INTO `odds` (game_id, bet_area_id, odd) VALUES (1010, 19, 63.0000);
+INSERT INTO `odds` (game_id, bet_area_id, odd) VALUES (1010, 20, 2.0000);
+INSERT INTO `odds` (game_id, bet_area_id, odd) VALUES (1010, 20, 3.0000);
+INSERT INTO `odds` (game_id, bet_area_id, odd) VALUES (1010, 20, 4.0000);
+INSERT INTO `odds` (game_id, bet_area_id, odd) VALUES (1010, 21, 2.0000);
+INSERT INTO `odds` (game_id, bet_area_id, odd) VALUES (1010, 21, 3.0000);
+INSERT INTO `odds` (game_id, bet_area_id, odd) VALUES (1010, 21, 4.0000);
+INSERT INTO `odds` (game_id, bet_area_id, odd) VALUES (1010, 22, 2.0000);
+INSERT INTO `odds` (game_id, bet_area_id, odd) VALUES (1010, 22, 3.0000);
+INSERT INTO `odds` (game_id, bet_area_id, odd) VALUES (1010, 22, 4.0000);
+INSERT INTO `odds` (game_id, bet_area_id, odd) VALUES (1010, 23, 2.0000);
+INSERT INTO `odds` (game_id, bet_area_id, odd) VALUES (1010, 23, 3.0000);
+INSERT INTO `odds` (game_id, bet_area_id, odd) VALUES (1010, 23, 4.0000);
+INSERT INTO `odds` (game_id, bet_area_id, odd) VALUES (1010, 24, 2.0000);
+INSERT INTO `odds` (game_id, bet_area_id, odd) VALUES (1010, 24, 3.0000);
+INSERT INTO `odds` (game_id, bet_area_id, odd) VALUES (1010, 24, 4.0000);
+INSERT INTO `odds` (game_id, bet_area_id, odd) VALUES (1010, 25, 2.0000);
+INSERT INTO `odds` (game_id, bet_area_id, odd) VALUES (1010, 25, 3.0000);
+INSERT INTO `odds` (game_id, bet_area_id, odd) VALUES (1010, 25, 4.0000);
+INSERT INTO `odds` (game_id, bet_area_id, odd) VALUES (1010, 26, 2.0000);
+INSERT INTO `odds` (game_id, bet_area_id, odd) VALUES (1010, 27, 2.0000);
+INSERT INTO `odds` (game_id, bet_area_id, odd) VALUES (1010, 28, 2.0000);
+INSERT INTO `odds` (game_id, bet_area_id, odd) VALUES (1010, 29, 4.0000);
+INSERT INTO `odds` (game_id, bet_area_id, odd) VALUES (1010, 30, 4.0000);
+INSERT INTO `odds` (game_id, bet_area_id, odd) VALUES (1010, 31, 4.0000);
+INSERT INTO `odds` (game_id, bet_area_id, odd) VALUES (1010, 32, 24.0000);
+INSERT INTO `odds` (game_id, bet_area_id, odd) VALUES (1010, 33, 24.0000);
+INSERT INTO `odds` (game_id, bet_area_id, odd) VALUES (1010, 34, 24.0000);
+INSERT INTO `odds` (game_id, bet_area_id, odd) VALUES (1010, 35, 8.0000);
+INSERT INTO `odds` (game_id, bet_area_id, odd) VALUES (1010, 36, 180.0000);
+INSERT INTO `odds` (game_id, bet_area_id, odd) VALUES (1010, 37, 180.0000);
+INSERT INTO `odds` (game_id, bet_area_id, odd) VALUES (1010, 38, 180.0000);
+INSERT INTO `odds` (game_id, bet_area_id, odd) VALUES (1010, 39, 180.0000);
+INSERT INTO `odds` (game_id, bet_area_id, odd) VALUES (1010, 40, 180.0000);
+INSERT INTO `odds` (game_id, bet_area_id, odd) VALUES (1010, 41, 180.0000);
 
 SET FOREIGN_KEY_CHECKS = 1;
 
